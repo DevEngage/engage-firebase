@@ -1,0 +1,25 @@
+import { IEngageBase, IEngageImage } from "./engage.interface";
+
+export default interface IExerciseJournal extends IEngageImage, IEngageBase {
+    name?: string; // { type: String, required: true, unique: true },
+    action?: string; // { type: String },
+    past?: string; // { type: String },
+    calories?: number; // { type: Number, required: true },
+    duration?: number; // { type: Number },
+    distance?: number; // { type: Number },
+    incline?: number; // { type: Number },
+    base?: number; // { type: Number },
+    speed?: any; // { type: Schema.Types.Mixed },
+    type?: string; // { type: String, },
+    intesity?: string; // { type: String, },
+    reps?: number; // { type: Number, },
+    sets?: number; // { type: Number, },
+    difficulty?: string; // { type: String },
+    userInput?: string; // { type: String },
+    exerciseId?: any; // { type: Schema.Types.ObjectId },
+    nutritionixId?: string; // { type: String },
+    compendiumCode?: string; // { type: String },
+    userId?: string; // { type: Schema.Types.ObjectId, required: true },
+    version?: number; // { type: Number },
+    date?: string; // { type: String, default: () => { return `${date.getDate()}-${date.getMonth() + 1}-${date.getFullYear()}` }},
+}
