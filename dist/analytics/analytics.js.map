@@ -1,0 +1,1 @@
+{"version":3,"file":"analytics.js","sourceRoot":"","sources":["../../src/analytics/analytics.ts"],"names":[],"mappings":";;AAcA;IAEI,yBAAmB,IAAY,EAAS,IAAuB;QAA5C,SAAI,GAAJ,IAAI,CAAQ;QAAS,SAAI,GAAJ,IAAI,CAAmB;QAC3D,iCAAiC;IACrC,CAAC;IAED,+CAAqB,GAArB,UAAsB,KAAsB;QACxC,8CAA8C;QAC9C,cAAc;QACd,wDAAwD;IAC5D,CAAC;IAED,qCAAW,GAAX;IAEA,CAAC;IAIL,sBAAC;AAAD,CAAC,AAlBD,IAkBC;AAlBY,0CAAe"}
