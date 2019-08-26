@@ -40,7 +40,7 @@ export default class EngageFireDoc {
     $watchPromise(): Promise<unknown>;
     $backup(deep: boolean | undefined, backupPath: string | undefined): Promise<any>;
     $exists(): boolean;
-    $getModel(): import("../model/model").IEngageModel[];
+    $getModel(): import("..").IEngageModel[];
     $changeId(newId: string): Promise<void>;
     $swapPosition(x: any, y: any, list?: any): Promise<void>;
     $moveUp(): Promise<void>;

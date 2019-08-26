@@ -1,6 +1,6 @@
 {
   "name": "@dev-engage/firebase",
-  "version": "0.6.0",
+  "version": "0.6.5",
   "private": false,
   "engines": {
     "node": "10"
@@ -12,7 +12,7 @@
     "test": "mocha --reporter spec",
     "test-jest": "jest",
     "test-firestore": "jest",
-    "publish": "npm publish --access public"
+    "publish-package": "npm publish --access public"
   },
   "dependencies": {
     "algoliasearch": "^3.33.0",
