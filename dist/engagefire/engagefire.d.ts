@@ -2,9 +2,10 @@ import * as firebase from 'firebase/app';
 import 'firebase/auth';
 import 'firebase/storage';
 import 'firebase/firestore';
-declare class Engagefire {
+export declare class Engagefire {
     protected config?: any;
-    enablePersistence?: boolean | undefined;
+    enablePersistence?: boolean;
+    static fireOptions: any;
     private static instance;
     user: any;
     firebase: firebase.app.App;
@@ -33,5 +34,4 @@ declare class Engagefire {
     }>;
     static getInstance(config: any, enablePersistence: boolean): Engagefire;
 }
-export declare let engageFire: Engagefire;
-export {};
+export declare let engageFireInit: (fireOptions?: any) => Engagefire;

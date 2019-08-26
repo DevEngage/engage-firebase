@@ -1,7 +1,7 @@
 
-import _ from "lodash";
+import * as _ from "lodash";
 
-declare var window;
+declare var window: any;
 
 /*
 * TODO:
@@ -10,9 +10,9 @@ declare var window;
 export class EngagePubsub {
 
   private static instance: EngagePubsub;
-  private listeners = {};
-  private data = {};
-  storage;
+  private listeners: any = {};
+  private data: any = {};
+  storage: any;
 
   constructor(
     private localStorage: boolean = false,
@@ -28,7 +28,7 @@ export class EngagePubsub {
     }
   }
 
-  subscribe(what = 'all', listener) {
+  subscribe(what = 'all', listener: any) {
     if (!this.listeners[what]) this.listeners[what] = [];
     this.listeners[what].push(listener);
     if (what !== 'all' && this.data[what]) {
@@ -36,7 +36,7 @@ export class EngagePubsub {
     }
   }
 
-  publish(data, what = 'all') {
+  publish(data: any, what = 'all') {
     this.data[what] = data;
     if (what === 'all') {
       _.each(this.listeners, (value) => {
@@ -60,7 +60,7 @@ export class EngagePubsub {
     return this.data[what];
   }
 
-  set(data, what) {
+  set(data: any, what: any) {
     if (!what) return;
     if (what === 'all') {
       return this.data = data;
@@ -68,7 +68,7 @@ export class EngagePubsub {
     return this.data[what] = data;
   }
 
-  clear(what) {
+  clear(what: any) {
     if (!what) return;
     if (what === 'all') {
       return this.data = {};

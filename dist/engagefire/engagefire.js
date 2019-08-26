@@ -50,8 +50,8 @@ var Engagefire = /** @class */ (function () {
         if (firebase.apps[0]) {
             this.firebase = firebase.apps[0];
         }
-        else {
-            this.firebase = firebase.initializeApp(config);
+        else if (config || Engagefire.fireOptions) {
+            this.firebase = firebase.initializeApp(config || Engagefire.fireOptions);
         }
     }
     Engagefire.prototype.init = function () {
@@ -146,5 +146,12 @@ var Engagefire = /** @class */ (function () {
     };
     return Engagefire;
 }());
-exports.engageFire = Engagefire.getInstance(undefined, true);
+exports.Engagefire = Engagefire;
+// export let engageFire = Engagefire.getInstance(undefined, true);
+exports.engageFireInit = function (fireOptions) {
+    if (fireOptions) {
+        Engagefire.fireOptions = fireOptions;
+    }
+    return Engagefire.getInstance(fireOptions, true);
+};
 //# sourceMappingURL=engagefire.js.map

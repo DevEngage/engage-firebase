@@ -1,6 +1,7 @@
-import _ from 'lodash';
-import { engageFire } from '../engagefire/engagefire';
+import * as _ from 'lodash';
 import EngageFirestore, { engageFirestore } from '../firestore/firestore';
+
+declare let confirm: any;
 
 export default class EngageFireDoc {
   $ref: any;
@@ -13,6 +14,7 @@ export default class EngageFireDoc {
   public $collectionsList: string[] = [];
   public $omitList: string[] = [];
   private $engageFireStore: EngageFirestore;
+  position: any;
 
   constructor(
     public $doc: any, 
@@ -87,7 +89,7 @@ export default class EngageFireDoc {
 
   async $setImage(options?: { width: string; height: string; thumbnail: { width: string; height: string; }; } | undefined, inputId?: any, file?: any) {
     this.$$updateDoc();
-    return await this.$engageFireStore.uploadImage(this, options, inputId, file);
+    return await this.$engageFireStore.uploadImage(this, inputId, file);
   }
 
   async $removeImage() {
@@ -104,15 +106,15 @@ export default class EngageFireDoc {
   }
 
   async $getFiles() {
-    return await this.$getSubCollection('$files').getList();
+    return (await this.$getSubCollection('$files')).getList();
   }
 
   async $getFile(fileId: any) {
-    return await this.$getSubCollection('$files').get(fileId);
+    return (await this.$getSubCollection('$files')).get(fileId);
   }
 
   async $downloadFile(fileId: any) {
-    const fileDoc = await this.$getSubCollection('$files').get(fileId);
+    const fileDoc: any = (await this.$getSubCollection('$files')).get(fileId);
     return await this.$engageFireStore.downloadFile(fileDoc.url);
   }
 
@@ -126,7 +128,7 @@ export default class EngageFireDoc {
     return result;
   }
 
-  async $getSubCollection(collection: string, db?: any) {
+  async $getSubCollection(collection: string, db?: any): Promise<EngageFirestore> {
     return engageFirestore(`${this.$path}/${this.$id}/${collection}`, db);
   }
 
@@ -153,7 +155,7 @@ export default class EngageFireDoc {
   }
 
   async $changeId(newId: string) {
-    await this.$engageFireStore.replaceIdOnCollection(this.$id, newId);
+    await this.$engageFireStore.replaceIdOnCollection(<string>this.$id, newId);
     this.$id = newId;
     this.$$updateDoc();
   }

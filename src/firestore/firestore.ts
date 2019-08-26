@@ -1,15 +1,18 @@
 import * as firebase from 'firebase/app';
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { firestore } from 'firebase';
-import { engageFire } from '../engagefire/engagefire';
+import { engageFireInit } from '../engagefire/engagefire';
 import { engagePubsub } from '../pubsub/pubsub';
 import EngageFireDoc from '../doc/doc';
 import { EngageAlgolia } from '../algolia/algolia';
-import {IEngageModel} from "../../firebase/engage-model";
-import {EngageImage} from "@/firebase/engage-image";
+import {IEngageModel} from "../model/model";
+import {EngageImage} from "../image/image";
 
 declare let process: any;
 declare let window: any;
+declare let document: any;
+declare let XMLHttpRequest: any;
+type Blob = any;
 
 export interface EngageICollection {
   name?: string;
@@ -30,10 +33,11 @@ export interface EngageICollection {
  * [ ] Change doc methods to doc prototype methods. Maybe make a class?
  * */
 export default class EngageFirestore {
-  ref: firestore.CollectionReference;
-  auth: firebase.User | null;
+  static fireOptions: any;
+  ref!: firestore.CollectionReference;
+  auth!: firebase.User | null;
   $loading = true;
-  userId: unknown;
+  userId: string = '';
   id: any;
   state = window.ENGAGE_STATE;
   ps = engagePubsub;
@@ -96,9 +100,9 @@ export default class EngageFirestore {
   }
 
   async init() {
-    await engageFire.ready();
+    await engageFireInit(EngageFirestore.fireOptions).ready();
     if (!this.db) {
-      this.db = engageFire.firestore;
+      this.db = engageFireInit(EngageFirestore.fireOptions).firestore;
     }
     if (!window.ENGAGE_STATE) {
       window.ENGAGE_STATE = {};
@@ -148,7 +152,7 @@ export default class EngageFirestore {
 
   ready() {
     let limit = this.checkLimit;
-    let interval: number;
+    let interval: number | any;
     if (this.firebaseReady) return Promise.resolve(this.userId);
     return new Promise((resolve, reject) => {
       interval = setInterval(() => {
@@ -166,7 +170,7 @@ export default class EngageFirestore {
 
   async watchUser(cb: { (user: any): void; (arg0: firebase.User | null): void; }) {
     await this.ready();
-    engageFire.auth.onAuthStateChanged((user) => {
+    engageFireInit(EngageFirestore.fireOptions).auth.onAuthStateChanged((user) => {
       if (cb) cb(user || null);
     });
   }
@@ -175,7 +179,7 @@ export default class EngageFirestore {
     return firebase.apps.length;
   }
 
-  getUserId() {
+  getUserId(): Promise<string> {
     if (this.userId) {
       return Promise.resolve(this.userId);
     } else if (this.appInitialized()) {
@@ -184,12 +188,12 @@ export default class EngageFirestore {
           if (user && user.uid) {
             resolve(user.uid);
           } else {
-            resolve(null);
+            resolve('');
           }
         })
       );
     } else {
-      return Promise.resolve(null);
+      return Promise.resolve('');
     }
   }
 
@@ -327,11 +331,11 @@ export default class EngageFirestore {
     return this.set(newDoc, this.ref.doc(id));
   }
 
-  async update(doc: { $id: any; $key: any; $loading: boolean; }, ref?: firestore.CollectionReference | undefined) {
+  async update(doc: any, ref?: firestore.CollectionReference | undefined) {
     doc.$loading = true;
     await this.ready();
     if (!ref) ref = this.ref;
-    let docRef;
+    let docRef: any;
     if (doc.$id) {
       docRef = ref.doc(doc.$id);
       doc.$loading = false;
@@ -350,19 +354,19 @@ export default class EngageFirestore {
     return this.addFire(doc, docRef.id);;
   }
 
-  async save(newDoc: any, ref?: firestore.DocumentReference | undefined) {
+  async save(newDoc: any, ref?: firestore.DocumentReference | firestore.CollectionReference | undefined) {
     await this.ready();
     newDoc = this.omitFire(newDoc);
     newDoc.updatedAt = Date.now();
     let doc;
     if (newDoc && (newDoc.$key || newDoc.$id)) {
-      doc = await this.update(newDoc, ref);
+      doc = await this.update(newDoc, <firestore.CollectionReference>ref);
     } else if (ref && ref.id) {
       newDoc.createdAt = Date.now();
-      doc = await this.set(newDoc, ref);
+      doc = await this.set(newDoc, <firestore.DocumentReference>ref);
     } else {
       newDoc.createdAt = Date.now();
-      doc = await this.add(newDoc, ref);
+      doc = await this.add(newDoc, <firestore.CollectionReference>ref);
       this.list = [...this.list, doc];
     }
     doc.$loading = false;
@@ -379,8 +383,8 @@ export default class EngageFirestore {
     return ref.doc(id).delete();
   }
 
-  addFireList(collection: { size: any; forEach: (arg0: (doc: any) => void) => void; }) {
-    let list: any[] | never[] = [];
+  addFireList(collection: any): any {
+    let list: any[] = [];
     if (collection && collection.size) {
       collection.forEach((doc: { exists: any; data: () => void; id: any; }) => {
         if (doc.exists) {
@@ -391,27 +395,27 @@ export default class EngageFirestore {
     return list;
   }
 
-  addFire(obj: firestore.DocumentData | undefined, id: any) {
+  addFire(obj: any, id: any) {
     if (_.isObject(this.docWrapper)) {
       obj.$id = id;
-      return new this.docWrapper(obj, this.path, this.subCollections);
+      return new (<any>this.docWrapper)(obj, this.path, this.subCollections);
     }
     return obj;
   }
 
-  omitFireList(list: { [x: string]: any; }) {
-    _.each(list, (val: any, i: string | number) => {
+  omitFireList(list: any) {
+    _.each(list, (val: any, i: any) => {
       list[i] = this.omitFire(val);
     });
     return list;
   }
 
-  omitFire(payload: { $omitList: any; $loading?: boolean }) {
+  omitFire(payload: any) {
     if (payload && payload.$omitList) {
       payload = _.omit(payload, payload.$omitList);
     }
     const omitted = _.omit(payload, this.omitList);
-    _.forIn(omitted, (val: any, i: string | number) => {
+    _.forIn(omitted, (val: any, i: any) => {
       if (_.isArray(val)) {
         omitted[i] = val.map((item: any) => {
           if (!_.isArray(val) && _.isObject(item)) {
@@ -421,12 +425,12 @@ export default class EngageFirestore {
         });
       } else if (_.isObject(val)) {
         omitted[i] = this.omitFire(val);
-        if (val && val[i] && val[i].$id) {
+        if (val && (<any>val)[i] && (<any>val)[i].$id) {
           omitted[i] = { 
-            $id: val[i].$id, 
-            $collection: val[i].$collection || i + 's',
-            $image: val[i].$image || '',
-            name: val[i].name || '', 
+            $id: (<any>val)[i].$id, 
+            $collection: (<any>val)[i].$collection || i + 's',
+            $image: (<any>val)[i].$image || '',
+            name: (<any>val)[i].name || '', 
           };
         }
       }
@@ -435,7 +439,8 @@ export default class EngageFirestore {
   }
 
   getFirebaseProjectId() {
-    return firebase.app().options['authDomain'].split('.')[0];
+    if (!firebase.app().options) return null;
+    return (<any>firebase.app().options)['authDomain'].split('.')[0];
   }
 
   /*
@@ -444,7 +449,7 @@ export default class EngageFirestore {
   async watch(id: string | undefined, cb: { (arg0: any, arg1: any): void; (arg0: null, arg1: any): void; }, ref?: firestore.CollectionReference | undefined) {
     await this.ready();
     if (!ref) ref = this.ref;
-    ref.doc(id).onSnapshot((doc: { data: { (): void; (): void; }; id: any; }) => {
+    ref.doc(id).onSnapshot((doc: any) => {
       if (doc && doc.data()) {
         cb(this.addFire(doc.data(), doc.id), doc);
       } else {
@@ -453,7 +458,7 @@ export default class EngageFirestore {
     });
   }
 
-  async watchList(cb: any[], ref?: firestore.CollectionReference) {
+  async watchList(cb: any, ref?: firestore.CollectionReference) {
     await this.ready();
     if (!ref) ref = this.ref;
     ref.onSnapshot((snapshot: any) => {
@@ -469,7 +474,7 @@ export default class EngageFirestore {
     return new Promise(async (resolve, reject) => {
       await this.ready();
       if (!ref) ref = this.ref;
-      ref.doc(id).onSnapshot((doc: { data: { (): void; (): void; }; id: any; }) => {
+      ref.doc(id).onSnapshot((doc: any) => {
         if (doc && doc.data()) {
           resolve({ value: this.addFire(doc.data(), doc.id), doc });
         } else {
@@ -513,7 +518,7 @@ export default class EngageFirestore {
     });
   }
 
-  async deleteQueryBatch(db: { batch: () => void; }, query: firestore.Query, batchSize: number, resolve: { (value?: unknown): void; (): void; }, reject: { (reason?: any): void; (arg0: any): void; }) {
+  async deleteQueryBatch(db: any, query: firestore.Query, batchSize: number, resolve: { (value?: unknown): void; (): void; }, reject: { (reason?: any): void; (arg0: any): void; }) {
     try {
       let numDeleted = 0;
       const snapshot = await query.get();
@@ -575,6 +580,7 @@ export default class EngageFirestore {
   }
 
   async moveRecord(oldPath: any, newPath: any) {
+    if (!this.db) return null;
     let record: any = await this.db.doc(oldPath).get();
     record = record.data();
     console.log('record move', record);
@@ -584,6 +590,7 @@ export default class EngageFirestore {
   }
 
   async copyRecord(oldPath: any, newPath: any, updateTimestamp = false) {
+    if (!this.db) return null;
     let record: any = await this.db.doc(oldPath).get();
     record = record.data();
     if (updateTimestamp) record.updatedAt = Date.now();
@@ -740,7 +747,7 @@ export default class EngageFirestore {
 
   async uploadFiles(doc: any, files: any = [], id = 'eng-files') {
     if (this.debug) console.log('File Upload:', files);
-    const storageRef = engageFire.storage.ref().child(doc.$path);
+    const storageRef = engageFireInit(EngageFirestore.fireOptions).storage.ref().child(doc.$path);
     const element: any = id ? document.getElementById(id) : this.createFileInput();
     const uploaded = [];
     if (!doc) return;
@@ -784,7 +791,7 @@ export default class EngageFirestore {
   }
 
   async uploadImage(doc: any, id?: string, file?: any) {
-    const storageRef = engageFire.storage.ref().child(doc.$path);
+    const storageRef = engageFireInit(EngageFirestore.fireOptions).storage.ref().child(doc.$path);
     const element: any = id ? document.getElementById(id) : this.createFileInput();
     element.click();
     return new Promise((resolve, reject) => {
@@ -819,7 +826,7 @@ export default class EngageFirestore {
     Model
   */
 
-  async addModelField(field: string | object) {
+  async addModelField(field: any) {
     let model: any = {
       $collection: this.path,
       name: '',
@@ -849,7 +856,7 @@ export default class EngageFirestore {
   }
 
   async getModelFromDb() {
-    if (this.path.includes('$collections')) {
+    if ((<any>this.path).includes('$collections')) {
       return this.model = [];
     }
     this.model = await engageFirestore(`$collections/${this.path}/$models`).getList();
@@ -868,14 +875,14 @@ export default class EngageFirestore {
 
   async deleteFile(doc: any, fileId: any) {
     const fileDoc = await doc.$getSubCollection('files').get(fileId);
-    const desertRef = engageFire.storage.child(fileDoc.meta.storagePath);
+    const desertRef = (<any>engageFireInit(EngageFirestore.fireOptions).storage).child(fileDoc.meta.storagePath);
 
     // Delete the file
     return await desertRef.delete().then(() => fileDoc.$remove());
   }
 
   async deleteImage(doc: any) {
-    const desertRef = engageFire.storage.child(doc.$imageMeta.storagePath);
+    const desertRef = (<any>engageFireInit(EngageFirestore.fireOptions).storage).child(doc.$imageMeta.storagePath);
 
     // Delete the file
     return await desertRef.delete().then(() => {
@@ -902,12 +909,12 @@ export default class EngageFirestore {
 
   /* AUTH */
   async login(email: string, password: string) {
-    return await engageFire.auth.signInWithEmailAndPassword(email, password);
+    return await engageFireInit(EngageFirestore.fireOptions).auth.signInWithEmailAndPassword(email, password);
   }
 
   async loginSocial(service: any, method: string, scope?: any, mobile = false) {
     console.log('isMobile', mobile);
-    let provider;
+    let provider: any ;
     switch (service) {
       case 'google':
         provider = new firebase.auth.GoogleAuthProvider();
@@ -928,30 +935,30 @@ export default class EngageFirestore {
     if (provider) provider.addScope(scope);
 
     if (method === 'popup') {
-      return await engageFire.auth.signInWithPopup(provider);
+      return await engageFireInit(EngageFirestore.fireOptions).auth.signInWithPopup(provider);
     } else {
-      return await engageFire.auth.signInWithRedirect(provider);
+      return await engageFireInit(EngageFirestore.fireOptions).auth.signInWithRedirect(provider);
     }
   }
 
   async signup(email: string, password: string) {
-    return await engageFire.auth.createUserWithEmailAndPassword(email, password);
+    return await engageFireInit(EngageFirestore.fireOptions).auth.createUserWithEmailAndPassword(email, password);
   }
 
   async logout() {
-    return await engageFire.auth.signOut();
+    return await engageFireInit(EngageFirestore.fireOptions).auth.signOut();
   }
 
   async sendEmailVerification() {
-    return await engageFire.auth.sendEmailVerification();
+    return await (<any>engageFireInit(EngageFirestore.fireOptions).auth).sendEmailVerification();
   }
 
   async forgotPassword(email: string) {
-    return await engageFire.auth.sendPasswordResetEmail(email);
+    return await engageFireInit(EngageFirestore.fireOptions).auth.sendPasswordResetEmail(email);
   }
 
   async updatePassword(newPassword: any) {
-    return await engageFire.auth.updatePassword(newPassword);
+    return await (<any>engageFireInit(EngageFirestore.fireOptions).auth).updatePassword(newPassword);
   }
 
   // async secureDoc(doc, allowedPermissions) {

@@ -1,9 +1,9 @@
 // import { firestore } from 'firebase-admin';
 import * as functions from 'firebase-functions';
-import { AlgoliaExport } from "../utilities/algolia";
+import { AlgoliaExport } from "../algolia/algolia.export";
 import { DocumentBuilder } from 'firebase-functions/lib/providers/firestore';
 
-export default class Trigger {
+export default class EngageTrigger {
     ref: DocumentBuilder;
     searchEnabled = false;
     

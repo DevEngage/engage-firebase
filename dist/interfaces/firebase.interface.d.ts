@@ -1,16 +1,21 @@
-import { IFirebaseObject } from "./firebase-object.interface";
-export interface EngIFirebase {
+export interface IEngageFirebase {
     ref: any;
     auth: any;
     userId: string;
 }
-export interface IFirebaseObject {
+export interface IEngageFirebaseObject {
     $id?: string;
     $exists?: boolean;
+    $collection?: string;
     createdAt?: number;
     updatedAt?: number;
 }
-export interface EngIFirebaseCollection extends IFirebaseObject, EngIFirebase {
+export interface IEngageImage {
+    $thumb?: string;
+    $image?: string;
+    $imageMeta?: string;
+}
+export interface IEngageFirebaseCollection extends IEngageFirebaseObject, IEngageFirebase {
     path?: string;
     updateState?: boolean;
     save(): any;
@@ -19,12 +24,11 @@ export interface EngIFirebaseCollection extends IFirebaseObject, EngIFirebase {
     get(id?: any): any;
     remove?(id?: any, updateState?: any): any;
 }
-export interface EngIFirebaseDoc extends IFirebaseObject, EngIFirebase {
-    collection?: string;
-    save(value: any, updateState?: any): any;
-    set(value: any, updateState?: any): any;
-    update(value: any, updateState?: any): any;
-    get(id?: any): any;
-    subscribe?(): any;
-    remove?(updateState?: any): any;
+export interface IEngageFirebaseDoc extends IEngageFirebaseObject, IEngageFirebase, IEngageImage {
+    $id?: string;
+    $save(value: any, updateState?: any): any;
+    $set(value: any, updateState?: any): any;
+    $update(value: any, updateState?: any): any;
+    $get(id?: any): any;
+    $remove?(updateState?: any): any;
 }

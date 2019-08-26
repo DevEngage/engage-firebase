@@ -7,11 +7,6 @@ export interface IEngageBase {
     updatedAt?: number;
     createdAt?: number;
     $id?: string;
+    $exists?: boolean;
     $collection?: string;
-}
-export interface IEngageMacros {
-    calories?: number;
-    carbs?: number;
-    protein?: number;
-    fat?: number;
 }

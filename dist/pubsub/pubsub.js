@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var lodash_1 = require("lodash");
+var _ = require("lodash");
 /*
 * TODO:
 * [ ] Finish localstorage integration
@@ -36,18 +36,18 @@ var EngagePubsub = /** @class */ (function () {
         if (what === void 0) { what = 'all'; }
         this.data[what] = data;
         if (what === 'all') {
-            lodash_1.default.each(this.listeners, function (value) {
-                if (lodash_1.default.isArray(value)) {
-                    lodash_1.default.each(value, function (listener) {
-                        if (lodash_1.default.isFunction(listener))
+            _.each(this.listeners, function (value) {
+                if (_.isArray(value)) {
+                    _.each(value, function (listener) {
+                        if (_.isFunction(listener))
                             listener(data);
                     });
                 }
             });
         }
         else {
-            lodash_1.default.each(this.listeners[what], function (listener) {
-                if (lodash_1.default.isFunction(listener))
+            _.each(this.listeners[what], function (listener) {
+                if (_.isFunction(listener))
                     listener(data);
             });
         }

@@ -47,12 +47,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var firebase = require("firebase/app");
-var lodash_1 = require("lodash");
+var _ = require("lodash");
 var engagefire_1 = require("../engagefire/engagefire");
 var pubsub_1 = require("../pubsub/pubsub");
 var doc_1 = require("../doc/doc");
 var algolia_1 = require("../algolia/algolia");
-var engage_image_1 = require("@/firebase/engage-image");
+var image_1 = require("../image/image");
 /*
  * TODO:
  * [ ] Implement State Manage,
@@ -73,6 +73,7 @@ var EngageFirestore = /** @class */ (function () {
         this.db = db;
         this.docWrapper = docWrapper;
         this.$loading = true;
+        this.userId = '';
         this.state = window.ENGAGE_STATE;
         this.ps = pubsub_1.engagePubsub;
         this.firebaseReady = false;
@@ -130,17 +131,17 @@ var EngageFirestore = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, engagefire_1.engageFire.ready()];
+                    case 0: return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).ready()];
                     case 1:
                         _a.sent();
                         if (!this.db) {
-                            this.db = engagefire_1.engageFire.firestore;
+                            this.db = engagefire_1.engageFireInit(EngageFirestore.fireOptions).firestore;
                         }
                         if (!window.ENGAGE_STATE) {
                             window.ENGAGE_STATE = {};
                             this.state = window.ENGAGE_STATE;
                         }
-                        if (lodash_1.default.isString(this.path)) {
+                        if (_.isString(this.path)) {
                             this.ref = this.db.collection(this.path);
                         }
                         else {
@@ -211,7 +212,7 @@ var EngageFirestore = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.ready()];
                     case 1:
                         _a.sent();
-                        engagefire_1.engageFire.auth.onAuthStateChanged(function (user) {
+                        engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.onAuthStateChanged(function (user) {
                             if (cb)
                                 cb(user || null);
                         });
@@ -234,13 +235,13 @@ var EngageFirestore = /** @class */ (function () {
                         resolve(user.uid);
                     }
                     else {
-                        resolve(null);
+                        resolve('');
                     }
                 });
             });
         }
         else {
-            return Promise.resolve(null);
+            return Promise.resolve('');
         }
     };
     EngageFirestore.prototype.getUserFromAuth = function () {
@@ -578,7 +579,7 @@ var EngageFirestore = /** @class */ (function () {
         return list;
     };
     EngageFirestore.prototype.addFire = function (obj, id) {
-        if (lodash_1.default.isObject(this.docWrapper)) {
+        if (_.isObject(this.docWrapper)) {
             obj.$id = id;
             return new this.docWrapper(obj, this.path, this.subCollections);
         }
@@ -586,7 +587,7 @@ var EngageFirestore = /** @class */ (function () {
     };
     EngageFirestore.prototype.omitFireList = function (list) {
         var _this = this;
-        lodash_1.default.each(list, function (val, i) {
+        _.each(list, function (val, i) {
             list[i] = _this.omitFire(val);
         });
         return list;
@@ -594,19 +595,19 @@ var EngageFirestore = /** @class */ (function () {
     EngageFirestore.prototype.omitFire = function (payload) {
         var _this = this;
         if (payload && payload.$omitList) {
-            payload = lodash_1.default.omit(payload, payload.$omitList);
+            payload = _.omit(payload, payload.$omitList);
         }
-        var omitted = lodash_1.default.omit(payload, this.omitList);
-        lodash_1.default.forIn(omitted, function (val, i) {
-            if (lodash_1.default.isArray(val)) {
+        var omitted = _.omit(payload, this.omitList);
+        _.forIn(omitted, function (val, i) {
+            if (_.isArray(val)) {
                 omitted[i] = val.map(function (item) {
-                    if (!lodash_1.default.isArray(val) && lodash_1.default.isObject(item)) {
+                    if (!_.isArray(val) && _.isObject(item)) {
                         _this.omitFire(item);
                     }
                     return item;
                 });
             }
-            else if (lodash_1.default.isObject(val)) {
+            else if (_.isObject(val)) {
                 omitted[i] = _this.omitFire(val);
                 if (val && val[i] && val[i].$id) {
                     omitted[i] = {
@@ -621,6 +622,8 @@ var EngageFirestore = /** @class */ (function () {
         return omitted;
     };
     EngageFirestore.prototype.getFirebaseProjectId = function () {
+        if (!firebase.app().options)
+            return null;
         return firebase.app().options['authDomain'].split('.')[0];
     };
     /*
@@ -660,7 +663,7 @@ var EngageFirestore = /** @class */ (function () {
                         if (!ref)
                             ref = this.ref;
                         ref.onSnapshot(function (snapshot) {
-                            if (lodash_1.default.isArray(cb)) {
+                            if (_.isArray(cb)) {
                                 cb = _this.addFireList(snapshot);
                             }
                             else {
@@ -846,7 +849,10 @@ var EngageFirestore = /** @class */ (function () {
             var record, doc;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.db.doc(oldPath).get()];
+                    case 0:
+                        if (!this.db)
+                            return [2 /*return*/, null];
+                        return [4 /*yield*/, this.db.doc(oldPath).get()];
                     case 1:
                         record = _a.sent();
                         record = record.data();
@@ -867,7 +873,10 @@ var EngageFirestore = /** @class */ (function () {
             var record;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.db.doc(oldPath).get()];
+                    case 0:
+                        if (!this.db)
+                            return [2 /*return*/, null];
+                        return [4 /*yield*/, this.db.doc(oldPath).get()];
                     case 1:
                         record = _a.sent();
                         record = record.data();
@@ -1062,7 +1071,7 @@ var EngageFirestore = /** @class */ (function () {
                     case 0:
                         if (this.debug)
                             console.log('File Upload:', files);
-                        storageRef = engagefire_1.engageFire.storage.ref().child(doc.$path);
+                        storageRef = engagefire_1.engageFireInit(EngageFirestore.fireOptions).storage.ref().child(doc.$path);
                         element = id ? document.getElementById(id) : this.createFileInput();
                         uploaded = [];
                         if (!doc)
@@ -1127,7 +1136,7 @@ var EngageFirestore = /** @class */ (function () {
             var storageRef, element;
             var _this = this;
             return __generator(this, function (_a) {
-                storageRef = engagefire_1.engageFire.storage.ref().child(doc.$path);
+                storageRef = engagefire_1.engageFireInit(EngageFirestore.fireOptions).storage.ref().child(doc.$path);
                 element = id ? document.getElementById(id) : this.createFileInput();
                 element.click();
                 return [2 /*return*/, new Promise(function (resolve, reject) {
@@ -1138,7 +1147,7 @@ var EngageFirestore = /** @class */ (function () {
                                     case 0:
                                         if (!((element && element.files && element.files.length) || file)) return [3 /*break*/, 5];
                                         _file = file || element.files[0];
-                                        return [4 /*yield*/, new engage_image_1.EngageImage().rezieImageWithThumb(_file, doc)];
+                                        return [4 /*yield*/, new image_1.EngageImage().rezieImageWithThumb(_file, doc)];
                                     case 1:
                                         _a = _b.sent(), blob = _a[0], thumbBlob = _a[1];
                                         if (!('name' in _file)) return [3 /*break*/, 4];
@@ -1183,7 +1192,7 @@ var EngageFirestore = /** @class */ (function () {
                         model = {
                             $collection: this.path,
                             name: '',
-                            label: lodash_1.default.capitalize(lodash_1.default.startCase(field))
+                            label: _.capitalize(_.startCase(field))
                         };
                         if (typeof field === 'string') {
                             model.name = field;
@@ -1247,7 +1256,7 @@ var EngageFirestore = /** @class */ (function () {
                     case 0: return [4 /*yield*/, doc.$getSubCollection('files').get(fileId)];
                     case 1:
                         fileDoc = _a.sent();
-                        desertRef = engagefire_1.engageFire.storage.child(fileDoc.meta.storagePath);
+                        desertRef = engagefire_1.engageFireInit(EngageFirestore.fireOptions).storage.child(fileDoc.meta.storagePath);
                         return [4 /*yield*/, desertRef.delete().then(function () { return fileDoc.$remove(); })];
                     case 2: 
                     // Delete the file
@@ -1262,7 +1271,7 @@ var EngageFirestore = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        desertRef = engagefire_1.engageFire.storage.child(doc.$imageMeta.storagePath);
+                        desertRef = engagefire_1.engageFireInit(EngageFirestore.fireOptions).storage.child(doc.$imageMeta.storagePath);
                         return [4 /*yield*/, desertRef.delete().then(function () {
                                 doc.$image = null;
                                 doc.$thumbnail = null;
@@ -1294,7 +1303,7 @@ var EngageFirestore = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, engagefire_1.engageFire.auth.signInWithEmailAndPassword(email, password)];
+                    case 0: return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.signInWithEmailAndPassword(email, password)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -1327,9 +1336,9 @@ var EngageFirestore = /** @class */ (function () {
                         if (provider)
                             provider.addScope(scope);
                         if (!(method === 'popup')) return [3 /*break*/, 2];
-                        return [4 /*yield*/, engagefire_1.engageFire.auth.signInWithPopup(provider)];
+                        return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.signInWithPopup(provider)];
                     case 1: return [2 /*return*/, _a.sent()];
-                    case 2: return [4 /*yield*/, engagefire_1.engageFire.auth.signInWithRedirect(provider)];
+                    case 2: return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.signInWithRedirect(provider)];
                     case 3: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -1339,7 +1348,7 @@ var EngageFirestore = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, engagefire_1.engageFire.auth.createUserWithEmailAndPassword(email, password)];
+                    case 0: return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.createUserWithEmailAndPassword(email, password)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -1349,7 +1358,7 @@ var EngageFirestore = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, engagefire_1.engageFire.auth.signOut()];
+                    case 0: return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.signOut()];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -1359,7 +1368,7 @@ var EngageFirestore = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, engagefire_1.engageFire.auth.sendEmailVerification()];
+                    case 0: return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.sendEmailVerification()];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -1369,7 +1378,7 @@ var EngageFirestore = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, engagefire_1.engageFire.auth.sendPasswordResetEmail(email)];
+                    case 0: return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.sendPasswordResetEmail(email)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -1379,7 +1388,7 @@ var EngageFirestore = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, engagefire_1.engageFire.auth.updatePassword(newPassword)];
+                    case 0: return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.updatePassword(newPassword)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });

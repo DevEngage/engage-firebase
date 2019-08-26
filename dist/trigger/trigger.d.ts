@@ -1,6 +1,6 @@
 import * as functions from 'firebase-functions';
 import { DocumentBuilder } from 'firebase-functions/lib/providers/firestore';
-export default class Trigger {
+export default class EngageTrigger {
     path: string;
     collection: string;
     collections: string[];

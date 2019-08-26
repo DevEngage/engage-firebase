@@ -48,9 +48,9 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 // import { firestore } from 'firebase-admin';
 var functions = require("firebase-functions");
-var algolia_1 = require("../utilities/algolia");
-var Trigger = /** @class */ (function () {
-    function Trigger(path, collection, collections) {
+var algolia_export_1 = require("../algolia/algolia.export");
+var EngageTrigger = /** @class */ (function () {
+    function EngageTrigger(path, collection, collections) {
         if (collections === void 0) { collections = []; }
         this.path = path;
         this.collection = collection;
@@ -58,11 +58,11 @@ var Trigger = /** @class */ (function () {
         this.searchEnabled = false;
         this.ref = functions.firestore.document(this.path);
     }
-    Trigger.prototype.enableSearch = function () {
+    EngageTrigger.prototype.enableSearch = function () {
         this.searchEnabled = true;
         return this;
     };
-    Trigger.prototype.onWrite = function (cb) {
+    EngageTrigger.prototype.onWrite = function (cb) {
         var _this = this;
         return this.ref.onWrite(function (change, context) { return __awaiter(_this, void 0, void 0, function () {
             var id, subId, data, previousData, algoliaExport, algoliaData;
@@ -75,7 +75,7 @@ var Trigger = /** @class */ (function () {
                         subId = context.params.subId;
                         data = change.after.data();
                         previousData = change.before.data();
-                        algoliaExport = new algolia_1.AlgoliaExport(this.collection, '/' + this.collection);
+                        algoliaExport = new algolia_export_1.AlgoliaExport(this.collection, '/' + this.collection);
                         if (!(id &&
                             data &&
                             (data.isApproved === undefined || data.isApproved) &&
@@ -105,7 +105,7 @@ var Trigger = /** @class */ (function () {
             });
         }); });
     };
-    Trigger.prototype.onDelete = function (cb) {
+    EngageTrigger.prototype.onDelete = function (cb) {
         var _this = this;
         return this.ref.onDelete(function (snap, context) { return __awaiter(_this, void 0, void 0, function () {
             var data, id, algoliaExport;
@@ -114,7 +114,7 @@ var Trigger = /** @class */ (function () {
                     case 0:
                         data = snap.data();
                         id = context.params.id;
-                        algoliaExport = new algolia_1.AlgoliaExport(this.collection, '/' + this.collection);
+                        algoliaExport = new algolia_export_1.AlgoliaExport(this.collection, '/' + this.collection);
                         if (!cb) return [3 /*break*/, 2];
                         return [4 /*yield*/, cb({
                                 data: data,
@@ -132,7 +132,7 @@ var Trigger = /** @class */ (function () {
             });
         }); });
     };
-    return Trigger;
+    return EngageTrigger;
 }());
-exports.default = Trigger;
+exports.default = EngageTrigger;
 //# sourceMappingURL=trigger.js.map

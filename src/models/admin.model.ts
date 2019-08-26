@@ -1,4 +1,4 @@
-import { IEngageModel } from "../firebase/engage-model";
+import { IEngageModel } from "../model/model";
 
 export const adminModel: IEngageModel[] = [
     {

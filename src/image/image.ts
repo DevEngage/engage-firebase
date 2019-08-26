@@ -1,7 +1,13 @@
-import EngageFireDoc from "@/firebase/doc";
 
 declare let canvas: any;
 declare let ctx: any;
+declare let FileReader: any;
+declare let Image: any;
+declare let document: any;
+declare let Blob: any;
+declare let atob: any;
+type File = any;
+type Blob = any;
 
 interface IResizeImageOptions {
   maxSize: number;

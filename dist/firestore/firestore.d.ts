@@ -1,7 +1,7 @@
 import * as firebase from 'firebase/app';
 import { firestore } from 'firebase';
 import EngageFireDoc from '../doc/doc';
-import { IEngageModel } from "../../firebase/engage-model";
+import { IEngageModel } from "../model/model";
 export interface EngageICollection {
     name?: string;
     path?: string;
@@ -11,10 +11,11 @@ export default class EngageFirestore {
     path: firestore.CollectionReference | string;
     db?: firestore.Firestore | undefined;
     docWrapper: any;
+    static fireOptions: any;
     ref: firestore.CollectionReference;
     auth: firebase.User | null;
     $loading: boolean;
-    userId: unknown;
+    userId: string;
     id: any;
     state: any;
     ps: import("../pubsub/pubsub").EngagePubsub;
@@ -42,8 +43,8 @@ export default class EngageFirestore {
         (arg0: firebase.User | null): void;
     }): Promise<void>;
     appInitialized(): number;
-    getUserId(): Promise<unknown>;
-    getUserFromAuth(): firebase.User | null;
+    getUserId(): Promise<string>;
+    getUserFromAuth(): firebase.User;
     getCollection(): firestore.CollectionReference;
     getDoc(id: string | undefined): firestore.DocumentReference;
     getSubCollection(id: string | undefined, collectionName: string): firestore.CollectionReference;
@@ -61,34 +62,20 @@ export default class EngageFirestore {
     add(newDoc: any, ref?: firestore.CollectionReference): Promise<any>;
     set(newDoc: any, docRef: firestore.DocumentReference): Promise<any>;
     setWithId(id: string | undefined, newDoc: any): Promise<any>;
-    update(doc: {
-        $id: any;
-        $key: any;
-        $loading: boolean;
-    }, ref?: firestore.CollectionReference | undefined): Promise<any>;
-    save(newDoc: any, ref?: firestore.DocumentReference | undefined): Promise<any>;
+    update(doc: any, ref?: firestore.CollectionReference | undefined): Promise<any>;
+    save(newDoc: any, ref?: firestore.DocumentReference | firestore.CollectionReference | undefined): Promise<any>;
     saveWithId(id: string | undefined, newDoc: any): Promise<any>;
     remove(id: string | undefined, ref?: firestore.CollectionReference | undefined): Promise<void>;
-    addFireList(collection: {
-        size: any;
-        forEach: (arg0: (doc: any) => void) => void;
-    }): any[] | never[];
-    addFire(obj: firestore.DocumentData | undefined, id: any): any;
-    omitFireList(list: {
-        [x: string]: any;
-    }): {
-        [x: string]: any;
-    };
-    omitFire(payload: {
-        $omitList: any;
-        $loading?: boolean;
-    }): any;
+    addFireList(collection: any): any;
+    addFire(obj: any, id: any): any;
+    omitFireList(list: any): any;
+    omitFire(payload: any): Pick<any, number | symbol>;
     getFirebaseProjectId(): any;
     watch(id: string | undefined, cb: {
         (arg0: any, arg1: any): void;
         (arg0: null, arg1: any): void;
     }, ref?: firestore.CollectionReference | undefined): Promise<void>;
-    watchList(cb: any[], ref?: firestore.CollectionReference): Promise<void>;
+    watchList(cb: any, ref?: firestore.CollectionReference): Promise<void>;
     watchPromise(id: string | undefined, ref?: firestore.CollectionReference | undefined): Promise<unknown>;
     watchListPromise(ref?: firestore.CollectionReference): Promise<unknown>;
     watchState(name: string | number): void;
@@ -99,9 +86,7 @@ export default class EngageFirestore {
      * not recursively delete subcollections of documents in the collection
      */
     deleteCollection(collectionRef?: firestore.CollectionReference, batchSize?: number): Promise<unknown>;
-    deleteQueryBatch(db: {
-        batch: () => void;
-    }, query: firestore.Query, batchSize: number, resolve: {
+    deleteQueryBatch(db: any, query: firestore.Query, batchSize: number, resolve: {
         (value?: unknown): void;
         (): void;
     }, reject: {
@@ -121,9 +106,9 @@ export default class EngageFirestore {
     createFileInput(multi?: boolean, accept?: string): any;
     handleUpload(uploadTask: firebase.storage.UploadTask, doc: any, fileName?: any): any;
     _handleFileUpload(element: any): Promise<unknown>;
-    uploadFiles(doc: any, files?: any, id?: string): Promise<any[] | undefined>;
+    uploadFiles(doc: any, files?: any, id?: string): Promise<any[]>;
     uploadImage(doc: any, id?: string, file?: any): Promise<unknown>;
-    addModelField(field: string | object): Promise<any>;
+    addModelField(field: any): Promise<any>;
     getModelField(field: string): IEngageModel[];
     getModel(): IEngageModel[];
     getModelFromDb(): Promise<any>;

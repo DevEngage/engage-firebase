@@ -1,4 +1,3 @@
-"use strict";
 const test = require('firebase-functions-test')({
     apiKey: "AIzaSyB0BO2DsW8udknAh0sfpvqNBHvU1vt-CY8",
     authDomain: "engage-firebase.firebaseapp.com",

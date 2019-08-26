@@ -35,7 +35,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var lodash_1 = require("lodash");
+var _ = require("lodash");
 var firestore_1 = require("../firestore/firestore");
 var EngageFireDoc = /** @class */ (function () {
     function EngageFireDoc($doc, collection, collections) {
@@ -48,8 +48,8 @@ var EngageFireDoc = /** @class */ (function () {
         this.$omitList = [];
         this.$engageFireStore = firestore_1.engageFirestore(collection);
         this.$collectionsList = collections;
-        if (!lodash_1.default.isEmpty($doc) && ($doc.$id || $doc.id || this.$id)) {
-            lodash_1.default.assign(this, $doc);
+        if (!_.isEmpty($doc) && ($doc.$id || $doc.id || this.$id)) {
+            _.assign(this, $doc);
             this.$$init();
         }
     }
@@ -73,7 +73,7 @@ var EngageFireDoc = /** @class */ (function () {
                             _this.$omitList.push(sub + "_");
                             if (preFetch === 'list')
                                 _this.$collections[sub + "_"].getList();
-                            lodash_1.default.assign(_this, _this.$collections);
+                            _.assign(_this, _this.$collections);
                         });
                         this.$loading = false;
                         return [2 /*return*/];
@@ -167,7 +167,7 @@ var EngageFireDoc = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         this.$$updateDoc();
-                        return [4 /*yield*/, this.$engageFireStore.uploadImage(this, options, inputId, file)];
+                        return [4 /*yield*/, this.$engageFireStore.uploadImage(this, inputId, file)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -208,8 +208,8 @@ var EngageFireDoc = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.$getSubCollection('$files').getList()];
-                    case 1: return [2 /*return*/, _a.sent()];
+                    case 0: return [4 /*yield*/, this.$getSubCollection('$files')];
+                    case 1: return [2 /*return*/, (_a.sent()).getList()];
                 }
             });
         });
@@ -218,8 +218,8 @@ var EngageFireDoc = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.$getSubCollection('$files').get(fileId)];
-                    case 1: return [2 /*return*/, _a.sent()];
+                    case 0: return [4 /*yield*/, this.$getSubCollection('$files')];
+                    case 1: return [2 /*return*/, (_a.sent()).get(fileId)];
                 }
             });
         });
@@ -229,9 +229,9 @@ var EngageFireDoc = /** @class */ (function () {
             var fileDoc;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.$getSubCollection('$files').get(fileId)];
+                    case 0: return [4 /*yield*/, this.$getSubCollection('$files')];
                     case 1:
-                        fileDoc = _a.sent();
+                        fileDoc = (_a.sent()).get(fileId);
                         return [4 /*yield*/, this.$engageFireStore.downloadFile(fileDoc.url)];
                     case 2: return [2 /*return*/, _a.sent()];
                 }
@@ -386,14 +386,14 @@ var EngageFireDoc = /** @class */ (function () {
     };
     EngageFireDoc.prototype.$$updateDoc = function (doc) {
         if (doc === void 0) { doc = this; }
-        this.$doc = this.$engageFireStore.omitFire(lodash_1.default.cloneDeep(doc));
+        this.$doc = this.$engageFireStore.omitFire(_.cloneDeep(doc));
         return this.$doc;
     };
     EngageFireDoc.prototype.$$difference = function (object, base) {
         function changes(object, base) {
-            return lodash_1.default.transform(object, function (result, value, key) {
-                if (!lodash_1.default.isEqual(value, base[key])) {
-                    result[key] = lodash_1.default.isObject(value) && lodash_1.default.isObject(base[key]) ? changes(value, base[key]) : value;
+            return _.transform(object, function (result, value, key) {
+                if (!_.isEqual(value, base[key])) {
+                    result[key] = _.isObject(value) && _.isObject(base[key]) ? changes(value, base[key]) : value;
                 }
             });
         }

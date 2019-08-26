@@ -3,7 +3,8 @@ import 'firebase/auth';
 import 'firebase/storage';
 import 'firebase/firestore';
 
-class Engagefire {
+export class Engagefire {
+  static fireOptions: any;
   private static instance: Engagefire;
   user: any;
   firebase: firebase.app.App;
@@ -21,8 +22,8 @@ class Engagefire {
     }
     if (firebase.apps[0]) {
       this.firebase = firebase.apps[0];
-    } else {
-      this.firebase = firebase.initializeApp(config);
+    } else if (config || Engagefire.fireOptions) {
+      this.firebase = firebase.initializeApp(config || Engagefire.fireOptions);
     }
   }
 
@@ -102,4 +103,11 @@ class Engagefire {
 
 }
 
-export let engageFire = Engagefire.getInstance(undefined, true);
+// export let engageFire = Engagefire.getInstance(undefined, true);
+
+export let engageFireInit = (fireOptions?) => {
+  if (fireOptions) {
+    Engagefire.fireOptions = fireOptions;
+  }
+  return Engagefire.getInstance(fireOptions, true);
+};
