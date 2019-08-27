@@ -1,14 +1,11 @@
 import EngageFirestore, { engageFirestore } from "./firestore/firestore";
 import EngageFireDoc from "./doc/doc";
-import EngageTrigger from "./trigger/trigger";
 import EngageModel, { IEngageModel } from "./model/model";
 import { IEngageFirebase, IEngageFirebaseObject, IEngageImage, IEngageFirebaseCollection, IEngageFirebaseDoc } from "./interfaces/firebase.interface";
-import { EngageAnalytics } from "./analytics/analytics";
 import { EngageAlgolia } from "./algolia/algolia";
-import { AlgoliaExport } from "./algolia/algolia.export";
 import { EngageImage } from "./image/image";
 import { adminModel } from "./models/admin.model";
 declare const firestore: (path: string, options?: any) => any;
 declare const Doc: typeof EngageFireDoc;
 export default engageFirestore;
-export { firestore, EngageFirestore, Doc, EngageFireDoc, EngageModel, EngageAlgolia, EngageImage, adminModel, EngageTrigger, EngageAnalytics, AlgoliaExport, IEngageFirebase, IEngageFirebaseObject, IEngageImage, IEngageFirebaseCollection, IEngageFirebaseDoc, IEngageModel, };
+export { firestore, EngageFirestore, Doc, EngageFireDoc, EngageModel, EngageAlgolia, EngageImage, adminModel, IEngageFirebase, IEngageFirebaseObject, IEngageImage, IEngageFirebaseCollection, IEngageFirebaseDoc, IEngageModel, };

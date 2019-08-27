@@ -88,6 +88,9 @@ export default class EngageFirestore {
     '$$getSortedParentList',
     '$moveDown',
     '$moveUp',
+    '$swapPosition',
+    '$changeId',
+    '$getModel',
   ];
   sortedBy: string = '';
 

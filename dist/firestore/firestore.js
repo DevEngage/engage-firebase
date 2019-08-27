@@ -122,6 +122,9 @@ var EngageFirestore = /** @class */ (function () {
             '$$getSortedParentList',
             '$moveDown',
             '$moveUp',
+            '$swapPosition',
+            '$changeId',
+            '$getModel',
         ];
         this.sortedBy = '';
         this.init();
