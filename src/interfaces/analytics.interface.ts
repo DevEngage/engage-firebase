@@ -8,6 +8,8 @@ export interface IEngageAnalyticGraph {
 export interface IEngageAnalytic {
     // Field in collection that will be recorded
     field?: string;
+    // collection to add field to field
+    analyticField?: string;
     // collection to add field to 
     analyticId?: string;
     // $analytics doc model
