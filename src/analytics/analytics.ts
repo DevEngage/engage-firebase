@@ -1,27 +1,26 @@
-
-export interface IEngageAnalyticGraph {
-    collection?: string;
-    data?: any;
-}
-
-export interface IEngageAnalytic {
-    field?: string;
-    collection?: string;
-    graphCollection?: any; // name, etc..
-    analyticDoc?: string;
-    action?: 'add' | 'minus' | 'multiply' | 'divide' | 'set';
-}
+import { IEngageAnalytic } from "../interfaces/analytics.interface";
 
 export class EngageAnalytics {
+    collection: any;
 
-    constructor(public path: string, public data: IEngageAnalytic[]) {
+    constructor(public path: string, public data?: IEngageAnalytic[]) {
         //path: $analytics/watchingValues
+    }
+
+    setModel(data: IEngageAnalytic[]) {
+        this.data = data;
+        return this;
+    }
+
+    setCollection(storeClass) {
+        this.collection = storeClass(this.path);
     }
 
     linkFieldToCollection(field: IEngageAnalytic) {
         // TODO: collection($analytics/watchingValues)
         //  { values }
         // TODO: collection($analytics/watchingValues/relations)
+
     }
 
     healthCheck() {
