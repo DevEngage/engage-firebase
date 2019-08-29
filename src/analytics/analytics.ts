@@ -16,7 +16,8 @@ export class EngageAnalytics {
         this.collection = storeClass(this.path);
     }
 
-    linkFieldToCollection(field: IEngageAnalytic) {
+    linkFieldToCollection(field: IEngageAnalytic, storeClass) {
+        this.collection = storeClass(`$analytics/${field.analyticId}`);
         // TODO: collection($analytics/watchingValues)
         //  { values }
         // TODO: collection($analytics/watchingValues/relations)
