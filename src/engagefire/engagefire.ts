@@ -4,7 +4,7 @@ import 'firebase/storage';
 import 'firebase/firestore';
 
 export class Engagefire {
-  static fireOptions: any;
+  static FIRE_OPTIONS: any;
   private static instance: Engagefire;
   user: any;
   firebase: firebase.app.App;
@@ -22,8 +22,8 @@ export class Engagefire {
     }
     if (firebase.apps[0]) {
       this.firebase = firebase.apps[0];
-    } else if (config || Engagefire.fireOptions) {
-      this.firebase = firebase.initializeApp(config || Engagefire.fireOptions);
+    } else if (config || Engagefire.FIRE_OPTIONS) {
+      this.firebase = firebase.initializeApp(config || Engagefire.FIRE_OPTIONS);
     }
   }
 
@@ -112,7 +112,7 @@ export class Engagefire {
 
 export let engageFireInit = (fireOptions?) => {
   if (fireOptions) {
-    Engagefire.fireOptions = fireOptions;
+    Engagefire.FIRE_OPTIONS = fireOptions;
   }
   return Engagefire.getInstance(fireOptions, true);
 };

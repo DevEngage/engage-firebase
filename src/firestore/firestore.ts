@@ -1,9 +1,8 @@
 import * as firebase from 'firebase/app';
-import * as _ from 'lodash';
-import { engageFireInit } from '../engagefire/engagefire';
-import { EngageAlgolia } from '../algolia/algolia';
-import { EngageImage } from "../image/image";
 import EngageFirestoreBase from './firestore.base';
+import EngageFireDoc from '../doc/doc';
+import { EngageImage } from "../image/image";
+import { engageFireInit } from '../engagefire/engagefire';
 
 declare let document: any;
 declare let XMLHttpRequest: any;
@@ -21,6 +20,13 @@ export default class EngageFirestore extends EngageFirestoreBase {
     public path: string
   ) {
     super(path);
+  }
+
+  async init() {
+    await super.init();
+    this.watchUser((user: any) => {
+      this.publish(user, 'user');
+    });
   }
 
   /*
@@ -135,7 +141,7 @@ export default class EngageFirestore extends EngageFirestoreBase {
 
   async uploadFiles(doc: any, files: any = [], id = 'eng-files') {
     if (this.debug) console.log('File Upload:', files);
-    const storageRef = engageFireInit(EngageFirestore.fireOptions).storage.ref().child(doc.$path);
+    const storageRef = EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).storage.ref().child(doc.$path);
     const element: any = id ? document.getElementById(id) : this.createFileInput();
     const uploaded = [];
     if (!doc) return;
@@ -179,7 +185,7 @@ export default class EngageFirestore extends EngageFirestoreBase {
   }
 
   async uploadImage(doc: any, id?: string, file?: any) {
-    const storageRef = engageFireInit(EngageFirestore.fireOptions).storage.ref().child(doc.$path);
+    const storageRef = EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).storage.ref().child(doc.$path);
     const element: any = id ? document.getElementById(id) : this.createFileInput();
     element.click();
     return new Promise((resolve, reject) => {
@@ -231,8 +237,34 @@ export default class EngageFirestore extends EngageFirestoreBase {
   /* 
     AUTH (FrontEnd)
   */
+
+  async watchUser(cb: any) {
+    await this.ready();
+    EngageFirestoreBase.ENGAGE_FIRE(EngageFirestoreBase.FIRE_OPTIONS).auth.onAuthStateChanged((user) => {
+      if (cb) cb(user || null);
+    });
+  }
+
+  getUserId(): Promise<string> {
+    if (this.userId) {
+      return Promise.resolve(this.userId);
+    } else if (this.appInitialized()) {
+      return new Promise((resolve) =>
+        EngageFirestoreBase.ENGAGE_FIRE.auth.onAuthStateChanged((user) => {
+          if (user && user.uid) {
+            resolve(user.uid);
+          } else {
+            resolve('');
+          }
+        })
+      );
+    } else {
+      return Promise.resolve('');
+    }
+  }
+  
   async login(email: string, password: string) {
-    return await engageFireInit(EngageFirestore.fireOptions).auth.signInWithEmailAndPassword(email, password);
+    return await EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).auth.signInWithEmailAndPassword(email, password);
   }
 
   async loginSocial(service: any, method: string, scope?: any, mobile = false) {
@@ -258,39 +290,60 @@ export default class EngageFirestore extends EngageFirestoreBase {
     if (provider) provider.addScope(scope);
 
     if (method === 'popup') {
-      return await engageFireInit(EngageFirestore.fireOptions).auth.signInWithPopup(provider);
+      return await EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).auth.signInWithPopup(provider);
     } else {
-      return await engageFireInit(EngageFirestore.fireOptions).auth.signInWithRedirect(provider);
+      return await EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).auth.signInWithRedirect(provider);
     }
   }
 
   async signup(email: string, password: string) {
-    return await engageFireInit(EngageFirestore.fireOptions).auth.createUserWithEmailAndPassword(email, password);
+    return await EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).auth.createUserWithEmailAndPassword(email, password);
   }
 
   async logout() {
-    return await engageFireInit(EngageFirestore.fireOptions).auth.signOut();
+    return await EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).auth.signOut();
   }
 
   async sendEmailVerification() {
-    return await (<any>engageFireInit(EngageFirestore.fireOptions).auth).sendEmailVerification();
+    return await (<any>EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).auth).sendEmailVerification();
   }
 
   async forgotPassword(email: string) {
-    return await engageFireInit(EngageFirestore.fireOptions).auth.sendPasswordResetEmail(email);
+    return await EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).auth.sendPasswordResetEmail(email);
   }
 
   async updatePassword(newPassword: any) {
-    return await (<any>engageFireInit(EngageFirestore.fireOptions).auth).updatePassword(newPassword);
+    return await (<any>EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).auth).updatePassword(newPassword);
   }
 
-  search(query?: string, filters?: string, debug = false) {
-    const index = EngageAlgolia.getIndex(<string>this.path);
-    return index.search(query, filters, debug);
+  /* 
+   * STATIC SETUP
+   * */
+  static set __DOC__(doc) {
+    EngageFirestore.DOC = doc;
+    EngageFirestoreBase.DOC = doc;
+    EngageFireDoc.STORE = EngageFirestore;
+  }
+
+  static set __ENGAGE_FIRE__(engageFire) {
+    EngageFirestore.ENGAGE_FIRE = engageFire;
+    EngageFirestoreBase.ENGAGE_FIRE = engageFire;
+  }
+
+  static set __FIRE_OPTIONS__(options) {
+    EngageFirestore.FIRE_OPTIONS = options;
+    EngageFirestoreBase.FIRE_OPTIONS = options;
+  }
+
+  static set __STATE__(state) {
+    EngageFirestore.STATE = state;
+    EngageFirestoreBase.STATE = state;
   }
 
 }
 
+EngageFirestore.__DOC__ = EngageFireDoc;
+EngageFirestore.__ENGAGE_FIRE__ = engageFireInit;
 
 // export EngageFirestore
 export let engageFirestore = (path: string, options?: any) => EngageFirestore.getInstance(path, options);

@@ -35,88 +35,51 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var firebase = require("firebase/app");
-require("firebase/auth");
-require("firebase/storage");
-require("firebase/firestore");
-var Engagefire = /** @class */ (function () {
-    function Engagefire(config, enablePersistence) {
-        this.config = config;
-        this.enablePersistence = enablePersistence;
+// import * as firebase from 'firebase/app';
+// import 'firebase/auth';
+// import 'firebase/storage';
+// import 'firebase/firestore';
+var admin = require('firebase-admin');
+var functions = require('firebase-functions');
+var EngagefireFunctions = /** @class */ (function () {
+    function EngagefireFunctions() {
         this.initialized = false;
-        if (this.enablePersistence === undefined) {
-            this.enablePersistence = true;
-        }
-        if (firebase.apps[0]) {
-            this.firebase = firebase.apps[0];
-        }
-        else if (config || Engagefire.FIRE_OPTIONS) {
-            this.firebase = firebase.initializeApp(config || Engagefire.FIRE_OPTIONS);
-        }
+        this.init();
     }
-    Engagefire.prototype.init = function () {
+    EngagefireFunctions.prototype.init = function () {
         return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.initFirestore()];
-                    case 1:
-                        _a.sent();
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        admin.initializeApp(functions.config().firebase);
+                        // this.firebase
+                        this.firestore = admin.firestore();
                         this.initialized = true;
                         console.log('INITIALIZING ENGAGE FIREBASE');
-                        this.auth = firebase.auth();
-                        this.storage = firebase.storage();
-                        firebase.auth().onAuthStateChanged(function (user) {
-                            _this.user = user;
-                        });
+                        this.auth = admin.auth();
+                        _a = this;
+                        return [4 /*yield*/, this.auth.currentUser];
+                    case 1:
+                        _a.user = _b.sent();
                         return [2 /*return*/];
                 }
             });
         });
     };
-    Engagefire.prototype.getFirebaseProjectId = function () {
-        if (!firebase.app().options)
-            return null;
-        return firebase.app().options['authDomain'].split('.')[0];
-    };
-    Engagefire.prototype.initFirestore = function () {
-        var _this = this;
-        return new Promise(function (resolve, reject) {
-            _this.firestore = firebase.firestore();
-            if (_this.firestore.app) {
-                return resolve();
-            }
-            // this.firestore.settings({ timestampsInSnapshots: true });
-            if (_this.enablePersistence) {
-                firebase.firestore().enablePersistence()
-                    .then(function () {
-                    // Initialize Cloud Firestore through firebase
-                    _this.initialized = true;
-                    resolve();
-                })
-                    .catch(function (err) {
-                    console.error('ENGAGE FS ERROR', err);
-                    // this.firestore.settings({ timestampsInSnapshots: true });
-                    resolve();
-                    reject(err);
-                    if (err.code == 'failed-precondition') {
-                        // Multiple tabs open, persistence can only be enabled
-                        // in one tab at a a time.
-                        // ...
-                    }
-                    else if (err.code == 'unimplemented') {
-                        // The current browser does not support all of the
-                        // features required to enable persistence
-                        // ...
-                    }
-                });
-            }
-            else {
-                resolve();
-            }
+    EngagefireFunctions.prototype.initStorage = function (bucketName, accountJson) {
+        this.serviceAccount = require(accountJson);
+        admin.initializeApp({
+            credential: admin.credential.cert(this.serviceAccount),
+            storageBucket: bucketName + ".appspot.com"
         });
+        this.storage = admin.storage().bucket();
+        return this;
     };
-    Engagefire.prototype.access = function () {
+    EngagefireFunctions.prototype.getFirebaseProjectId = function () {
+        return functions.config().env.auth_domain.split('.')[0];
+    };
+    EngagefireFunctions.prototype.access = function () {
         return {
             user: this.user,
             firebase: this.firebase,
@@ -126,7 +89,7 @@ var Engagefire = /** @class */ (function () {
             initialized: this.initialized
         };
     };
-    Engagefire.prototype.ready = function () {
+    EngagefireFunctions.prototype.ready = function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -143,20 +106,20 @@ var Engagefire = /** @class */ (function () {
         });
     };
     // Create a Singleton to help prevent initializing firebase more than once.
-    Engagefire.getInstance = function (config, enablePersistence) {
-        if (!Engagefire.instance) {
-            Engagefire.instance = new Engagefire(config, enablePersistence);
+    EngagefireFunctions.getInstance = function () {
+        if (!EngagefireFunctions.instance) {
+            EngagefireFunctions.instance = new EngagefireFunctions();
         }
-        return Engagefire.instance;
+        return EngagefireFunctions.instance;
     };
-    return Engagefire;
+    return EngagefireFunctions;
 }());
-exports.Engagefire = Engagefire;
+exports.EngagefireFunctions = EngagefireFunctions;
 // export let engageFire = Engagefire.getInstance(undefined, true);
 exports.engageFireInit = function (fireOptions) {
     if (fireOptions) {
-        Engagefire.FIRE_OPTIONS = fireOptions;
+        EngagefireFunctions.FIRE_OPTIONS = fireOptions;
     }
-    return Engagefire.getInstance(fireOptions, true);
+    return EngagefireFunctions.getInstance();
 };
-//# sourceMappingURL=engagefire.js.map
+//# sourceMappingURL=engagefire.functions.js.map

@@ -5,7 +5,7 @@ import 'firebase/firestore';
 export declare class Engagefire {
     protected config?: any;
     enablePersistence?: boolean;
-    static fireOptions: any;
+    static FIRE_OPTIONS: any;
     private static instance;
     user: any;
     firebase: firebase.app.App;
@@ -15,6 +15,7 @@ export declare class Engagefire {
     initialized: boolean;
     private constructor();
     init(): Promise<void>;
+    getFirebaseProjectId(): any;
     initFirestore(): Promise<unknown>;
     access(): {
         user: any;

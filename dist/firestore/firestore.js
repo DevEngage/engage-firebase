@@ -1,4 +1,17 @@
 "use strict";
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = function (d, b) {
+        extendStatics = Object.setPrototypeOf ||
+            ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+            function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+        return extendStatics(d, b);
+    };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var __assign = (this && this.__assign) || function () {
     __assign = Object.assign || function(t) {
         for (var s, i = 1, n = arguments.length; i < n; i++) {
@@ -47,899 +60,41 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var firebase = require("firebase/app");
-var _ = require("lodash");
-var engagefire_1 = require("../engagefire/engagefire");
-var pubsub_1 = require("../pubsub/pubsub");
+var firestore_base_1 = require("./firestore.base");
 var doc_1 = require("../doc/doc");
-var algolia_1 = require("../algolia/algolia");
 var image_1 = require("../image/image");
+var engagefire_1 = require("../engagefire/engagefire");
 /*
  * TODO:
- * [ ] Implement State Manage,
- * [ ] Create query system that can save query models
  * [X] Show upload progress
  * [X] Handle file uploads better
- * [ ] Fully test everything!
  * [X] Add types (models) to doc in class
- * [ ] Add Model system
- * [ ] Integrate User name ($getUserName)
- * [ ] Change doc methods to doc prototype methods. Maybe make a class?
  * */
-var EngageFirestore = /** @class */ (function () {
-    function EngageFirestore(path, db, // admin, firebase
-    docWrapper) {
-        if (docWrapper === void 0) { docWrapper = doc_1.default; }
-        this.path = path;
-        this.db = db;
-        this.docWrapper = docWrapper;
-        this.$loading = true;
-        this.userId = '';
-        this.state = window.ENGAGE_STATE;
-        this.ps = pubsub_1.engagePubsub;
-        this.firebaseReady = false;
-        this.checkTime = 200;
-        this.checkLimit = 50;
-        this.debug = false;
-        this.subCollections = [];
-        this.list = [];
-        this.model = [];
-        this.omitList = [
-            '$key',
-            '$value',
-            '$exists',
-            '$params',
-            '$ref',
-            '$save',
-            '$update',
-            '$set',
-            '$get',
-            '$attachOwner',
-            '$addFiles',
-            '$setImage',
-            '$removeImage',
-            '$removeFile',
-            '$downloadFile',
-            '$remove',
-            '$watch',
-            '$watchPromise',
-            '$isOwner',
-            '$getFile',
-            '$getFiles',
-            '$path',
-            '$backup',
-            '$engageFireStore',
-            '$owner',
-            '$doc',
-            '$collections',
-            '$$difference',
-            '$$updateDoc',
-            '$$init',
-            '$getProgress',
-            '$omitList',
-            '$collectionsList',
-            '$loading',
-            '$getSubCollection',
-            '$$getSortedParentList',
-            '$moveDown',
-            '$moveUp',
-            '$swapPosition',
-            '$changeId',
-            '$getModel',
-        ];
-        this.sortedBy = '';
-        this.init();
+var EngageFirestore = /** @class */ (function (_super) {
+    __extends(EngageFirestore, _super);
+    function EngageFirestore(path) {
+        var _this = _super.call(this, path) || this;
+        _this.path = path;
+        return _this;
     }
     EngageFirestore.prototype.init = function () {
         return __awaiter(this, void 0, void 0, function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).ready()];
+                    case 0: return [4 /*yield*/, _super.prototype.init.call(this)];
                     case 1:
                         _a.sent();
-                        if (!this.db) {
-                            this.db = engagefire_1.engageFireInit(EngageFirestore.fireOptions).firestore;
-                        }
-                        if (!window.ENGAGE_STATE) {
-                            window.ENGAGE_STATE = {};
-                            this.state = window.ENGAGE_STATE;
-                        }
-                        if (_.isString(this.path)) {
-                            this.ref = this.db.collection(this.path);
-                        }
-                        else {
-                            this.ref = this.path;
-                        }
-                        if (this.appInitialized() && firebase && firebase.auth() && firebase.auth().currentUser) {
-                            this.auth = firebase.auth().currentUser;
-                            this.publish(this.auth, 'user');
-                            if (this.auth) {
-                                this.userId = this.auth.uid;
-                                if (this.debug)
-                                    console.log('userId', this.userId);
-                            }
-                        }
                         this.watchUser(function (user) {
                             _this.publish(user, 'user');
                         });
-                        this.firebaseReady = true;
-                        return [4 /*yield*/, this.getModelFromDb()];
-                    case 2:
-                        _a.sent();
-                        this.$loading = false;
                         return [2 /*return*/];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.addSubCollections = function (collections) {
-        this.subCollections = this.subCollections.concat(collections);
-        return this;
-    };
-    EngageFirestore.prototype.toggleDebug = function () {
-        this.debug = !this.debug;
-    };
-    EngageFirestore.prototype.canSub = function () {
-        return !!this.ps;
-    };
-    EngageFirestore.prototype.publish = function (data, what) {
-        return this.ps.publish(data, what);
-    };
-    EngageFirestore.prototype.subscribe = function (what, listener) {
-        return this.ps.subscribe(what, listener);
-    };
-    EngageFirestore.prototype.ready = function () {
-        var _this = this;
-        var limit = this.checkLimit;
-        var interval;
-        if (this.firebaseReady)
-            return Promise.resolve(this.userId);
-        return new Promise(function (resolve, reject) {
-            interval = setInterval(function () {
-                limit--;
-                if (_this.firebaseReady) {
-                    clearInterval(interval);
-                    resolve(_this.userId);
-                }
-                else if (limit < 0) {
-                    clearInterval(interval);
-                    reject('timed out');
-                }
-            }, _this.checkTime);
-        });
-    };
-    EngageFirestore.prototype.watchUser = function (cb) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.onAuthStateChanged(function (user) {
-                            if (cb)
-                                cb(user || null);
-                        });
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.appInitialized = function () {
-        return firebase.apps.length;
-    };
-    EngageFirestore.prototype.getUserId = function () {
-        if (this.userId) {
-            return Promise.resolve(this.userId);
-        }
-        else if (this.appInitialized()) {
-            return new Promise(function (resolve) {
-                return firebase.auth().onAuthStateChanged(function (user) {
-                    if (user && user.uid) {
-                        resolve(user.uid);
-                    }
-                    else {
-                        resolve('');
-                    }
-                });
-            });
-        }
-        else {
-            return Promise.resolve('');
-        }
-    };
-    EngageFirestore.prototype.getUserFromAuth = function () {
-        return this.auth;
-    };
-    EngageFirestore.prototype.getCollection = function () {
-        return this.ref;
-    };
-    EngageFirestore.prototype.getDoc = function (id) {
-        return this.ref.doc(id);
-    };
-    EngageFirestore.prototype.getSubCollection = function (id, collectionName) {
-        return this.ref.doc(id).collection(collectionName);
-    };
-    EngageFirestore.prototype.getId = function () {
-        return this.id;
-    };
-    EngageFirestore.prototype.setId = function (id) {
-        this.id = id;
-    };
-    EngageFirestore.prototype.getAll = function () {
-        return this.ref.get();
-    };
-    EngageFirestore.prototype.options = function (options) {
-        if (options === void 0) { options = { loadList: true }; }
-        if (options.loadList) {
-            this.getList();
-        }
-        return this;
-    };
-    EngageFirestore.prototype.getChildDocs = function (doc) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _a, _b, _i, key, element, _c, _d;
-            return __generator(this, function (_e) {
-                switch (_e.label) {
-                    case 0:
-                        _a = [];
-                        for (_b in doc)
-                            _a.push(_b);
-                        _i = 0;
-                        _e.label = 1;
-                    case 1:
-                        if (!(_i < _a.length)) return [3 /*break*/, 4];
-                        key = _a[_i];
-                        if (!doc.hasOwnProperty(key)) return [3 /*break*/, 3];
-                        element = doc[key];
-                        if (!(element && element.$id && element.$collection)) return [3 /*break*/, 3];
-                        _c = doc;
-                        _d = key;
-                        return [4 /*yield*/, exports.engageFirestore(element.$collection).get(element.$id)];
-                    case 2:
-                        _c[_d] = _e.sent();
-                        _e.label = 3;
-                    case 3:
-                        _i++;
-                        return [3 /*break*/, 1];
-                    case 4: return [2 /*return*/, doc];
-                }
-            });
-        });
-    };
-    // get data with ids added
-    EngageFirestore.prototype.getList = function (ref) {
-        return __awaiter(this, void 0, void 0, function () {
-            var list;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        this.$loading = true;
-                        return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        if (!ref)
-                            ref = this.ref;
-                        return [4 /*yield*/, ref.get()];
-                    case 2:
-                        list = _a.sent();
-                        this.list = this.addFireList(list);
-                        this.$loading = false;
-                        return [2 /*return*/, this.list];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.getOnce = function (docId, pure) {
-        if (docId === void 0) { docId = this.id; }
-        if (pure === void 0) { pure = false; }
-        return __awaiter(this, void 0, void 0, function () {
-            var doc, error_1;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        this.$loading = true;
-                        return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        _a.label = 2;
-                    case 2:
-                        _a.trys.push([2, 4, , 5]);
-                        return [4 /*yield*/, this.ref.doc(docId).get()];
-                    case 3:
-                        doc = _a.sent();
-                        this.$loading = false;
-                        if (pure) {
-                            return [2 /*return*/, doc];
-                        }
-                        else if (doc.exists) {
-                            return [2 /*return*/, this.addFire(doc.data(), docId)];
-                        }
-                        return [2 /*return*/, null];
-                    case 4:
-                        error_1 = _a.sent();
-                        return [2 /*return*/, null];
-                    case 5: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.getWithChildern = function (docId, ref) {
-        if (docId === void 0) { docId = this.id; }
-        return __awaiter(this, void 0, void 0, function () {
-            var doc;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.get(docId, ref)];
-                    case 2:
-                        doc = _a.sent();
-                        if (!doc) return [3 /*break*/, 4];
-                        return [4 /*yield*/, this.getChildDocs(doc)];
-                    case 3:
-                        doc = _a.sent();
-                        _a.label = 4;
-                    case 4: return [2 /*return*/, doc];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.get = function (docId, ref) {
-        if (docId === void 0) { docId = this.id; }
-        return __awaiter(this, void 0, void 0, function () {
-            var doc, fireDoc_1, index, error_2;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        this.$loading = true;
-                        return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        if (!ref)
-                            ref = this.ref;
-                        _a.label = 2;
-                    case 2:
-                        _a.trys.push([2, 4, , 5]);
-                        return [4 /*yield*/, ref.doc(docId).get()];
-                    case 3:
-                        doc = _a.sent();
-                        this.$loading = false;
-                        if (doc.exists) {
-                            fireDoc_1 = this.addFire(doc.data(), docId);
-                            index = this.list.findIndex(function (item) { return item.$id === fireDoc_1.$id; });
-                            if (index > -1)
-                                this.list[index] = fireDoc_1;
-                            else
-                                this.list.push(fireDoc_1);
-                            return [2 /*return*/, fireDoc_1];
-                        }
-                        return [2 /*return*/, null];
-                    case 4:
-                        error_2 = _a.sent();
-                        console.error(error_2);
-                        return [2 /*return*/, null];
-                    case 5: return [2 /*return*/];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.add = function (newDoc, ref) {
-        return __awaiter(this, void 0, void 0, function () {
-            var blank;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        newDoc.$loading = true;
-                        return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        if (!ref)
-                            ref = this.ref;
-                        if (newDoc && (newDoc.$key || newDoc.$id)) {
-                            newDoc.$loading = false;
-                            return [2 /*return*/, this.update(newDoc, ref)];
-                        }
-                        if (this.debug)
-                            console.log("add", newDoc);
-                        newDoc = this.omitFire(newDoc);
-                        blank = ref.doc();
-                        return [4 /*yield*/, blank.set(newDoc)];
-                    case 2:
-                        _a.sent();
-                        return [2 /*return*/, this.addFire(newDoc, blank.id)];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.set = function (newDoc, docRef) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        console.log(docRef);
-                        newDoc.$loading = true;
-                        return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        if (this.debug)
-                            console.log("set", newDoc);
-                        newDoc = this.omitFire(newDoc);
-                        return [4 /*yield*/, docRef.set(newDoc)];
-                    case 2:
-                        _a.sent();
-                        return [2 /*return*/, this.addFire(newDoc, docRef.id)];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.setWithId = function (id, newDoc) {
-        return this.set(newDoc, this.ref.doc(id));
-    };
-    EngageFirestore.prototype.update = function (doc, ref) {
-        return __awaiter(this, void 0, void 0, function () {
-            var docRef;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        doc.$loading = true;
-                        return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        if (!ref)
-                            ref = this.ref;
-                        if (!doc.$id) return [3 /*break*/, 3];
-                        docRef = ref.doc(doc.$id);
-                        doc.$loading = false;
-                        return [4 /*yield*/, docRef.get()];
-                    case 2:
-                        if (!(_a.sent()).exists)
-                            return [2 /*return*/, this.set(doc, docRef)];
-                        return [3 /*break*/, 6];
-                    case 3:
-                        if (!doc.$key) return [3 /*break*/, 5];
-                        docRef = ref.doc(doc.$key);
-                        doc.$loading = false;
-                        return [4 /*yield*/, docRef.get()];
-                    case 4:
-                        if (!(_a.sent()).exists)
-                            return [2 /*return*/, this.set(doc, docRef)];
-                        return [3 /*break*/, 6];
-                    case 5:
-                        if (!ref.id) {
-                            doc.$loading = false;
-                            throw 'no id';
-                        }
-                        _a.label = 6;
-                    case 6:
-                        if (this.debug)
-                            console.log("updated", doc);
-                        doc = this.omitFire(doc);
-                        return [4 /*yield*/, docRef.update(doc)];
-                    case 7:
-                        _a.sent();
-                        return [2 /*return*/, this.addFire(doc, docRef.id)];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.save = function (newDoc, ref) {
-        return __awaiter(this, void 0, void 0, function () {
-            var doc;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        newDoc = this.omitFire(newDoc);
-                        newDoc.updatedAt = Date.now();
-                        if (!(newDoc && (newDoc.$key || newDoc.$id))) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.update(newDoc, ref)];
-                    case 2:
-                        doc = _a.sent();
-                        return [3 /*break*/, 7];
-                    case 3:
-                        if (!(ref && ref.id)) return [3 /*break*/, 5];
-                        newDoc.createdAt = Date.now();
-                        return [4 /*yield*/, this.set(newDoc, ref)];
-                    case 4:
-                        doc = _a.sent();
-                        return [3 /*break*/, 7];
-                    case 5:
-                        newDoc.createdAt = Date.now();
-                        return [4 /*yield*/, this.add(newDoc, ref)];
-                    case 6:
-                        doc = _a.sent();
-                        this.list = this.list.concat([doc]);
-                        _a.label = 7;
-                    case 7:
-                        doc.$loading = false;
-                        return [2 /*return*/, doc];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.saveWithId = function (id, newDoc) {
-        return this.save(newDoc, this.ref.doc(id));
-    };
-    EngageFirestore.prototype.remove = function (id, ref) {
-        if (!ref)
-            ref = this.ref;
-        if (this.debug)
-            console.log('removing: ', id);
-        return ref.doc(id).delete();
-    };
-    EngageFirestore.prototype.addFireList = function (collection) {
-        var _this = this;
-        var list = [];
-        if (collection && collection.size) {
-            collection.forEach(function (doc) {
-                if (doc.exists) {
-                    list.push(_this.addFire(doc.data(), doc.id));
-                }
-            });
-        }
-        return list;
-    };
-    EngageFirestore.prototype.addFire = function (obj, id) {
-        if (_.isObject(this.docWrapper)) {
-            obj.$id = id;
-            return new this.docWrapper(obj, this.path, this.subCollections);
-        }
-        return obj;
-    };
-    EngageFirestore.prototype.omitFireList = function (list) {
-        var _this = this;
-        _.each(list, function (val, i) {
-            list[i] = _this.omitFire(val);
-        });
-        return list;
-    };
-    EngageFirestore.prototype.omitFire = function (payload) {
-        var _this = this;
-        if (payload && payload.$omitList) {
-            payload = _.omit(payload, payload.$omitList);
-        }
-        var omitted = _.omit(payload, this.omitList);
-        _.forIn(omitted, function (val, i) {
-            if (_.isArray(val)) {
-                omitted[i] = val.map(function (item) {
-                    if (!_.isArray(val) && _.isObject(item)) {
-                        _this.omitFire(item);
-                    }
-                    return item;
-                });
-            }
-            else if (_.isObject(val)) {
-                omitted[i] = _this.omitFire(val);
-                if (val && val[i] && val[i].$id) {
-                    omitted[i] = {
-                        $id: val[i].$id,
-                        $collection: val[i].$collection || i + 's',
-                        $image: val[i].$image || '',
-                        name: val[i].name || '',
-                    };
-                }
-            }
-        });
-        return omitted;
-    };
-    EngageFirestore.prototype.getFirebaseProjectId = function () {
-        if (!firebase.app().options)
-            return null;
-        return firebase.app().options['authDomain'].split('.')[0];
-    };
-    /*
-     * Firestore Base
-     */
-    EngageFirestore.prototype.watch = function (id, cb, ref) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        if (!ref)
-                            ref = this.ref;
-                        ref.doc(id).onSnapshot(function (doc) {
-                            if (doc && doc.data()) {
-                                cb(_this.addFire(doc.data(), doc.id), doc);
-                            }
-                            else {
-                                cb(null, doc);
-                            }
-                        });
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.watchList = function (cb, ref) {
-        return __awaiter(this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        if (!ref)
-                            ref = this.ref;
-                        ref.onSnapshot(function (snapshot) {
-                            if (_.isArray(cb)) {
-                                cb = _this.addFireList(snapshot);
-                            }
-                            else {
-                                cb(_this.addFireList(snapshot));
-                            }
-                        });
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.watchPromise = function (id, ref) {
-        var _this = this;
-        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        if (!ref)
-                            ref = this.ref;
-                        ref.doc(id).onSnapshot(function (doc) {
-                            if (doc && doc.data()) {
-                                resolve({ value: _this.addFire(doc.data(), doc.id), doc: doc });
-                            }
-                            else {
-                                resolve({ value: null, doc: doc });
-                            }
-                        }, reject);
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-    };
-    EngageFirestore.prototype.watchListPromise = function (ref) {
-        var _this = this;
-        return new Promise(function (resolve, reject) { return __awaiter(_this, void 0, void 0, function () {
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        if (!ref)
-                            ref = this.ref;
-                        ref.onSnapshot(function (snapshot) {
-                            resolve({ list: _this.addFireList(snapshot), snapshot: snapshot });
-                        }, reject);
-                        return [2 /*return*/];
-                }
-            });
-        }); });
-    };
-    /* State Management */
-    EngageFirestore.prototype.watchState = function (name) {
-        this.state[name];
-    };
-    EngageFirestore.prototype.setState = function (name) {
-        this.state[name];
-    };
-    EngageFirestore.prototype.getState = function (name) {
-        this.state[name];
-    };
-    /**
-     * Delete a collection, in batches of batchSize. Note that this does
-     * not recursively delete subcollections of documents in the collection
-     */
-    EngageFirestore.prototype.deleteCollection = function (collectionRef, batchSize) {
-        var _this = this;
-        if (collectionRef === void 0) { collectionRef = this.ref; }
-        if (batchSize === void 0) { batchSize = 50; }
-        var query = collectionRef.limit(batchSize);
-        return new Promise(function (resolve, reject) {
-            _this.deleteQueryBatch(_this.db, query, batchSize, resolve, reject);
-        });
-    };
-    EngageFirestore.prototype.deleteQueryBatch = function (db, query, batchSize, resolve, reject) {
-        return __awaiter(this, void 0, void 0, function () {
-            var numDeleted, snapshot, batch_1, error_3;
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        _a.trys.push([0, 5, , 6]);
-                        numDeleted = 0;
-                        return [4 /*yield*/, query.get()];
-                    case 1:
-                        snapshot = _a.sent();
-                        if (!(snapshot.size == 0)) return [3 /*break*/, 2];
-                        numDeleted = 0;
-                        return [3 /*break*/, 4];
-                    case 2:
-                        batch_1 = db.batch();
-                        snapshot.docs.forEach(function (doc) {
-                            batch_1.delete(doc.ref);
-                        });
-                        return [4 /*yield*/, batch_1.commit()];
-                    case 3:
-                        _a.sent();
-                        numDeleted = snapshot.size;
-                        _a.label = 4;
-                    case 4:
-                        if (numDeleted <= batchSize) {
-                            resolve();
-                            return [2 /*return*/];
-                        }
-                        // Recurse on the next process tick, to avoid
-                        // exploding the stack.
-                        process.nextTick(function () {
-                            _this.deleteQueryBatch(db, query, batchSize, resolve, reject);
-                        });
-                        return [3 /*break*/, 6];
-                    case 5:
-                        error_3 = _a.sent();
-                        reject(error_3);
-                        return [3 /*break*/, 6];
-                    case 6: return [2 /*return*/];
                 }
             });
         });
     };
     /*
-     * UTILITIES
-     */
-    EngageFirestore.prototype.replaceId = function (oldId, newId, ref) {
-        return __awaiter(this, void 0, void 0, function () {
-            var data;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        if (!ref)
-                            ref = this.ref;
-                        return [4 /*yield*/, this.get(oldId, ref)];
-                    case 2:
-                        data = _a.sent();
-                        if (data === null) {
-                            console.log('cant find record for: ' + oldId);
-                            return [2 /*return*/, 'cant find record'];
-                        }
-                        data = this.addFire(data, newId);
-                        return [4 /*yield*/, this.save(data)];
-                    case 3:
-                        _a.sent();
-                        return [4 /*yield*/, this.remove(oldId, ref)];
-                    case 4: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.replaceIdOnCollection = function (oldId, newId, subRef) {
-        return __awaiter(this, void 0, void 0, function () {
-            var data;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        if (!subRef) {
-                            subRef = this.ref;
-                        }
-                        return [4 /*yield*/, this.get(oldId, subRef)];
-                    case 2:
-                        data = _a.sent();
-                        if (data === null) {
-                            console.log('cant find record for: ' + oldId);
-                            return [2 /*return*/, 'cant find record'];
-                        }
-                        data = this.addFire(data, newId);
-                        return [4 /*yield*/, this.save(data, subRef)];
-                    case 3:
-                        _a.sent();
-                        return [4 /*yield*/, this.remove(oldId, subRef)];
-                    case 4: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.moveRecord = function (oldPath, newPath) {
-        return __awaiter(this, void 0, void 0, function () {
-            var record, doc;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!this.db)
-                            return [2 /*return*/, null];
-                        return [4 /*yield*/, this.db.doc(oldPath).get()];
-                    case 1:
-                        record = _a.sent();
-                        record = record.data();
-                        console.log('record move', record);
-                        return [4 /*yield*/, this.db.doc(newPath).set(record)];
-                    case 2:
-                        _a.sent();
-                        doc = this.db.doc(oldPath);
-                        return [4 /*yield*/, doc.remove()];
-                    case 3: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.copyRecord = function (oldPath, newPath, updateTimestamp) {
-        if (updateTimestamp === void 0) { updateTimestamp = false; }
-        return __awaiter(this, void 0, void 0, function () {
-            var record;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        if (!this.db)
-                            return [2 /*return*/, null];
-                        return [4 /*yield*/, this.db.doc(oldPath).get()];
-                    case 1:
-                        record = _a.sent();
-                        record = record.data();
-                        if (updateTimestamp)
-                            record.updatedAt = Date.now();
-                        console.log('record move', record);
-                        return [4 /*yield*/, this.db.doc(newPath).set(record)];
-                    case 2: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.backupDoc = function (doc, deep, backupPath) {
-        if (deep === void 0) { deep = true; }
-        if (backupPath === void 0) { backupPath = '_backups'; }
-        return __awaiter(this, void 0, void 0, function () {
-            var timestamp, ef;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        console.log('deep', deep);
-                        timestamp = Date.now();
-                        if (!doc)
-                            return [2 /*return*/, Promise.reject('Missing Doc')];
-                        ef = new EngageFirestore(backupPath + '/' + timestamp + '/' + doc.$path);
-                        doc.$backupAt = timestamp;
-                        return [4 /*yield*/, doc.$save()];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, ef.save(__assign({}, doc, { updatedAt: timestamp }))];
-                    case 2: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
-    // async backupCollection(collection, deep = true, backupPath = '_backups') {
-    //   const ef = new EngageFirestore(collection.path);
-    //   await Promise.all((await ef.getList()).map(async doc => {
-    //     await this.backupDoc(doc, backupPath);
-    //     doc.$subCollections
-    //     if (collection && collection.subCollections.length) {
-    //       return await Promise.all(collection.subCollections.map((subCollection: EngageICollection) => {
-    //         subCollection.path = subCollection.path + '/' + doc.$id;
-    //         return this.backupCollection(subCollection, backupPath);
-    //       }));
-    //     } else {
-    //       return true;
-    //     }
-    //
-    //     return await this.backupDoc(doc, backupPath);
-    //   }));
-    // }
-    /* TODO: */
-    EngageFirestore.prototype.restore = function () {
-        return __awaiter(this, void 0, void 0, function () { return __generator(this, function (_a) {
-            return [2 /*return*/];
-        }); });
-    };
-    /*
-     * FILES
+     * FILES (FrontEnd)
      * */
     EngageFirestore.prototype.createFileInput = function (multi, accept) {
         if (multi === void 0) { multi = false; }
@@ -1068,13 +223,13 @@ var EngageFirestore = /** @class */ (function () {
         if (files === void 0) { files = []; }
         if (id === void 0) { id = 'eng-files'; }
         return __awaiter(this, void 0, void 0, function () {
-            var storageRef, element, uploaded, docFileCollection, i, file, preFile, error_4, snapshot;
+            var storageRef, element, uploaded, docFileCollection, i, file, preFile, error_1, snapshot;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         if (this.debug)
                             console.log('File Upload:', files);
-                        storageRef = engagefire_1.engageFireInit(EngageFirestore.fireOptions).storage.ref().child(doc.$path);
+                        storageRef = EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).storage.ref().child(doc.$path);
                         element = id ? document.getElementById(id) : this.createFileInput();
                         uploaded = [];
                         if (!doc)
@@ -1105,8 +260,8 @@ var EngageFirestore = /** @class */ (function () {
                         preFile = _a.sent();
                         return [3 /*break*/, 7];
                     case 6:
-                        error_4 = _a.sent();
-                        console.error('Engage file upload:', error_4);
+                        error_1 = _a.sent();
+                        console.error('Engage file upload:', error_1);
                         return [3 /*break*/, 7];
                     case 7: return [4 /*yield*/, storageRef
                             .child('files')
@@ -1139,7 +294,7 @@ var EngageFirestore = /** @class */ (function () {
             var storageRef, element;
             var _this = this;
             return __generator(this, function (_a) {
-                storageRef = engagefire_1.engageFireInit(EngageFirestore.fireOptions).storage.ref().child(doc.$path);
+                storageRef = EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).storage.ref().child(doc.$path);
                 element = id ? document.getElementById(id) : this.createFileInput();
                 element.click();
                 return [2 /*return*/, new Promise(function (resolve, reject) {
@@ -1184,110 +339,8 @@ var EngageFirestore = /** @class */ (function () {
         });
     };
     /*
-      Model
+      Files (FrontEnd)
     */
-    EngageFirestore.prototype.addModelField = function (field) {
-        return __awaiter(this, void 0, void 0, function () {
-            var model, _a, _b, _c;
-            return __generator(this, function (_d) {
-                switch (_d.label) {
-                    case 0:
-                        model = {
-                            $collection: this.path,
-                            name: '',
-                            label: _.capitalize(_.startCase(field))
-                        };
-                        if (typeof field === 'string') {
-                            model.name = field;
-                        }
-                        else {
-                            model = __assign({}, model, field);
-                        }
-                        _a = this;
-                        _c = (_b = this.model).concat;
-                        return [4 /*yield*/, exports.engageFirestore("$collections/" + this.path + "/$models").save(model)];
-                    case 1:
-                        _a.model = _c.apply(_b, [[
-                                _d.sent()
-                            ]]);
-                        return [2 /*return*/, this.model];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.getModelField = function (field) {
-        return exports.engageFirestore("$collections/" + this.path + "/$models").get(field);
-    };
-    EngageFirestore.prototype.getModel = function () {
-        return this.model;
-    };
-    EngageFirestore.prototype.getModelFromDb = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
-                    case 0:
-                        if (this.path.includes('$collections')) {
-                            return [2 /*return*/, this.model = []];
-                        }
-                        _a = this;
-                        return [4 /*yield*/, exports.engageFirestore("$collections/" + this.path + "/$models").getList()];
-                    case 1:
-                        _a.model = _b.sent();
-                        this.sortModel();
-                        return [2 /*return*/, this.model];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.sortModel = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                this.sortListByPosition(false, false, this.model);
-                return [2 /*return*/, this];
-            });
-        });
-    };
-    /*
-      Files
-    */
-    EngageFirestore.prototype.deleteFile = function (doc, fileId) {
-        return __awaiter(this, void 0, void 0, function () {
-            var fileDoc, desertRef;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, doc.$getSubCollection('files').get(fileId)];
-                    case 1:
-                        fileDoc = _a.sent();
-                        desertRef = engagefire_1.engageFireInit(EngageFirestore.fireOptions).storage.child(fileDoc.meta.storagePath);
-                        return [4 /*yield*/, desertRef.delete().then(function () { return fileDoc.$remove(); })];
-                    case 2: 
-                    // Delete the file
-                    return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.deleteImage = function (doc) {
-        return __awaiter(this, void 0, void 0, function () {
-            var desertRef;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0:
-                        desertRef = engagefire_1.engageFireInit(EngageFirestore.fireOptions).storage.child(doc.$imageMeta.storagePath);
-                        return [4 /*yield*/, desertRef.delete().then(function () {
-                                doc.$image = null;
-                                doc.$thumbnail = null;
-                                doc.$imageOrginal = null;
-                                doc.$imageMeta = null;
-                            })];
-                    case 1: 
-                    // Delete the file
-                    return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
     EngageFirestore.prototype.downloadFile = function (fileUrl) {
         return new Promise(function (resolve) {
             // This can be downloaded directly:
@@ -1301,12 +354,50 @@ var EngageFirestore = /** @class */ (function () {
             xhr.send();
         });
     };
-    /* AUTH */
+    /*
+      AUTH (FrontEnd)
+    */
+    EngageFirestore.prototype.watchUser = function (cb) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.ready()];
+                    case 1:
+                        _a.sent();
+                        firestore_base_1.default.ENGAGE_FIRE(firestore_base_1.default.FIRE_OPTIONS).auth.onAuthStateChanged(function (user) {
+                            if (cb)
+                                cb(user || null);
+                        });
+                        return [2 /*return*/];
+                }
+            });
+        });
+    };
+    EngageFirestore.prototype.getUserId = function () {
+        if (this.userId) {
+            return Promise.resolve(this.userId);
+        }
+        else if (this.appInitialized()) {
+            return new Promise(function (resolve) {
+                return firestore_base_1.default.ENGAGE_FIRE.auth.onAuthStateChanged(function (user) {
+                    if (user && user.uid) {
+                        resolve(user.uid);
+                    }
+                    else {
+                        resolve('');
+                    }
+                });
+            });
+        }
+        else {
+            return Promise.resolve('');
+        }
+    };
     EngageFirestore.prototype.login = function (email, password) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.signInWithEmailAndPassword(email, password)];
+                    case 0: return [4 /*yield*/, EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).auth.signInWithEmailAndPassword(email, password)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -1339,9 +430,9 @@ var EngageFirestore = /** @class */ (function () {
                         if (provider)
                             provider.addScope(scope);
                         if (!(method === 'popup')) return [3 /*break*/, 2];
-                        return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.signInWithPopup(provider)];
+                        return [4 /*yield*/, EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).auth.signInWithPopup(provider)];
                     case 1: return [2 /*return*/, _a.sent()];
-                    case 2: return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.signInWithRedirect(provider)];
+                    case 2: return [4 /*yield*/, EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).auth.signInWithRedirect(provider)];
                     case 3: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -1351,7 +442,7 @@ var EngageFirestore = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.createUserWithEmailAndPassword(email, password)];
+                    case 0: return [4 /*yield*/, EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).auth.createUserWithEmailAndPassword(email, password)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -1361,7 +452,7 @@ var EngageFirestore = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.signOut()];
+                    case 0: return [4 /*yield*/, EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).auth.signOut()];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -1371,7 +462,7 @@ var EngageFirestore = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.sendEmailVerification()];
+                    case 0: return [4 /*yield*/, EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).auth.sendEmailVerification()];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -1381,7 +472,7 @@ var EngageFirestore = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.sendPasswordResetEmail(email)];
+                    case 0: return [4 /*yield*/, EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).auth.sendPasswordResetEmail(email)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -1391,132 +482,53 @@ var EngageFirestore = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, engagefire_1.engageFireInit(EngageFirestore.fireOptions).auth.updatePassword(newPassword)];
+                    case 0: return [4 /*yield*/, EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).auth.updatePassword(newPassword)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
-    // async secureDoc(doc, allowedPermissions) {
-    //   doc.$$secure = true;
-    //   doc.$$allowed = allowedPermissions;
-    //   return await this.save(doc);
-    // }
-    //
-    // async allowUserAccess(doc, id, permission) {
-    //   return await doc.$collection('_permission').save({
-    //     $id: id,
-    //     permission: permission
-    //   });
-    // }
-    //
-    // async addPermission(id, permission) {
-    //   const users = new EngageFirestore('_users/' + id + '/permissions');
-    //   const permissions = new EngageFirestore('_permissions/' + permission.$id + '/routes');
-    //   await users.save({
-    //     $id: id,
-    //     permission: permission
-    //   });
-    //   return await permissions.save({
-    //     $id: id,
-    //     permission: permission
-    //   });
-    // }
-    //
-    // async removePermission() {
-    //
-    // }
-    //
-    // async checkPermission() {
-    //
-    // }
-    EngageFirestore.prototype.search = function (query, filters, debug) {
-        if (debug === void 0) { debug = false; }
-        var index = algolia_1.EngageAlgolia.getIndex(this.path);
-        return index.search(query, filters, debug);
-    };
-    EngageFirestore.prototype.setDocClass = function (docWrapper) {
-        this.docWrapper = docWrapper;
-    };
-    EngageFirestore.getInstance = function (path, options) {
-        if (!EngageFirestore.instances[path]) {
-            EngageFirestore.instances[path] = new EngageFirestore(path);
-        }
-        if (options) {
-            return EngageFirestore.instances[path].options(options);
-        }
-        return EngageFirestore.instances[path];
-    };
-    /* List */
-    EngageFirestore.prototype.sortList = function (sortFunc, _list) {
-        (_list || this.list).sort(sortFunc);
-    };
-    EngageFirestore.prototype.sortListByPosition = function (fresh, reverse, list) {
-        if (fresh === void 0) { fresh = false; }
-        if (reverse === void 0) { reverse = false; }
-        this.sortedBy = 'position';
-        if (fresh) {
-            this.getListByPosition(reverse ? 'asc' : 'desc');
-        }
-        else {
-            this.sortList(function (x, y) {
-                if (reverse) {
-                    return y.position - x.position;
-                }
-                return x.position - y.position;
-            }, list);
-        }
-        return this;
-    };
-    EngageFirestore.prototype.getListByPosition = function (direction) {
-        if (direction === void 0) { direction = 'asc'; }
-        return __awaiter(this, void 0, void 0, function () {
-            var ref;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        ref = this.ref.orderBy('position', direction);
-                        return [4 /*yield*/, this.getList(ref)];
-                    case 2: return [2 /*return*/, _a.sent()];
-                }
-            });
-        });
-    };
-    EngageFirestore.prototype.buildListPositions = function () {
-        return __awaiter(this, void 0, void 0, function () {
-            var promises;
-            var _this = this;
-            return __generator(this, function (_a) {
-                switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.ready()];
-                    case 1:
-                        _a.sent();
-                        return [4 /*yield*/, this.getList()];
-                    case 2:
-                        _a.sent();
-                        console.log('Started Building positions...');
-                        this.sortListByPosition();
-                        promises = this.list.map(function (item, index) { return __awaiter(_this, void 0, void 0, function () {
-                            return __generator(this, function (_a) {
-                                item.position = index + 1;
-                                return [2 /*return*/, item.$save()];
-                            });
-                        }); });
-                        return [4 /*yield*/, Promise.all(promises)];
-                    case 3:
-                        _a.sent();
-                        console.log('Finished Building positions...');
-                        return [2 /*return*/];
-                }
-            });
-        });
-    };
-    EngageFirestore.instances = {};
+    Object.defineProperty(EngageFirestore, "__DOC__", {
+        /*
+         * STATIC SETUP
+         * */
+        set: function (doc) {
+            EngageFirestore.DOC = doc;
+            firestore_base_1.default.DOC = doc;
+            doc_1.default.STORE = EngageFirestore;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(EngageFirestore, "__ENGAGE_FIRE__", {
+        set: function (engageFire) {
+            EngageFirestore.ENGAGE_FIRE = engageFire;
+            firestore_base_1.default.ENGAGE_FIRE = engageFire;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(EngageFirestore, "__FIRE_OPTIONS__", {
+        set: function (options) {
+            EngageFirestore.FIRE_OPTIONS = options;
+            firestore_base_1.default.FIRE_OPTIONS = options;
+        },
+        enumerable: true,
+        configurable: true
+    });
+    Object.defineProperty(EngageFirestore, "__STATE__", {
+        set: function (state) {
+            EngageFirestore.STATE = state;
+            firestore_base_1.default.STATE = state;
+        },
+        enumerable: true,
+        configurable: true
+    });
     return EngageFirestore;
-}());
+}(firestore_base_1.default));
 exports.default = EngageFirestore;
+EngageFirestore.__DOC__ = doc_1.default;
+EngageFirestore.__ENGAGE_FIRE__ = engagefire_1.engageFireInit;
 // export EngageFirestore
 exports.engageFirestore = function (path, options) { return EngageFirestore.getInstance(path, options); };
 //# sourceMappingURL=firestore.js.map

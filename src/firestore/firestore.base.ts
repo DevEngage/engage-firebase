@@ -1,5 +1,4 @@
 import * as _ from 'lodash';
-import { firestore } from 'firebase';
 import { engagePubsub } from '../pubsub/pubsub';
 import { EngageAlgolia } from '../algolia/algolia';
 import { IEngageModel } from "../model/model";
@@ -21,8 +20,8 @@ declare let process: any;
 export default class EngageFirestoreBase {
   static DOC: any;
   static STATE: any;
-  static engageFire: any;
-  static fireOptions: any;
+  static ENGAGE_FIRE: any;
+  static FIRE_OPTIONS: any;
   ref!: any;
   $user!: any;
   $loading = true;
@@ -91,19 +90,21 @@ export default class EngageFirestoreBase {
   }
 
   async init() {
-    if (!EngageFirestoreBase.engageFire) {
-      console.error('MISSING engageFire class');
+    console.log(EngageFirestoreBase.ENGAGE_FIRE)
+    if (!EngageFirestoreBase.ENGAGE_FIRE) {
+      console.error('MISSING ENGAGE_FIRE class');
     }
     if (!EngageFirestoreBase.DOC) {
       console.error('MISSING EngageDoc Class');
     }
-    if (!EngageFirestoreBase.fireOptions) {
-      console.error('MISSING fireOptions class');
-    }
-    await EngageFirestoreBase.engageFire(EngageFirestoreBase.fireOptions).ready();
+    // if (!EngageFirestoreBase.FIRE_OPTIONS) {
+    //   console.error('MISSING FIRE_OPTIONS class');
+    // }
+    await EngageFirestoreBase.ENGAGE_FIRE(EngageFirestoreBase.FIRE_OPTIONS).ready();
     if (!this.db) {
-      this.db = EngageFirestoreBase.engageFire(EngageFirestoreBase.fireOptions).firestore;
+      this.db = EngageFirestoreBase.ENGAGE_FIRE(EngageFirestoreBase.FIRE_OPTIONS).firestore;
     }
+    EngageFirestoreBase.STATE = EngageFirestoreBase.STATE || {};
     if (!EngageFirestoreBase.STATE[this.path]) {
       EngageFirestoreBase.STATE[this.path] = {};
       this.state = EngageFirestoreBase.STATE[this.path];
@@ -111,19 +112,16 @@ export default class EngageFirestoreBase {
     if (_.isString(this.path)) {
       this.ref = this.db.collection(<string>this.path);
     } else {
-      this.ref = <firestore.CollectionReference>this.path;
+      this.ref = <any>this.path;
     }
-    if (this.appInitialized() && EngageFirestoreBase.engageFire.auth && EngageFirestoreBase.engageFire.auth.currentUser) {
-      this.$user = EngageFirestoreBase.engageFire.auth.currentUser;
+    if (this.appInitialized() && EngageFirestoreBase.ENGAGE_FIRE.auth && EngageFirestoreBase.ENGAGE_FIRE.auth.currentUser) {
+      this.$user = EngageFirestoreBase.ENGAGE_FIRE.auth.currentUser;
       this.publish(this.$user, 'user');
       if (this.$user) {
         this.userId = this.$user.uid;
         if (this.debug) console.log('userId', this.userId);
       }
     }
-    this.watchUser((user: any) => {
-      this.publish(user, 'user');
-    });
     this.firebaseReady = true;
     await this.getModelFromDb();
     this.$loading = false;
@@ -168,33 +166,8 @@ export default class EngageFirestoreBase {
     });
   }
 
-  async watchUser(cb: any) {
-    await this.ready();
-    EngageFirestoreBase.engageFire(EngageFirestoreBase.fireOptions).auth.onAuthStateChanged((user) => {
-      if (cb) cb(user || null);
-    });
-  }
-
   appInitialized() {
-    return EngageFirestoreBase.engageFire.firebase;
-  }
-
-  getUserId(): Promise<string> {
-    if (this.userId) {
-      return Promise.resolve(this.userId);
-    } else if (this.appInitialized()) {
-      return new Promise((resolve) =>
-        EngageFirestoreBase.engageFire.auth.onAuthStateChanged((user) => {
-          if (user && user.uid) {
-            resolve(user.uid);
-          } else {
-            resolve('');
-          }
-        })
-      );
-    } else {
-      return Promise.resolve('');
-    }
+    return EngageFirestoreBase.ENGAGE_FIRE.initialized;
   }
 
   getUserFromAuth() {
@@ -272,7 +245,7 @@ export default class EngageFirestoreBase {
     }
   }
 
-  async getWithChildern<T>(docId = this.id, ref?: firestore.CollectionReference | undefined): Promise<T | any> {
+  async getWithChildern<T>(docId = this.id, ref?: any): Promise<T | any> {
     await this.ready();
     let doc: T | any = await this.get<T>(docId, ref);
     if (doc) {
@@ -281,7 +254,7 @@ export default class EngageFirestoreBase {
     return doc;
   }
 
-  async get<T>(docId = this.id, ref?: firestore.CollectionReference | undefined): Promise<T | any> {
+  async get<T>(docId = this.id, ref?: any): Promise<T | any> {
     this.$loading = true;
     await this.ready();
     if (!ref) ref = this.ref;
@@ -302,7 +275,7 @@ export default class EngageFirestoreBase {
     }
   }
 
-  async add(newDoc: any, ref?: firestore.CollectionReference) {
+  async add(newDoc: any, ref?: any) {
     newDoc.$loading = true;
     await this.ready();
     if (!ref) ref = this.ref;
@@ -317,7 +290,7 @@ export default class EngageFirestoreBase {
     return this.addFire(newDoc, blank.id);;
   }
 
-  async set(newDoc: any, docRef: firestore.DocumentReference) {
+  async set(newDoc: any, docRef: any) {
     console.log(docRef)
     newDoc.$loading = true;
     await this.ready();
@@ -331,7 +304,7 @@ export default class EngageFirestoreBase {
     return this.set(newDoc, this.ref.doc(id));
   }
 
-  async update(doc: any, ref?: firestore.CollectionReference | undefined) {
+  async update(doc: any, ref?: any) {
     doc.$loading = true;
     await this.ready();
     if (!ref) ref = this.ref;
@@ -354,19 +327,19 @@ export default class EngageFirestoreBase {
     return this.addFire(doc, docRef.id);;
   }
 
-  async save(newDoc: any, ref?: firestore.DocumentReference | firestore.CollectionReference | undefined) {
+  async save(newDoc: any, ref?: any) {
     await this.ready();
     newDoc = this.omitFire(newDoc);
     newDoc.updatedAt = Date.now();
     let doc;
     if (newDoc && (newDoc.$key || newDoc.$id)) {
-      doc = await this.update(newDoc, <firestore.CollectionReference>ref);
+      doc = await this.update(newDoc, <any>ref);
     } else if (ref && ref.id) {
       newDoc.createdAt = Date.now();
-      doc = await this.set(newDoc, <firestore.DocumentReference>ref);
+      doc = await this.set(newDoc, <any>ref);
     } else {
       newDoc.createdAt = Date.now();
-      doc = await this.add(newDoc, <firestore.CollectionReference>ref);
+      doc = await this.add(newDoc, <any>ref);
       this.list = [...this.list, doc];
     }
     doc.$loading = false;
@@ -377,7 +350,7 @@ export default class EngageFirestoreBase {
     return this.save(newDoc, this.ref.doc(id));
   }
 
-  remove(id: string | undefined, ref?: firestore.CollectionReference | undefined) {
+  remove(id: string | undefined, ref?: any) {
     if (!ref) ref = this.ref;
     if (this.debug) console.log('removing: ', id);
     return ref.doc(id).delete();
@@ -439,13 +412,13 @@ export default class EngageFirestoreBase {
   }
 
   getFirebaseProjectId() {
-    return EngageFirestoreBase.engageFire.getFirebaseProjectId();
+    return EngageFirestoreBase.ENGAGE_FIRE.getFirebaseProjectId();
   }
 
   /*
    * Firestore Base
    */
-  async watch(id: string | undefined, cb: { (arg0: any, arg1: any): void; (arg0: null, arg1: any): void; }, ref?: firestore.CollectionReference | undefined) {
+  async watch(id: string | undefined, cb: any, ref?: any) {
     await this.ready();
     if (!ref) ref = this.ref;
     ref.doc(id).onSnapshot((doc: any) => {
@@ -457,7 +430,7 @@ export default class EngageFirestoreBase {
     });
   }
 
-  async watchList(cb: any, ref?: firestore.CollectionReference) {
+  async watchList(cb: any, ref?: any) {
     await this.ready();
     if (!ref) ref = this.ref;
     ref.onSnapshot((snapshot: any) => {
@@ -469,7 +442,7 @@ export default class EngageFirestoreBase {
     });
   }
 
-  watchPromise(id: string | undefined, ref?: firestore.CollectionReference | undefined) {
+  watchPromise(id: string | undefined, ref?: any) {
     return new Promise(async (resolve, reject) => {
       await this.ready();
       if (!ref) ref = this.ref;
@@ -483,7 +456,7 @@ export default class EngageFirestoreBase {
     });
   }
 
-  watchListPromise(ref?: firestore.CollectionReference) {
+  watchListPromise(ref?: any) {
     return new Promise(async (resolve, reject) => {
       await this.ready();
       if (!ref) ref = this.ref;
@@ -517,7 +490,7 @@ export default class EngageFirestoreBase {
     });
   }
 
-  async deleteQueryBatch(db: any, query: firestore.Query, batchSize: number, resolve: { (value?: unknown): void; (): void; }, reject: { (reason?: any): void; (arg0: any): void; }) {
+  async deleteQueryBatch(db: any, query: any, batchSize: number, resolve: any, reject: any) {
     try {
       let numDeleted = 0;
       const snapshot = await query.get();
@@ -550,7 +523,7 @@ export default class EngageFirestoreBase {
    * UTILITIES
    */
 
-  async replaceId(oldId: string, newId: any, ref?: firestore.CollectionReference) {
+  async replaceId(oldId: string, newId: any, ref?: any) {
     await this.ready();
     if (!ref) ref = this.ref;
     let data = await this.get(oldId, ref);
@@ -563,7 +536,7 @@ export default class EngageFirestoreBase {
     return await this.remove(oldId, ref);
   }
 
-  async replaceIdOnCollection(oldId: string, newId: any, subRef?: firestore.CollectionReference) {
+  async replaceIdOnCollection(oldId: string, newId: any, subRef?: any) {
     await this.ready();
     if (!subRef) {
       subRef = this.ref;
@@ -687,14 +660,14 @@ export default class EngageFirestoreBase {
 
   async deleteFile(doc: any, fileId: any) {
     const fileDoc = await doc.$getSubCollection('files').get(fileId);
-    const desertRef = (<any>EngageFirestoreBase.engageFire(EngageFirestoreBase.fireOptions).storage).child(fileDoc.meta.storagePath);
+    const desertRef = (<any>EngageFirestoreBase.ENGAGE_FIRE(EngageFirestoreBase.FIRE_OPTIONS).storage).child(fileDoc.meta.storagePath);
 
     // Delete the file
     return await desertRef.delete().then(() => fileDoc.$remove());
   }
 
   async deleteImage(doc: any) {
-    const desertRef = (<any>EngageFirestoreBase.engageFire(EngageFirestoreBase.fireOptions).storage).child(doc.$imageMeta.storagePath);
+    const desertRef = (<any>EngageFirestoreBase.ENGAGE_FIRE(EngageFirestoreBase.FIRE_OPTIONS).storage).child(doc.$imageMeta.storagePath);
 
     // Delete the file
     return await desertRef.delete().then(() => {
@@ -799,6 +772,25 @@ export default class EngageFirestoreBase {
     })
     await Promise.all(promises);
     console.log('Finished Building positions...');
+  }
+
+  /* 
+   * STATIC SETUP
+   * */
+  static set __DOC__ (doc) {
+    EngageFirestoreBase.DOC = doc;
+  }
+  
+  static set __ENGAGE_FIRE__(engageFire) {
+    EngageFirestoreBase.ENGAGE_FIRE = engageFire;
+  }
+  
+  static set __FIRE_OPTIONS__(options) {
+    EngageFirestoreBase.FIRE_OPTIONS = options;
+  }
+  
+  static set __STATE__(state) {
+    EngageFirestoreBase.STATE = state;
   }
 
 }

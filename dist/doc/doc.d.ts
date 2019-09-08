@@ -1,6 +1,6 @@
-import EngageFirestore from '../firestore/firestore';
 export default class EngageFireDoc {
     $doc: any;
+    static STORE: any;
     $ref: any;
     $path: string;
     $owner: string;
@@ -14,13 +14,13 @@ export default class EngageFireDoc {
     position: any;
     constructor($doc: any, collection: string, collections?: string[]);
     $$init(): Promise<void>;
-    $save(): Promise<any>;
-    $update(): Promise<any>;
-    $set(): Promise<any>;
+    $save(): any;
+    $update(): any;
+    $set(): any;
     $get(): Promise<any>;
     $attachOwner(): Promise<any>;
     $isOwner(userId?: any): Promise<boolean>;
-    $addFiles(elements?: never[] | undefined, inputId?: string | undefined): Promise<any[]>;
+    $addFiles(elements?: never[] | undefined, inputId?: string | undefined): Promise<any>;
     $setImage(options?: {
         width: string;
         height: string;
@@ -28,24 +28,24 @@ export default class EngageFireDoc {
             width: string;
             height: string;
         };
-    } | undefined, inputId?: any, file?: any): Promise<unknown>;
+    } | undefined, inputId?: any, file?: any): Promise<any>;
     $removeImage(): Promise<any>;
     $removeFile(fileId: any): Promise<any>;
-    $getFiles(): Promise<any[]>;
+    $getFiles(): Promise<any>;
     $getFile(fileId: any): Promise<any>;
-    $downloadFile(fileId: any): Promise<unknown>;
-    $remove(showConfirm?: boolean): Promise<void>;
-    $getSubCollection(collection: string, db?: any): Promise<EngageFirestore>;
-    $watch(cb: any): Promise<void>;
-    $watchPromise(): Promise<unknown>;
+    $downloadFile(fileId: any): Promise<any>;
+    $remove(showConfirm?: boolean): Promise<any>;
+    $getSubCollection(collection: string, db?: any): Promise<any>;
+    $watch(cb: any): Promise<any>;
+    $watchPromise(): Promise<any>;
     $backup(deep: boolean | undefined, backupPath: string | undefined): Promise<any>;
     $exists(): boolean;
-    $getModel(): import("..").IEngageModel[];
+    $getModel(): any;
     $changeId(newId: string): Promise<void>;
     $swapPosition(x: any, y: any, list?: any): Promise<void>;
     $moveUp(): Promise<void>;
     $moveDown(): Promise<void>;
-    $$getSortedParentList(): any[];
+    $$getSortedParentList(): any;
     $$updateDoc(doc?: this): any;
     $$difference(object: any, base: any): {
         [x: string]: any;

@@ -5,7 +5,8 @@ import { IEngageFirebase, IEngageFirebaseObject, IEngageImage, IEngageFirebaseCo
 import { EngageAlgolia } from "./algolia/algolia";
 import { EngageImage } from "./image/image";
 import { adminModel } from "./models/admin.model";
+import { EngageAnalytics } from "./analytics/analytics";
 declare const firestore: (path: string, options?: any) => any;
 declare const Doc: typeof EngageFireDoc;
 export default engageFirestore;
-export { firestore, EngageFirestore, Doc, EngageFireDoc, EngageModel, EngageAlgolia, EngageImage, adminModel, IEngageFirebase, IEngageFirebaseObject, IEngageImage, IEngageFirebaseCollection, IEngageFirebaseDoc, IEngageModel, };
+export { firestore, EngageFirestore, Doc, EngageFireDoc, EngageModel, EngageAlgolia, EngageImage, adminModel, EngageAnalytics, IEngageFirebase, IEngageFirebaseObject, IEngageImage, IEngageFirebaseCollection, IEngageFirebaseDoc, IEngageModel, };

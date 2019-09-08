@@ -36,7 +36,6 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 var _ = require("lodash");
-var firestore_1 = require("../firestore/firestore");
 var EngageFireDoc = /** @class */ (function () {
     function EngageFireDoc($doc, collection, collections) {
         if (collections === void 0) { collections = []; }
@@ -46,7 +45,7 @@ var EngageFireDoc = /** @class */ (function () {
         this.$collections = {};
         this.$collectionsList = [];
         this.$omitList = [];
-        this.$engageFireStore = firestore_1.engageFirestore(collection);
+        this.$engageFireStore = EngageFireDoc.STORE.getInstance(collection);
         this.$collectionsList = collections;
         if (!_.isEmpty($doc) && ($doc.$id || $doc.id || this.$id)) {
             _.assign(this, $doc);
@@ -69,7 +68,7 @@ var EngageFireDoc = /** @class */ (function () {
                             return [2 /*return*/];
                         (this.$collectionsList || []).forEach(function (element) {
                             var _a = element.split('.'), sub = _a[0], preFetch = _a[1];
-                            _this.$collections[sub + "_"] = firestore_1.engageFirestore(_this.$path + "/" + sub);
+                            _this.$collections[sub + "_"] = EngageFireDoc.STORE.getInstance(_this.$path + "/" + sub);
                             _this.$omitList.push(sub + "_");
                             if (preFetch === 'list')
                                 _this.$collections[sub + "_"].getList();
@@ -258,7 +257,7 @@ var EngageFireDoc = /** @class */ (function () {
     EngageFireDoc.prototype.$getSubCollection = function (collection, db) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, firestore_1.engageFirestore(this.$path + "/" + this.$id + "/" + collection, db)];
+                return [2 /*return*/, EngageFireDoc.STORE.getInstance(this.$path + "/" + this.$id + "/" + collection, db)];
             });
         });
     };

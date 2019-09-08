@@ -1,7 +1,9 @@
-import { engageFirestore } from './firestore';
-import { Engagefire } from '../engagefire/engagefire';
+import EngageFirestore, { engageFirestore } from './firestore';
+import { Engagefire, engageFireInit } from '../engagefire/engagefire';
+import EngageFireDoc from '../doc/doc';
+import EngageFirestoreBase from './firestore.base';
 
-Engagefire.fireOptions = {
+Engagefire.FIRE_OPTIONS = {
     apiKey: "AIzaSyB0BO2DsW8udknAh0sfpvqNBHvU1vt-CY8",
     authDomain: "engage-firebase.firebaseapp.com",
     databaseURL: "https://engage-firebase.firebaseio.com",
@@ -10,6 +12,12 @@ Engagefire.fireOptions = {
     messagingSenderId: "255779484097",
     appId: "1:255779484097:web:772938aa5d153400"
 };
+
+
+// EngageFirestoreBase.DOC = EngageFireDoc;
+// EngageFirestoreBase.ENGAGE_FIRE = engageFireInit;
+// EngageFirestoreBase.FIRE_OPTIONS = Engagefire.FIRE_OPTIONS;
+
 
 let collection;
 let doc;

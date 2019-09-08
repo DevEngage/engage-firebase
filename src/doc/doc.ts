@@ -1,9 +1,9 @@
 import * as _ from 'lodash';
-import EngageFirestore, { engageFirestore } from '../firestore/firestore';
 
 declare let confirm: any;
 
 export default class EngageFireDoc {
+  static STORE: any;
   $ref: any;
   $path!: string;
   $owner!: string;
@@ -13,7 +13,7 @@ export default class EngageFireDoc {
   public $collections: any = {};
   public $collectionsList: string[] = [];
   public $omitList: string[] = [];
-  private $engageFireStore: EngageFirestore;
+  private $engageFireStore: any;
   position: any;
 
   constructor(
@@ -21,7 +21,7 @@ export default class EngageFireDoc {
     collection: string,
     collections: string[] = []
   ) {
-    this.$engageFireStore = engageFirestore(collection);
+    this.$engageFireStore = EngageFireDoc.STORE.getInstance(collection);
     this.$collectionsList = collections;
     if (!_.isEmpty($doc) && ($doc.$id || $doc.id || this.$id)) {
       _.assign(this, $doc);
@@ -39,7 +39,7 @@ export default class EngageFireDoc {
     if (this.$collectionsList && !this.$collectionsList.forEach) return;
     (this.$collectionsList || []).forEach(element => {
       const [sub, preFetch] = element.split('.');
-      this.$collections[`${sub}_`] = engageFirestore(`${this.$path}/${sub}`);
+      this.$collections[`${sub}_`] = EngageFireDoc.STORE.getInstance(`${this.$path}/${sub}`);
       this.$omitList.push(`${sub}_`);
       if (preFetch === 'list') this.$collections[`${sub}_`].getList();
       _.assign(this, this.$collections);
@@ -128,8 +128,8 @@ export default class EngageFireDoc {
     return result;
   }
 
-  async $getSubCollection(collection: string, db?: any): Promise<EngageFirestore> {
-    return engageFirestore(`${this.$path}/${this.$id}/${collection}`, db);
+  async $getSubCollection(collection: string, db?: any): Promise<any> {
+    return EngageFireDoc.STORE.getInstance(`${this.$path}/${this.$id}/${collection}`, db);
   }
 
   async $watch(cb: any) {
@@ -215,3 +215,4 @@ export default class EngageFireDoc {
     return changes(object, base);
   }
 }
+
