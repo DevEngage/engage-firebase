@@ -14,5 +14,6 @@ export interface IEngageAnalyticModel {
     relaction?: string;
     relactionField?: string;
     action?: AnalyticAction;
+    relationship?: 'all' | 'user' | string; // collection based id // group -> id replaces user
     snapeshot?: string | boolean | string[];
 }
