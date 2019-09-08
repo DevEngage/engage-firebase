@@ -139,10 +139,10 @@ export class EngageAnalytics {
             const proms = (await EngageFirestore.getInstance(model.relaction).getList())
                 .map(relationItem => {
                     if (relationItem.snapshot) {
-                        this.addRelationDoc(model, relationItem);                    
+                        return this.addRelationDoc(model, relationItem);                    
                     } else {
                         const relationAmount = this.getRelationAmount(model, relationItem);
-                        this.action(model.action, model.field, relationAmount);
+                        return this.action(model.action, model.field, relationAmount);
                     }
                 });
             return Promise.all(proms);
