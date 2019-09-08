@@ -1,17 +1,18 @@
-export interface IEngageAnalyticGraph {
-    analyticId?: string;
-    graph?: string;
-    // save doc to sub collection with { name: true, etc.. }
-    data?: any;
-}
+export type AnalyticAction = 'add' | 'minus' | 'multiply' | 'divide' | 'set' | 'sum'
 
 export interface IEngageAnalytic {
-    // Field in collection that will be recorded
+    $action?: AnalyticAction;
+    $amount?: number;
+    $relation?: string;
+    $relationId?: string;
+    $relactionField?: string;
+}
+
+export interface IEngageAnalyticModel {
+    type?: 'int' | 'double';
     field?: string;
-    // collection to add field to field
-    analyticField?: string;
-    // collection to add field to 
-    analyticId?: string;
-    // $analytics doc model
-    action?: 'add' | 'minus' | 'multiply' | 'divide' | 'set' | 'sum';
+    relaction?: string;
+    relactionField?: string;
+    action?: AnalyticAction;
+    snapeshot?: string | boolean | string[];
 }
