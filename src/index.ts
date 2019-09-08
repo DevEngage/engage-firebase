@@ -5,6 +5,13 @@ import { IEngageFirebase, IEngageFirebaseObject, IEngageImage, IEngageFirebaseCo
 import { EngageAlgolia } from "./algolia/algolia";
 import { EngageImage } from "./image/image";
 import { adminModel } from "./models/admin.model";
+import { EngageAnalytics } from "./analytics/analytics";
+import { engageFireInit } from "./engagefire/engagefire";
+
+EngageAnalytics.DOC = EngageFireDoc;
+EngageAnalytics.STORE = EngageFirestore;
+EngageFirestore.DOC = EngageFireDoc;
+EngageFirestore.engageFire = engageFireInit;
 
 const firestore = engageFirestore;
 const Doc = EngageFireDoc;
@@ -20,6 +27,7 @@ export {
     EngageAlgolia,
     EngageImage,
     adminModel,
+    EngageAnalytics,
     // Interfaces
     IEngageFirebase,
     IEngageFirebaseObject,

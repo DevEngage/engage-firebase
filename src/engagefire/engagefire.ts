@@ -38,6 +38,11 @@ export class Engagefire {
     });
   }
 
+  getFirebaseProjectId() {
+    if (!firebase.app().options) return null;
+    return (<any>firebase.app().options)['authDomain'].split('.')[0];
+  }
+
   initFirestore() {
     return new Promise((resolve, reject) => {
       this.firestore = firebase.firestore();

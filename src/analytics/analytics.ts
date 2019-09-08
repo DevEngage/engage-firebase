@@ -1,20 +1,21 @@
 import { IEngageAnalytic, AnalyticAction, IEngageAnalyticModel } from "../interfaces/analytics.interface";
-import EngageFirestore from "../firestore/firestore";
-import EngageFireDoc from "../doc/doc";
 
 export class EngageAnalytics {
-    private collection: EngageFirestore;
-    private doc: EngageFireDoc;
-    private model: EngageFirestore;
+    static STORE;
+    static DOC;
+    
+    private collection;
+    private doc;
+    private model;
 
     constructor(public path: string) {
         this.init(path);
     }
 
     private async init(path) {
-        this.collection = EngageFirestore.getInstance(`$analytics`);
-        this.doc = await this.collection.get<EngageFireDoc>(`${path}`);
-        this.model = EngageFirestore.getInstance(`$analytics/${path}/$model`);
+        this.collection = EngageAnalytics.STORE.getInstance(`$analytics`);
+        this.doc = await this.collection.get(`${path}`);
+        this.model = EngageAnalytics.STORE.getInstance(`$analytics/${path}/$model`);
     }
 
     async add(field, num = 1) {
@@ -65,7 +66,7 @@ export class EngageAnalytics {
     }
 
     async sumList(field: string, action?: AnalyticAction) {
-        const col = EngageFirestore.getInstance(`$analytics/${this.path}/${field}`);
+        const col = EngageAnalytics.STORE.getInstance(`$analytics/${this.path}/${field}`);
         const list: any[] = col.getList(
             action ? col.ref.where('action', '==', action) : col.ref
         )
@@ -129,14 +130,14 @@ export class EngageAnalytics {
             $relactionField: model.relactionField,
         };
         this.action(model.action, model.field, relationAmount);
-        return await EngageFirestore.getInstance(`$analytics/${this.path}/${model.field}`).save(fieldDoc);
+        return await EngageAnalytics.STORE.getInstance(`$analytics/${this.path}/${model.field}`).save(fieldDoc);
     }
 
     async sync(field) {
         this.doc[field] = 0;
         const model: IEngageAnalyticModel[] = await this.getModel(field);
         const promises = model.map(async (model: IEngageAnalyticModel) => {
-            const proms = (await EngageFirestore.getInstance(model.relaction).getList())
+            const proms = (await EngageAnalytics.STORE.getInstance(model.relaction).getList())
                 .map(relationItem => {
                     if (relationItem.snapshot) {
                         return this.addRelationDoc(model, relationItem);                    
