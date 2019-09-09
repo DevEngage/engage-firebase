@@ -33,6 +33,7 @@ export default class EngageTrigger {
 
     bindExports(exports: any) {
         this.exports = exports;
+        return this;
     }
 
     onWrite(cb?: any, ignoreFirst = false) {

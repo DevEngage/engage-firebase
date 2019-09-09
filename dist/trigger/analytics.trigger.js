@@ -69,7 +69,7 @@ var EngageAnalyticsTrigger = /** @class */ (function () {
     EngageAnalyticsTrigger.prototype.onWrite = function (data) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                this.updateDestinations(data);
+                this.updateDestinations(data.data);
                 return [2 /*return*/];
             });
         });
@@ -77,7 +77,7 @@ var EngageAnalyticsTrigger = /** @class */ (function () {
     EngageAnalyticsTrigger.prototype.onCreate = function (data) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                this.updateDestinations(data);
+                this.updateDestinations(data.data);
                 return [2 /*return*/];
             });
         });
@@ -85,7 +85,7 @@ var EngageAnalyticsTrigger = /** @class */ (function () {
     EngageAnalyticsTrigger.prototype.onUpdate = function (data) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                this.updateDestinations(data);
+                this.updateDestinations(data.data);
                 return [2 /*return*/];
             });
         });
@@ -93,7 +93,7 @@ var EngageAnalyticsTrigger = /** @class */ (function () {
     EngageAnalyticsTrigger.prototype.onDelete = function (data) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                this.updateDestinations(data);
+                this.updateDestinations(data.data);
                 return [2 /*return*/];
             });
         });
