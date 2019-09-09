@@ -1,39 +1,56 @@
-import { EngageFirestore, EngageAnalytics } from '../functions';
+import { EngageFirestore, EngageAnalytics, IEngageTriggerData } from '../functions';
+import { IEngageAnalyticModel } from '../interfaces/analytics.interface';
 
 export class EngageAnalyticsTrigger {
     engine: EngageAnalytics;
 
-    constructor(public path, public model?) {
+    constructor(
+        public path, 
+        public triggers?: IEngageAnalyticModel[],
+    ) {
         this.engine = new EngageAnalytics(`$${path}`);
         this.init();
     }
 
     private async init() {
-        this.engine.getModels();
+        if (!this.triggers) {
+            this.triggers = await this.engine.getTiggers(this.path);
+        }
     }
 
-    sync(trigger: 'add ' | 'remove' | 'modify', ) {
-        // trigger type: add, remove, modify
-        // how much: all, user, collection (id unique)
-
-
+    updateDestinations(data: IEngageTriggerData) {
+        const details = this.getPathDetails(this.path)
+        const path = `${details.collection}/${data.id}`;
+        const engine = new EngageAnalytics(path);
+        engine.updateDestinations(this.triggers, data);
     }
 
-    async onWrite(triggerData) {
-        const engine = new EngageAnalytics(`${this.path}`, triggerData.id);
-        engine.addDoc(this.model, triggerData.data);
+    async onWrite(data: IEngageTriggerData) {
+        this.updateDestinations(data.data);
     }
 
-    onCreate(triggerData) {
-        
+    async onCreate(data: IEngageTriggerData) {
+        this.updateDestinations(data.data);
     }
 
-    onUpdate(triggerData) {
-
+    async onUpdate(data: IEngageTriggerData) {
+        this.updateDestinations(data.data);
     }
 
-    onDelete(triggerData) {
+    async onDelete(data: IEngageTriggerData) {
+        this.updateDestinations(data.data);
+    }
 
+    getPathDetails(path: string) {
+        const [collection, id, subCollection, subId] = path.split('/');
+        return {
+            collection,
+            id,
+            subCollection,
+            subId,
+            name: `${collection}${(subCollection || '').toUpperCase()}`,
+            trigger: path,
+        };
     }
 
 }

@@ -35,21 +35,79 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+var functions_1 = require("../functions");
 var EngageAnalyticsTrigger = /** @class */ (function () {
-    function EngageAnalyticsTrigger(doc) {
-        this.doc = doc;
-        // this.init(path);
+    function EngageAnalyticsTrigger(path, triggers) {
+        this.path = path;
+        this.triggers = triggers;
+        this.engine = new functions_1.EngageAnalytics("$" + path);
+        this.init();
     }
-    EngageAnalyticsTrigger.prototype.init = function (path) {
+    EngageAnalyticsTrigger.prototype.init = function () {
+        return __awaiter(this, void 0, void 0, function () {
+            var _a;
+            return __generator(this, function (_b) {
+                switch (_b.label) {
+                    case 0:
+                        if (!!this.triggers) return [3 /*break*/, 2];
+                        _a = this;
+                        return [4 /*yield*/, this.engine.getTiggers(this.path)];
+                    case 1:
+                        _a.triggers = _b.sent();
+                        _b.label = 2;
+                    case 2: return [2 /*return*/];
+                }
+            });
+        });
+    };
+    EngageAnalyticsTrigger.prototype.updateDestinations = function (data) {
+        var details = this.getPathDetails(this.path);
+        var path = details.collection + "/" + data.id;
+        var engine = new functions_1.EngageAnalytics(path);
+        engine.updateDestinations(this.triggers, data);
+    };
+    EngageAnalyticsTrigger.prototype.onWrite = function (data) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
+                this.updateDestinations(data);
                 return [2 /*return*/];
             });
         });
     };
-    EngageAnalyticsTrigger.prototype.sync = function () {
-        // trigger type: add, remove, modify
-        // how much: all, user, collection (id unique)
+    EngageAnalyticsTrigger.prototype.onCreate = function (data) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                this.updateDestinations(data);
+                return [2 /*return*/];
+            });
+        });
+    };
+    EngageAnalyticsTrigger.prototype.onUpdate = function (data) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                this.updateDestinations(data);
+                return [2 /*return*/];
+            });
+        });
+    };
+    EngageAnalyticsTrigger.prototype.onDelete = function (data) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                this.updateDestinations(data);
+                return [2 /*return*/];
+            });
+        });
+    };
+    EngageAnalyticsTrigger.prototype.getPathDetails = function (path) {
+        var _a = path.split('/'), collection = _a[0], id = _a[1], subCollection = _a[2], subId = _a[3];
+        return {
+            collection: collection,
+            id: id,
+            subCollection: subCollection,
+            subId: subId,
+            name: "" + collection + (subCollection || '').toUpperCase(),
+            trigger: path,
+        };
     };
     return EngageAnalyticsTrigger;
 }());

@@ -7,13 +7,14 @@ export interface IEngageFirebaseObject {
     $id?: string;
     $exists?: boolean;
     $collection?: string;
-    createdAt?: number;
-    updatedAt?: number;
+    $userId?: string;
+    $createdAt?: number;
+    $updatedAt?: number;
 }
 export interface IEngageImage {
     $thumb?: string;
     $image?: string;
-    $imageMeta?: string;
+    $imageMeta?: any;
 }
 export interface IEngageFirebaseCollection extends IEngageFirebaseObject, IEngageFirebase {
     path?: string;

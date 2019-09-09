@@ -1,17 +1,24 @@
 export declare type AnalyticAction = 'add' | 'minus' | 'multiply' | 'divide' | 'set' | 'sum';
+export declare type DateRanges = 'now' | 'yesterday' | 'today' | 'week' | 'month' | 'year' | string;
 export interface IEngageAnalytic {
     $action?: AnalyticAction;
     $amount?: number;
-    $relation?: string;
-    $relationId?: string;
-    $relactionField?: string;
+    $source?: string;
+    $destination?: string;
+    $field?: string;
+    $userId?: string;
 }
 export interface IEngageAnalyticModel {
-    type?: 'int' | 'double';
+    trigger?: string;
+    source?: string;
+    validation?: any[];
+    destination?: string;
     field?: string;
-    relaction?: string;
-    relactionField?: string;
+    amountField?: string;
+    type?: 'int' | 'double';
     action?: AnalyticAction;
-    relationship?: 'all' | 'user' | string;
+    allowDuplicates?: boolean;
     snapeshot?: string | boolean | string[];
+    range?: DateRanges[];
+    group?: 'all' | 'user' | string;
 }

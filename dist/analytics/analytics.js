@@ -53,120 +53,183 @@ var EngageAnalytics = /** @class */ (function () {
     }
     EngageAnalytics.prototype.init = function (path) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a;
-            return __generator(this, function (_b) {
-                switch (_b.label) {
+            var details;
+            return __generator(this, function (_a) {
+                details = this.getPathDetails(path);
+                this.collection = EngageAnalytics.STORE.getInstance("$analytics");
+                this.model = EngageAnalytics.STORE.getInstance("$analyticModels");
+                return [2 /*return*/];
+            });
+        });
+    };
+    EngageAnalytics.prototype.updateDestinations = function (models, data) {
+        return __awaiter(this, void 0, void 0, function () {
+            var promises;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
                     case 0:
-                        this.collection = EngageAnalytics.STORE.getInstance("$analytics");
-                        _a = this;
-                        return [4 /*yield*/, this.collection.get("" + path)];
-                    case 1:
-                        _a.doc = _b.sent();
-                        this.model = EngageAnalytics.STORE.getInstance("$analytics/" + path + "/$model");
-                        return [2 /*return*/];
+                        promises = models.map(function (model) {
+                            return _this.addDoc(model, data);
+                        });
+                        return [4 /*yield*/, Promise.all(promises)];
+                    case 1: return [2 /*return*/, _a.sent()];
                 }
             });
         });
     };
-    EngageAnalytics.prototype.add = function (field, num) {
-        if (num === void 0) { num = 1; }
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                this.action('add', field, num);
-                return [2 /*return*/];
-            });
-        });
+    // async add(field, num = 1) {
+    //     this.action('add', field, num);
+    // }
+    // async subtract(field, num = 1) {
+    //     this.action('minus', field, num);
+    // }
+    EngageAnalytics.prototype.addDoc = function (model, doc) {
+        return this.addAnalyticDoc(model, doc);
     };
-    EngageAnalytics.prototype.subtract = function (field, num) {
-        if (num === void 0) { num = 1; }
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                this.action('minus', field, num);
-                return [2 /*return*/];
-            });
-        });
+    EngageAnalytics.prototype.subtractDoc = function (model, doc) {
+        return this.removeAnalyticDoc(model, doc);
     };
-    EngageAnalytics.prototype.action = function (action, field, num, save) {
+    EngageAnalytics.prototype.getAnalytics = function (dest, field) {
+        if (field === void 0) { field = 'total'; }
+        EngageAnalytics.STORE.getInstance(dest + "/$analytics");
+    };
+    // async action(action: AnalyticAction, field: string, num = 1, save = true) {
+    //     let model;
+    //     if (save) {
+    //         model = await this.model.getList(
+    //             this.model.ref.where('field', '==', field)
+    //         );
+    //     }
+    //     if (!this.doc[field]) {
+    //         this.doc[field] = 0;
+    //     }
+    //     switch (action) {
+    //         case 'add': 
+    //             this.doc[field] += num;
+    //             break;
+    //         case 'minus': 
+    //             this.doc[field] -= num;
+    //             break;
+    //         case 'multiply': 
+    //             this.doc[field] *= num;
+    //             break;
+    //         case 'minus': 
+    //             this.doc[field] /= num;
+    //             break;
+    //         case 'set': 
+    //             this.doc[field] = num;
+    //             break;
+    //         case 'sum': 
+    //             this.doc[field] = await this.sumList(field, action);
+    //             break;
+    //         default:
+    //             this.doc[field] += num;
+    //     }
+    //     if (model && model[0] && model[0].type === 'int') {
+    //         this.doc[field] = parseInt(this.doc[field]);
+    //     }
+    //     if (save) await this.doc.$save();
+    //     return this.doc[field];
+    // }
+    EngageAnalytics.prototype.applyAction = function (model, dataset, num, save) {
+        if (dataset === void 0) { dataset = 'total'; }
         if (num === void 0) { num = 1; }
         if (save === void 0) { save = true; }
         return __awaiter(this, void 0, void 0, function () {
-            var model, _a, _b, _c;
+            var collectionAnalytics, doc, _a, _b, _c;
             return __generator(this, function (_d) {
                 switch (_d.label) {
                     case 0:
-                        if (!save) return [3 /*break*/, 2];
-                        return [4 /*yield*/, this.model.getList(this.model.ref.where('field', '==', field))];
+                        collectionAnalytics = EngageAnalytics.STORE.getInstance(model.destination + "/$analytics");
+                        return [4 /*yield*/, collectionAnalytics.get(dataset)];
                     case 1:
-                        model = _d.sent();
-                        _d.label = 2;
-                    case 2:
-                        if (!this.doc[field]) {
-                            this.doc[field] = 0;
+                        doc = _d.sent();
+                        if (!doc[model.field]) {
+                            doc[model.field] = 0;
                         }
-                        _a = action;
+                        _a = model.action;
                         switch (_a) {
-                            case 'add': return [3 /*break*/, 3];
-                            case 'minus': return [3 /*break*/, 4];
-                            case 'multiply': return [3 /*break*/, 5];
-                            case 'minus': return [3 /*break*/, 6];
-                            case 'set': return [3 /*break*/, 7];
-                            case 'sum': return [3 /*break*/, 8];
+                            case 'add': return [3 /*break*/, 2];
+                            case 'minus': return [3 /*break*/, 3];
+                            case 'multiply': return [3 /*break*/, 4];
+                            case 'minus': return [3 /*break*/, 5];
+                            case 'set': return [3 /*break*/, 6];
+                            case 'sum': return [3 /*break*/, 7];
                         }
+                        return [3 /*break*/, 9];
+                    case 2:
+                        doc[model.field] += num;
                         return [3 /*break*/, 10];
                     case 3:
-                        this.doc[field] += num;
-                        return [3 /*break*/, 11];
+                        doc[model.field] -= num;
+                        return [3 /*break*/, 10];
                     case 4:
-                        this.doc[field] -= num;
-                        return [3 /*break*/, 11];
+                        doc[model.field] *= num;
+                        return [3 /*break*/, 10];
                     case 5:
-                        this.doc[field] *= num;
-                        return [3 /*break*/, 11];
+                        doc[model.field] /= num;
+                        return [3 /*break*/, 10];
                     case 6:
-                        this.doc[field] /= num;
-                        return [3 /*break*/, 11];
+                        doc[model.field] = num;
+                        return [3 /*break*/, 10];
                     case 7:
-                        this.doc[field] = num;
-                        return [3 /*break*/, 11];
+                        _b = doc;
+                        _c = model.field;
+                        return [4 /*yield*/, this.sumList(model.field, model.action)];
                     case 8:
-                        _b = this.doc;
-                        _c = field;
-                        return [4 /*yield*/, this.sumList(field, action)];
-                    case 9:
                         _b[_c] = _d.sent();
-                        return [3 /*break*/, 11];
+                        return [3 /*break*/, 10];
+                    case 9:
+                        doc[model.field] += num;
+                        _d.label = 10;
                     case 10:
-                        this.doc[field] += num;
-                        _d.label = 11;
-                    case 11:
                         if (model && model[0] && model[0].type === 'int') {
-                            this.doc[field] = parseInt(this.doc[field]);
+                            doc[model.field] = parseInt(doc[model.field]);
                         }
-                        if (!save) return [3 /*break*/, 13];
-                        return [4 /*yield*/, this.doc.$save()];
-                    case 12:
+                        if (!save) return [3 /*break*/, 12];
+                        return [4 /*yield*/, doc.$save()];
+                    case 11:
                         _d.sent();
-                        _d.label = 13;
-                    case 13: return [2 /*return*/, this.doc[field]];
+                        _d.label = 12;
+                    case 12: return [2 /*return*/, doc[model.field]];
                 }
             });
         });
     };
     EngageAnalytics.prototype.sumList = function (field, action) {
         return __awaiter(this, void 0, void 0, function () {
-            var col, list;
+            var col, ref, list;
             return __generator(this, function (_a) {
-                col = EngageAnalytics.STORE.getInstance("$analytics/" + this.path + "/" + field);
-                list = col.getList(action ? col.ref.where('action', '==', action) : col.ref);
+                col = EngageAnalytics.STORE.getInstance("$analytics");
+                ref = action ? col.ref.where('action', '==', action) : col.ref;
+                ref = ref.where('field', '==', field).where('collection', '==', this.path);
+                list = col.getList(ref);
                 return [2 /*return*/, list.reduce(function (prev, curr) { return prev += curr.amount || 0; }, 0)];
             });
         });
     };
-    EngageAnalytics.prototype.saveModelField = function (doc) {
-        doc.$save();
-        return this;
+    EngageAnalytics.prototype.getTiggers = function (trigger) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.model.getList(this.model.ref.where('trigger', '==', trigger))];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
     };
-    EngageAnalytics.prototype.getModel = function (field) {
+    EngageAnalytics.prototype.getModels = function (trigger) {
+        return __awaiter(this, void 0, void 0, function () {
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0: return [4 /*yield*/, this.model.getList(this.model.ref.where('trigger', '==', trigger))];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    EngageAnalytics.prototype.getModelByField = function (field) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -176,19 +239,26 @@ var EngageAnalytics = /** @class */ (function () {
             });
         });
     };
-    EngageAnalytics.prototype.linkFieldToCollection = function (model) {
-        this.model.save(model);
+    EngageAnalytics.prototype.addModel = function (doc) {
+        return this.model.save(doc);
     };
-    EngageAnalytics.prototype.healthCheck = function (field) {
+    EngageAnalytics.prototype.linkFieldToCollection = function (model) {
+        return this.model.save(model);
+    };
+    EngageAnalytics.prototype.healthCheck = function (model, dataset) {
         return __awaiter(this, void 0, void 0, function () {
-            var _a;
+            var collectionAnalytics, doc, _a;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        console.log('field:', this.doc[field]);
-                        _a = this.doc[field];
-                        return [4 /*yield*/, this.sumList(field)];
+                        collectionAnalytics = EngageAnalytics.STORE.getInstance(model.destination + "/$analytics");
+                        return [4 /*yield*/, collectionAnalytics.get(dataset)];
                     case 1:
+                        doc = _b.sent();
+                        console.log('field:', doc[model.field]);
+                        _a = doc[model.field];
+                        return [4 /*yield*/, this.sumList(model.field)];
+                    case 2:
                         if (_a === (_b.sent())) {
                             return [2 /*return*/, true];
                         }
@@ -197,43 +267,90 @@ var EngageAnalytics = /** @class */ (function () {
             });
         });
     };
-    EngageAnalytics.prototype.fix = function (field) {
-        return __awaiter(this, void 0, void 0, function () {
-            return __generator(this, function (_a) {
-                this.action('sum', field);
-                return [2 /*return*/];
-            });
-        });
-    };
-    EngageAnalytics.prototype.getRelationAmount = function (model, relationItem) {
-        var relationAmount = 1;
-        if (model.relactionField) {
-            relationAmount = relationItem[model.relactionField] || 1;
+    // async fix(field) {
+    //     this.action('sum', field);
+    // }
+    EngageAnalytics.prototype.getAmount = function (model, relationItem) {
+        var valid = true;
+        var relationAmount = 0;
+        if (model.validation && model.validation.length) {
+            valid = model.validation.reduce(function (prev, curr) {
+                var valueTrue = prev && curr && relationItem && curr.field && relationItem[curr.field] !== curr.value;
+                var greaterThan = curr.greaterThan === undefined || (prev && curr && relationItem && curr.greaterThan !== undefined && relationItem[curr.field] >= curr.greaterThan);
+                var lessThan = curr.lessThan === undefined || (prev && curr && relationItem && curr.lessThan !== undefined && relationItem[curr.field] <= curr.lessThan);
+                return valueTrue && greaterThan && lessThan;
+            }, true);
+        }
+        if (valid) {
+            relationAmount = relationItem[model.amountField] || 1;
         }
         return relationAmount;
     };
-    EngageAnalytics.prototype.addRelationDoc = function (model, relationItem) {
+    EngageAnalytics.prototype.getDataFromSnapshot = function (model, relationItem) {
+        var fieldDoc;
+        if (model.snapeshot === true) {
+            fieldDoc = __assign({}, relationItem);
+        }
+        else if (typeof model.snapeshot === 'string') {
+            fieldDoc = {};
+            fieldDoc[model.snapeshot] = relationItem[model.snapeshot];
+        }
+        else if (typeof model.snapeshot === 'object' && model.snapeshot.length) {
+            fieldDoc = {};
+            model.snapeshot.forEach(function (element) { return fieldDoc[element] = relationItem[element]; });
+        }
+        return fieldDoc;
+    };
+    EngageAnalytics.prototype.addAnalyticDoc = function (model, relationItem) {
         return __awaiter(this, void 0, void 0, function () {
             var fieldDoc, relationAmount;
+            var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        relationAmount = this.getRelationAmount(model, relationItem);
-                        if (model.snapeshot === true) {
-                            fieldDoc = __assign({}, relationItem);
+                        fieldDoc = this.getDataFromSnapshot(model, relationItem);
+                        relationAmount = this.getAmount(model, relationItem);
+                        fieldDoc = __assign({}, fieldDoc, { $action: model.action, $amount: relationAmount, $source: model.source, $destination: model.destination });
+                        if (model.source && relationItem.id) {
+                            fieldDoc['$id'] = model.source + "/" + relationItem.id;
                         }
-                        else if (typeof model.snapeshot === 'string') {
-                            fieldDoc = {};
-                            fieldDoc[model.snapeshot] = relationItem[model.snapeshot];
+                        if (model.allowDuplicates) {
+                            delete fieldDoc['$id'];
+                            delete fieldDoc['id'];
                         }
-                        else if (typeof model.snapeshot === 'object' && model.snapeshot.length) {
-                            fieldDoc = {};
-                            model.snapeshot.forEach(function (element) { return fieldDoc[element] = relationItem[element]; });
-                        }
-                        fieldDoc = __assign({}, fieldDoc, { $action: model.action, $amount: relationAmount, $relation: model.relaction, $relactionField: model.relactionField });
-                        this.action(model.action, model.field, relationAmount);
-                        return [4 /*yield*/, EngageAnalytics.STORE.getInstance("$analytics/" + this.path + "/" + model.field).save(fieldDoc)];
-                    case 1: return [2 /*return*/, _a.sent()];
+                        if (!(model.range && model.range.length)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, Promise.all(model.range.map(function (item) { return _this.applyAction(model, item, relationAmount); }))];
+                    case 1:
+                        _a.sent();
+                        _a.label = 2;
+                    case 2: return [4 /*yield*/, this.applyAction(model, 'total', relationAmount)];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, EngageAnalytics.STORE.getInstance("$analytics").save(fieldDoc)];
+                    case 4: return [2 /*return*/, _a.sent()];
+                }
+            });
+        });
+    };
+    EngageAnalytics.prototype.removeAnalyticDoc = function (model, doc) {
+        return __awaiter(this, void 0, void 0, function () {
+            var relationAmount;
+            var _this = this;
+            return __generator(this, function (_a) {
+                switch (_a.label) {
+                    case 0:
+                        model.action = 'minus';
+                        relationAmount = this.getAmount(model, doc);
+                        if (!(model.range && model.range.length)) return [3 /*break*/, 2];
+                        return [4 /*yield*/, Promise.all(model.range.map(function (item) { return _this.applyAction(model, item, relationAmount); }))];
+                    case 1:
+                        _a.sent();
+                        _a.label = 2;
+                    case 2: return [4 /*yield*/, this.applyAction(model, 'total', relationAmount)];
+                    case 3:
+                        _a.sent();
+                        return [4 /*yield*/, EngageAnalytics.STORE.getInstance("$analytics").remove(doc.$id)];
+                    case 4: return [2 /*return*/, _a.sent()];
                 }
             });
         });
@@ -244,9 +361,7 @@ var EngageAnalytics = /** @class */ (function () {
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0:
-                        this.doc[field] = 0;
-                        return [4 /*yield*/, this.getModel(field)];
+                    case 0: return [4 /*yield*/, this.getModelByField(field)];
                     case 1:
                         model = _a.sent();
                         promises = model.map(function (model) { return __awaiter(_this, void 0, void 0, function () {
@@ -254,18 +369,29 @@ var EngageAnalytics = /** @class */ (function () {
                             var _this = this;
                             return __generator(this, function (_a) {
                                 switch (_a.label) {
-                                    case 0: return [4 /*yield*/, EngageAnalytics.STORE.getInstance(model.relaction).getList()];
+                                    case 0: return [4 /*yield*/, EngageAnalytics.STORE.getInstance(model.source).getList()];
                                     case 1:
                                         proms = (_a.sent())
-                                            .map(function (relationItem) {
-                                            if (relationItem.snapshot) {
-                                                return _this.addRelationDoc(model, relationItem);
-                                            }
-                                            else {
-                                                var relationAmount = _this.getRelationAmount(model, relationItem);
-                                                return _this.action(model.action, model.field, relationAmount);
-                                            }
-                                        });
+                                            .map(function (relationItem) { return __awaiter(_this, void 0, void 0, function () {
+                                            var relationAmount_1;
+                                            var _this = this;
+                                            return __generator(this, function (_a) {
+                                                switch (_a.label) {
+                                                    case 0:
+                                                        if (!relationItem.snapshot) return [3 /*break*/, 1];
+                                                        return [2 /*return*/, this.addAnalyticDoc(model, relationItem)];
+                                                    case 1:
+                                                        relationAmount_1 = this.getAmount(model, relationItem);
+                                                        if (!(model.range && model.range.length)) return [3 /*break*/, 3];
+                                                        return [4 /*yield*/, Promise.all(model.range.map(function (item) { return _this.applyAction(model, item, relationAmount_1); }))];
+                                                    case 2:
+                                                        _a.sent();
+                                                        _a.label = 3;
+                                                    case 3: return [4 /*yield*/, this.applyAction(model, 'total', relationAmount_1)];
+                                                    case 4: return [2 /*return*/, _a.sent()];
+                                                }
+                                            });
+                                        }); });
                                         return [2 /*return*/, Promise.all(proms)];
                                 }
                             });
@@ -273,10 +399,34 @@ var EngageAnalytics = /** @class */ (function () {
                         return [4 /*yield*/, Promise.all(promises)];
                     case 2:
                         _a.sent();
-                        return [2 /*return*/, this.doc[field]];
+                        return [2 /*return*/];
                 }
             });
         });
+    };
+    EngageAnalytics.prototype.getRange = function (field, start, end) {
+        return __awaiter(this, void 0, void 0, function () {
+            var fieldCollection, query;
+            return __generator(this, function (_a) {
+                fieldCollection = EngageAnalytics.STORE.getInstance("$analytics");
+                query = fieldCollection.ref
+                    .where('field', '==', field)
+                    .where('source', '==', this.path)
+                    .where('$createdAt', '>=', start)
+                    .where('$createdAt', '<=', end);
+                return [2 /*return*/, fieldCollection.getList(query)];
+            });
+        });
+    };
+    EngageAnalytics.prototype.getPathDetails = function (path) {
+        var _a = path.split('/'), collection = _a[0], id = _a[1], subCollection = _a[2], subId = _a[3];
+        return {
+            collection: collection,
+            id: id,
+            subCollection: subCollection,
+            subId: subId,
+            name: "" + collection + (subCollection || '').toUpperCase()
+        };
     };
     return EngageAnalytics;
 }());

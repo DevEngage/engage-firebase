@@ -499,7 +499,7 @@ var EngageFirestoreBase = /** @class */ (function () {
                     case 1:
                         _a.sent();
                         newDoc = this.omitFire(newDoc);
-                        newDoc.updatedAt = Date.now();
+                        newDoc.$updatedAt = Date.now();
                         if (!(newDoc && (newDoc.$key || newDoc.$id))) return [3 /*break*/, 3];
                         return [4 /*yield*/, this.update(newDoc, ref)];
                     case 2:
@@ -507,13 +507,13 @@ var EngageFirestoreBase = /** @class */ (function () {
                         return [3 /*break*/, 7];
                     case 3:
                         if (!(ref && ref.id)) return [3 /*break*/, 5];
-                        newDoc.createdAt = Date.now();
+                        newDoc.$createdAt = Date.now();
                         return [4 /*yield*/, this.set(newDoc, ref)];
                     case 4:
                         doc = _a.sent();
                         return [3 /*break*/, 7];
                     case 5:
-                        newDoc.createdAt = Date.now();
+                        newDoc.$createdAt = Date.now();
                         return [4 /*yield*/, this.add(newDoc, ref)];
                     case 6:
                         doc = _a.sent();
@@ -849,7 +849,7 @@ var EngageFirestoreBase = /** @class */ (function () {
                         record = _a.sent();
                         record = record.data();
                         if (updateTimestamp)
-                            record.updatedAt = Date.now();
+                            record.$updatedAt = Date.now();
                         console.log('record move', record);
                         return [4 /*yield*/, this.db.doc(newPath).set(record)];
                     case 2: return [2 /*return*/, _a.sent()];
@@ -874,7 +874,7 @@ var EngageFirestoreBase = /** @class */ (function () {
                         return [4 /*yield*/, doc.$save()];
                     case 1:
                         _a.sent();
-                        return [4 /*yield*/, ef.save(__assign({}, doc, { updatedAt: timestamp }))];
+                        return [4 /*yield*/, ef.save(__assign({}, doc, { $updatedAt: timestamp }))];
                     case 2: return [2 /*return*/, _a.sent()];
                 }
             });

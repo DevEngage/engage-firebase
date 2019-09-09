@@ -10,6 +10,15 @@ EngageAnalytics.STORE = EngageFirestore;
 const firestore = engageFirestore;
 const Doc = EngageFireDoc;
 
+interface IEngageTriggerData {
+    data?: any;
+    previousData?: any;
+    id?: string;
+    subId?: string;
+    algoliaExport?: any;
+    analyticTrigger?: any;
+}
+
 export default EngageTrigger;
 export {
     // Backend
@@ -27,4 +36,5 @@ export {
     IEngageFirebaseCollection,
     IEngageFirebaseDoc,
     IEngageModel,
+    IEngageTriggerData,
 }

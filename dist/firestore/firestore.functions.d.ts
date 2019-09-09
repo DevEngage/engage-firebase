@@ -1,5 +1,7 @@
 import EngageFirestoreBase from './firestore.base';
 export default class EngageFirestore extends EngageFirestoreBase {
+    path: string;
+    constructor(path: string);
     static __DOC__: any;
     static __ENGAGE_FIRE__: any;
     static __FIRE_OPTIONS__: any;

@@ -10,17 +10,19 @@ export default class EngageTrigger {
     algoliaExport!: AlgoliaExport;
     analyticTrigger!: EngageAnalyticsTrigger;
     exports: any;
+    public pathDetails;
     
     constructor(
         public path: string, 
-        public collection: string, 
-        public collections: string[] = []
+        // public collection: string, 
+        // public collections: string[] = []
     ) {
+        this.pathDetails = this.getPathDetails(path);
         this.ref = functions.firestore.document(this.path);
     }
 
     enableSearch() {
-        this.algoliaExport = new AlgoliaExport(this.collection, '/' + this.collection);
+        this.algoliaExport = new AlgoliaExport(this.pathDetails.name, '/' + this.pathDetails.name);
         return this;
     }
 
@@ -77,8 +79,8 @@ export default class EngageTrigger {
             }
             return;
         });
-        if (this.exports && this.collection) {
-            this.exports[`${this.collection}OnWrite`] = onWrite;
+        if (this.exports && this.pathDetails.name) {
+            this.exports[`${this.pathDetails.name}OnWrite`] = onWrite;
             return this;
         } else {
             return onWrite;
@@ -108,8 +110,8 @@ export default class EngageTrigger {
             }
             return 'done';
         });
-        if (this.exports && this.collection) {
-            this.exports[`${this.collection}OnDelete`] = onDelete;
+        if (this.exports && this.pathDetails.name) {
+            this.exports[`${this.pathDetails.name}OnDelete`] = onDelete;
             return this;
         } else {
             return onDelete;
@@ -140,8 +142,8 @@ export default class EngageTrigger {
 
         });
 
-        if (this.exports && this.collection) {
-            this.exports[`${this.collection}OnCreate`] = onCreate;
+        if (this.exports && this.pathDetails.name) {
+            this.exports[`${this.pathDetails.name}OnCreate`] = onCreate;
             return this;
         } else {
             return onCreate;
@@ -173,12 +175,24 @@ export default class EngageTrigger {
             return;
         });
 
-        if (this.exports && this.collection) {
-            this.exports[`${this.collection}OnUpdate`] = onUpdate;
+        if (this.exports && this.pathDetails.name) {
+            this.exports[`${this.pathDetails.name}OnUpdate`] = onUpdate;
             return this;
         } else {
             return onUpdate;
         }
+    }
+
+    getPathDetails(path: string) {
+        const [collection, id, subCollection, subId] = path.split('/');
+        return {
+            collection,
+            id,
+            subCollection,
+            subId,
+            name: `${collection}${(subCollection || '').toUpperCase()}`,
+            trigger: path,
+        };
     }
 
     // cleanUp() {

@@ -22,8 +22,10 @@ var doc_1 = require("../doc/doc");
  * */
 var EngageFirestore = /** @class */ (function (_super) {
     __extends(EngageFirestore, _super);
-    function EngageFirestore() {
-        return _super !== null && _super.apply(this, arguments) || this;
+    function EngageFirestore(path) {
+        var _this = _super.call(this, path) || this;
+        _this.path = path;
+        return _this;
     }
     Object.defineProperty(EngageFirestore, "__DOC__", {
         /*
