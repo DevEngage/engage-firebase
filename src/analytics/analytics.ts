@@ -84,8 +84,12 @@ export class EngageAnalytics {
         );
     }
 
+    addModel(doc): Promise<IEngageAnalyticModel> {
+        return this.model.save(doc);
+    }
+
     linkFieldToCollection(model: IEngageAnalyticModel) {
-        this.model.save(model);
+        return this.model.save(model);
     }
 
     async healthCheck(field) {
@@ -153,5 +157,8 @@ export class EngageAnalytics {
         return this.doc[field];
     }
 
+    async getCustom() {
+        EngageAnalytics.STORE.getInstance()
+    }
 
 }

@@ -7,8 +7,8 @@ import { EngageFirestore } from '../functions';
 
 export default class EngageTrigger {
     ref: DocumentBuilder;
-    searchEnabled = false;
-    analyticsEnabled = false;
+    algoliaExport: AlgoliaExport;
+    analyticTrigger: EngageAnalyticsTrigger;
     
     constructor(
         public path: string, 
@@ -19,12 +19,12 @@ export default class EngageTrigger {
     }
 
     enableSearch() {
-        this.searchEnabled = true;
+        this.algoliaExport = new AlgoliaExport(this.collection, '/' + this.collection);
         return this;
     }
 
-    analytics(model?) {
-        new EngageAnalyticsTrigger(this.path, model);
+    enableAnalytics(model?) {
+        this.analyticTrigger = new EngageAnalyticsTrigger(this.path, model);
         return this;
     }
 
@@ -35,7 +35,6 @@ export default class EngageTrigger {
             const subId = context.params.subId;
             const data = change.after.data();
             const previousData = change.before.data();
-            const algoliaExport = new AlgoliaExport(this.collection, '/' + this.collection);
 
             if (id && 
                 data && 
@@ -49,11 +48,15 @@ export default class EngageTrigger {
                     objectID: id,
                     $id: id,
                 };
-                await algoliaExport.once(algoliaData);
+                await this.algoliaExport.once(algoliaData);
             }
 
-            if (this.searchEnabled && id && data && (data.isPublic === undefined || data.isPublic) && data.isSearchDisabled) {
-                algoliaExport.remove(id);
+            if (this.algoliaExport && id && data && (data.isPublic === undefined || data.isPublic) && data.isSearchDisabled) {
+                await this.algoliaExport.remove(id);
+            }
+
+            if (this.analyticTrigger) {
+                this.analyticTrigger.onWrite();
             }
 
             if (cb) {
@@ -62,7 +65,7 @@ export default class EngageTrigger {
                     previousData,
                     id,
                     subId,
-                    algoliaExport,
+                    algoliaExport: this.algoliaExport,
                 });
             }
             return;
@@ -73,18 +76,29 @@ export default class EngageTrigger {
         return this.ref.onDelete(async (snap, context) => {
             const data = snap.data();
             const id = context.params.id;
-            const algoliaExport = new AlgoliaExport(this.collection, '/' + this.collection);
             if (cb) {
                 await cb({
                     data,
                     id,
-                    algoliaExport,
+                    algoliaExport: this.algoliaExport,
                 });
             }
 
-            if (this.searchEnabled) algoliaExport.remove(id);
+            if (this.analyticTrigger) {
+                this.analyticTrigger.onDelete();
+            }
+
+            if (this.algoliaExport) this.algoliaExport.remove(id);
             return 'done';
         });
+    }
+
+    onCreate() {
+
+    }
+
+    onUpdate() {
+
     }
 
     // cleanUp() {

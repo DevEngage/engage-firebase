@@ -21,3 +21,7 @@ export interface IEngageAnalyticModel {
     snapeshot?: string | boolean | string[];
     range?: DateRanges[];
 }
+
+export interface IEngageAnalyticQuery {
+    fields: string[]; // '!field' is !=
+}

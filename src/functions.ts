@@ -4,6 +4,9 @@ import { AlgoliaExport } from "./algolia/algolia.export";
 import { IEngageFirebase, IEngageFirebaseObject, IEngageImage, IEngageFirebaseCollection, IEngageFirebaseDoc, IEngageModel, EngageFireDoc } from ".";
 import EngageFirestore, { engageFirestore } from "./firestore/firestore.functions";
 
+EngageAnalytics.DOC = EngageFireDoc;
+EngageAnalytics.STORE = EngageFirestore;
+
 const firestore = engageFirestore;
 const Doc = EngageFireDoc;
 
