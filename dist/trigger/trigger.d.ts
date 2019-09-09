@@ -12,7 +12,7 @@ export default class EngageTrigger {
     constructor(path: string);
     enableSearch(): this;
     enableAnalytics(model?: any): this;
-    bindExports(exports: any): void;
+    bindExports(exports: any): this;
     onWrite(cb?: any, ignoreFirst?: boolean): functions.CloudFunction<functions.Change<FirebaseFirestore.DocumentSnapshot>> | this;
     onDelete(cb?: any): functions.CloudFunction<FirebaseFirestore.DocumentSnapshot> | this;
     onCreate(cb?: any): functions.CloudFunction<FirebaseFirestore.DocumentSnapshot> | this;

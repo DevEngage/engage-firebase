@@ -83,9 +83,8 @@ export default class EngageTrigger {
         if (this.exports && this.pathDetails.name) {
             this.exports[`${this.pathDetails.name}OnWrite`] = onWrite;
             return this;
-        } else {
-            return onWrite;
         }
+        return this;
     }
 
     onDelete(cb?: any) {
@@ -113,10 +112,8 @@ export default class EngageTrigger {
         });
         if (this.exports && this.pathDetails.name) {
             this.exports[`${this.pathDetails.name}OnDelete`] = onDelete;
-            return this;
-        } else {
-            return onDelete;
         }
+        return this;
     }
 
     onCreate(cb?: any) {
@@ -146,9 +143,8 @@ export default class EngageTrigger {
         if (this.exports && this.pathDetails.name) {
             this.exports[`${this.pathDetails.name}OnCreate`] = onCreate;
             return this;
-        } else {
-            return onCreate;
         }
+        return this;
     }
 
     onUpdate(cb?: any) {
@@ -179,9 +175,8 @@ export default class EngageTrigger {
         if (this.exports && this.pathDetails.name) {
             this.exports[`${this.pathDetails.name}OnUpdate`] = onUpdate;
             return this;
-        } else {
-            return onUpdate;
         }
+        return this;
     }
 
     getPathDetails(path: string) {

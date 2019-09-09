@@ -66,6 +66,7 @@ var EngageTrigger = /** @class */ (function () {
     };
     EngageTrigger.prototype.bindExports = function (exports) {
         this.exports = exports;
+        return this;
     };
     EngageTrigger.prototype.onWrite = function (cb, ignoreFirst) {
         var _this = this;
