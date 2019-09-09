@@ -1,4 +1,3 @@
-import * as functions from 'firebase-functions';
 import { AlgoliaExport } from "../algolia/algolia.export";
 import { DocumentBuilder } from 'firebase-functions/lib/providers/firestore';
 import { EngageAnalyticsTrigger } from './analytics.trigger';
@@ -13,10 +12,10 @@ export default class EngageTrigger {
     enableSearch(): this;
     enableAnalytics(model?: any): this;
     bindExports(exports: any): this;
-    onWrite(cb?: any, ignoreFirst?: boolean): functions.CloudFunction<functions.Change<FirebaseFirestore.DocumentSnapshot>> | this;
-    onDelete(cb?: any): functions.CloudFunction<FirebaseFirestore.DocumentSnapshot> | this;
-    onCreate(cb?: any): functions.CloudFunction<FirebaseFirestore.DocumentSnapshot> | this;
-    onUpdate(cb?: any): functions.CloudFunction<functions.Change<FirebaseFirestore.DocumentSnapshot>> | this;
+    onWrite(cb?: any, ignoreFirst?: boolean): this;
+    onDelete(cb?: any): this;
+    onCreate(cb?: any): this;
+    onUpdate(cb?: any): this;
     getPathDetails(path: string): {
         collection: string;
         id: string;

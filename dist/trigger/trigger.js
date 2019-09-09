@@ -125,9 +125,7 @@ var EngageTrigger = /** @class */ (function () {
             this.exports[this.pathDetails.name + "OnWrite"] = onWrite;
             return this;
         }
-        else {
-            return onWrite;
-        }
+        return this;
     };
     EngageTrigger.prototype.onDelete = function (cb) {
         var _this = this;
@@ -167,11 +165,8 @@ var EngageTrigger = /** @class */ (function () {
         }); });
         if (this.exports && this.pathDetails.name) {
             this.exports[this.pathDetails.name + "OnDelete"] = onDelete;
-            return this;
         }
-        else {
-            return onDelete;
-        }
+        return this;
     };
     EngageTrigger.prototype.onCreate = function (cb) {
         var _this = this;
@@ -207,9 +202,7 @@ var EngageTrigger = /** @class */ (function () {
             this.exports[this.pathDetails.name + "OnCreate"] = onCreate;
             return this;
         }
-        else {
-            return onCreate;
-        }
+        return this;
     };
     EngageTrigger.prototype.onUpdate = function (cb) {
         var _this = this;
@@ -247,9 +240,7 @@ var EngageTrigger = /** @class */ (function () {
             this.exports[this.pathDetails.name + "OnUpdate"] = onUpdate;
             return this;
         }
-        else {
-            return onUpdate;
-        }
+        return this;
     };
     EngageTrigger.prototype.getPathDetails = function (path) {
         var _a = path.split('/'), collection = _a[0], id = _a[1], subCollection = _a[2], subId = _a[3];
