@@ -330,15 +330,15 @@ export default class EngageFirestoreBase {
   async save(newDoc: any, ref?: any) {
     await this.ready();
     newDoc = this.omitFire(newDoc);
-    newDoc.updatedAt = Date.now();
+    newDoc.$updatedAt = Date.now();
     let doc;
     if (newDoc && (newDoc.$key || newDoc.$id)) {
       doc = await this.update(newDoc, <any>ref);
     } else if (ref && ref.id) {
-      newDoc.createdAt = Date.now();
+      newDoc.$createdAt = Date.now();
       doc = await this.set(newDoc, <any>ref);
     } else {
-      newDoc.createdAt = Date.now();
+      newDoc.$createdAt = Date.now();
       doc = await this.add(newDoc, <any>ref);
       this.list = [...this.list, doc];
     }
@@ -565,7 +565,7 @@ export default class EngageFirestoreBase {
     if (!this.db) return null;
     let record: any = await this.db.doc(oldPath).get();
     record = record.data();
-    if (updateTimestamp) record.updatedAt = Date.now();
+    if (updateTimestamp) record.$updatedAt = Date.now();
     console.log('record move', record);
     return await this.db.doc(newPath).set(record);
   }
@@ -579,7 +579,7 @@ export default class EngageFirestoreBase {
     await doc.$save();
     return await ef.save({
       ...doc,
-      updatedAt: timestamp
+      $updatedAt: timestamp
     });
     // if (deep) {
     //   return await doc.$subCollections.map(collection = this.backupCollection()

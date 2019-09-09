@@ -1,16 +1,20 @@
+import { EngageFirestore } from '../functions';
 
 export class EngageAnalyticsTrigger {
+    collection
 
-    constructor(public doc) {
+    constructor(public path, public model?) {
         // this.init(path);
     }
 
     private async init(path) {
     }
 
-    sync() {
+    sync(trigger: 'add ' | 'remove' | 'modify', ) {
         // trigger type: add, remove, modify
         // how much: all, user, collection (id unique)
+
+
     }
 
 }

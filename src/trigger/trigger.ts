@@ -2,17 +2,29 @@
 import * as functions from 'firebase-functions';
 import { AlgoliaExport } from "../algolia/algolia.export";
 import { DocumentBuilder } from 'firebase-functions/lib/providers/firestore';
+import { EngageAnalyticsTrigger } from './analytics.trigger';
+import { EngageFirestore } from '../functions';
 
 export default class EngageTrigger {
     ref: DocumentBuilder;
     searchEnabled = false;
+    analyticsEnabled = false;
     
-    constructor(public path: string, public collection: string, public collections: string[] = []) {
+    constructor(
+        public path: string, 
+        public collection: string, 
+        public collections: string[] = []
+    ) {
         this.ref = functions.firestore.document(this.path);
     }
 
     enableSearch() {
         this.searchEnabled = true;
+        return this;
+    }
+
+    analytics(model?) {
+        new EngageAnalyticsTrigger(this.path, model);
         return this;
     }
 

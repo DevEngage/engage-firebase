@@ -128,6 +128,7 @@ export class EngageAnalytics {
             $amount: relationAmount,
             $relation: model.relaction,
             $relactionField: model.relactionField,
+            $userId: model.relactionField,
         };
         this.action(model.action, model.field, relationAmount);
         return await EngageAnalytics.STORE.getInstance(`$analytics/${this.path}/${model.field}`).save(fieldDoc);

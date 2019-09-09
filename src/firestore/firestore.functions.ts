@@ -8,6 +8,10 @@ import EngageFireDoc from '../doc/doc';
  * */
 export default class EngageFirestore extends EngageFirestoreBase {
 
+    constructor(public path: string) {
+        super(path);
+    }
+
     /* 
     * STATIC SETUP
     * */
