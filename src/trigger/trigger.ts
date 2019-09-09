@@ -7,8 +7,9 @@ import { EngageFirestore } from '../functions';
 
 export default class EngageTrigger {
     ref: DocumentBuilder;
-    algoliaExport: AlgoliaExport;
-    analyticTrigger: EngageAnalyticsTrigger;
+    algoliaExport!: AlgoliaExport;
+    analyticTrigger!: EngageAnalyticsTrigger;
+    exports: any;
     
     constructor(
         public path: string, 
@@ -28,13 +29,25 @@ export default class EngageTrigger {
         return this;
     }
 
-    onWrite(cb?: any) {
-        return this.ref.onWrite(async (change, context) => {
-            if (!change.before.exists) return null;
+    bindExports(exports: any) {
+        this.exports = exports;
+    }
+
+    onWrite(cb?: any, ignoreFirst = false) {
+        const onWrite = this.ref.onWrite(async (change, context) => {
+            if (!change.before.exists && ignoreFirst) return null;
             const id = context.params.id;
             const subId = context.params.subId;
             const data = change.after.data();
             const previousData = change.before.data();
+            const triggerData = {
+                data,
+                previousData,
+                id,
+                subId,
+                algoliaExport: this.algoliaExport,
+                analyticTrigger: this.analyticTrigger,
+            };
 
             if (id && 
                 data && 
@@ -56,49 +69,116 @@ export default class EngageTrigger {
             }
 
             if (this.analyticTrigger) {
-                this.analyticTrigger.onWrite();
+                await this.analyticTrigger.onWrite(triggerData);
             }
 
             if (cb) {
-                return await cb({
-                    data,
-                    previousData,
-                    id,
-                    subId,
-                    algoliaExport: this.algoliaExport,
-                });
+                return await cb(triggerData);
             }
             return;
         });
+        if (this.exports && this.collection) {
+            this.exports[`${this.collection}OnWrite`] = onWrite;
+            return this;
+        } else {
+            return onWrite;
+        }
     }
 
     onDelete(cb?: any) {
-        return this.ref.onDelete(async (snap, context) => {
+        const onDelete = this.ref.onDelete(async (snap, context) => {
             const data = snap.data();
             const id = context.params.id;
+            const triggerData = {
+                data,
+                id,
+                algoliaExport: this.algoliaExport,
+                analyticTrigger: this.analyticTrigger,
+            };
             if (cb) {
-                await cb({
-                    data,
-                    id,
-                    algoliaExport: this.algoliaExport,
-                });
+                await cb(triggerData);
             }
 
             if (this.analyticTrigger) {
-                this.analyticTrigger.onDelete();
+                await this.analyticTrigger.onDelete(triggerData);
             }
 
-            if (this.algoliaExport) this.algoliaExport.remove(id);
+            if (this.algoliaExport) {
+                await this.algoliaExport.remove(id);
+            }
             return 'done';
         });
+        if (this.exports && this.collection) {
+            this.exports[`${this.collection}OnDelete`] = onDelete;
+            return this;
+        } else {
+            return onDelete;
+        }
     }
 
-    onCreate() {
+    onCreate(cb?: any) {
+        const onCreate = this.ref.onCreate(async (snap, context) => {
+            const id = context.params.id;
+            const subId = context.params.subId;
+            const data = snap.data();
+            const triggerData = {
+                data,
+                id,
+                subId,
+                algoliaExport: this.algoliaExport,
+                analyticTrigger: this.analyticTrigger,
+            };
 
+            if (this.analyticTrigger) {
+                await this.analyticTrigger.onCreate(triggerData);
+            }
+
+            if (cb) {
+                return await cb(triggerData);
+            }
+            return;
+
+        });
+
+        if (this.exports && this.collection) {
+            this.exports[`${this.collection}OnCreate`] = onCreate;
+            return this;
+        } else {
+            return onCreate;
+        }
     }
 
-    onUpdate() {
+    onUpdate(cb?: any) {
+        const onUpdate = this.ref.onUpdate(async (change, context) => {
+            const id = context.params.id;
+            const subId = context.params.subId;
+            const data = change.after.data();
+            const previousData = change.before.data();
+            const triggerData = {
+                data,
+                previousData,
+                id,
+                subId,
+                algoliaExport: this.algoliaExport,
+                analyticTrigger: this.analyticTrigger,
+            };
 
+            if (this.analyticTrigger) {
+                await this.analyticTrigger.onUpdate(triggerData);
+            }
+
+            if (cb) {
+                return await cb(triggerData);
+            }
+            return;
+        });
+
+        if (this.exports && this.collection) {
+            this.exports[`${this.collection}OnUpdate`] = onUpdate;
+            return this;
+        } else {
+            return onUpdate;
+        }
     }
 
     // cleanUp() {

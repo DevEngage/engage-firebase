@@ -5,17 +5,19 @@ export class EngageAnalytics {
     static DOC;
     
     private collection;
+    private collectionAnalytics;
     private doc;
     private model;
 
-    constructor(public path: string) {
+    constructor(public path: string, public id: string) {
         this.init(path);
     }
 
     private async init(path) {
         this.collection = EngageAnalytics.STORE.getInstance(`$analytics`);
-        this.doc = await this.collection.get(`${path}`);
-        this.model = EngageAnalytics.STORE.getInstance(`$analytics/${path}/$model`);
+        this.collectionAnalytics = EngageAnalytics.STORE.getInstance(`${path}/${this.id}/$analytics`);
+        this.doc = await this.collectionAnalytics.get(`total`);
+        this.model = EngageAnalytics.STORE.getInstance(`$analyticModels`);
     }
 
     async add(field, num = 1) {
@@ -24,6 +26,14 @@ export class EngageAnalytics {
 
     async subtract(field, num = 1) {
         this.action('minus', field, num);
+    }
+
+    addDoc(model, doc) {
+        return this.addRelationDoc(model, doc);
+    }
+
+    subtractDoc(model, doc) {
+        return this.removeRelationDoc(model, doc);
     }
 
     async action(action: AnalyticAction, field: string, num = 1, save = true) {
@@ -66,19 +76,20 @@ export class EngageAnalytics {
     }
 
     async sumList(field: string, action?: AnalyticAction) {
-        const col = EngageAnalytics.STORE.getInstance(`$analytics/${this.path}/${field}`);
-        const list: any[] = col.getList(
-            action ? col.ref.where('action', '==', action) : col.ref
-        )
+        const col = EngageAnalytics.STORE.getInstance(`$analytics`);
+        let ref = action ? col.ref.where('action', '==', action) : col.ref;
+        ref = ref.where('field', '==', field).where('collection', '==', this.path);
+        const list: any[] = col.getList(ref);
         return list.reduce((prev, curr) => prev += curr.amount || 0, 0);
     }
 
-    saveModelField(doc: any) {
-        doc.$save()
-        return this;
+    async getModels(): Promise<IEngageAnalyticModel[]> {
+        return await this.model.getList(
+            this.model.ref.where('collection', '==', this.path)
+        );
     }
 
-    async getModel(field): Promise<IEngageAnalyticModel[]> {
+    async getModelByField(field): Promise<IEngageAnalyticModel[]> {
         return await this.model.getList(
             this.model.ref.where('field', '==', field)
         );
@@ -135,12 +146,21 @@ export class EngageAnalytics {
             $userId: model.relactionField,
         };
         this.action(model.action, model.field, relationAmount);
-        return await EngageAnalytics.STORE.getInstance(`$analytics/${this.path}/${model.field}`).save(fieldDoc);
+        return await EngageAnalytics.STORE.getInstance(`$analytics`).save(fieldDoc);
+        // return await EngageAnalytics.STORE.getInstance(`$analytics/${this.path}/${model.field}`).save(fieldDoc);
+    }
+
+    async removeRelationDoc(model: IEngageAnalyticModel, doc) {
+        let fieldDoc: IEngageAnalytic;
+        let relationAmount = this.getRelationAmount(model, doc);
+        this.action('minus', model.field, relationAmount);
+        return await EngageAnalytics.STORE.getInstance(`$analytics`).remove(doc.$id);
+        // return await EngageAnalytics.STORE.getInstance(`$analytics/${this.path}/${model.field}`).save(fieldDoc);
     }
 
     async sync(field) {
         this.doc[field] = 0;
-        const model: IEngageAnalyticModel[] = await this.getModel(field);
+        const model: IEngageAnalyticModel[] = await this.getModelByField(field);
         const promises = model.map(async (model: IEngageAnalyticModel) => {
             const proms = (await EngageAnalytics.STORE.getInstance(model.relaction).getList())
                 .map(relationItem => {
@@ -157,8 +177,14 @@ export class EngageAnalytics {
         return this.doc[field];
     }
 
-    async getCustom() {
-        EngageAnalytics.STORE.getInstance()
+    async getRange(field, start, end) {
+        const fieldCollection = EngageAnalytics.STORE.getInstance(`$analytics`);
+        const query = fieldCollection.ref
+            .where('field', '==', field)
+            .where('source', '==', this.path)
+            .where('$createdAt', '>=', start)
+            .where('$createdAt', '<=', end);
+        return fieldCollection.getList(query);
     }
 
 }

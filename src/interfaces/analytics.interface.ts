@@ -4,6 +4,8 @@ export type DateRanges = number | 'now' | 'yesterday' | 'today' | 'week' | 'mont
 export interface IEngageAnalytic {
     $action?: AnalyticAction;
     $amount?: number;
+    $source?: string;
+    $sourceId?: string;
     $relation?: string;
     $relationId?: string;
     $relactionField?: string;
@@ -13,11 +15,13 @@ export interface IEngageAnalytic {
 export interface IEngageAnalyticModel {
     type?: 'int' | 'double';
     field?: string;
-    relaction?: string;
+    source?: string; // source // collection/{userId | otherId | all}
+    relaction?: string; // dest.
     relactionField?: string;
     action?: AnalyticAction;
     allowDuplicates?: boolean;
-    relationship?: 'all' | 'user' | string; // collection based id // group -> id replaces user
+    reverse?: boolean;
+    group?: 'all' | 'user' | string; // collection based id // group -> id replaces user // collectionFieldId name
     snapeshot?: string | boolean | string[];
     range?: DateRanges[];
 }

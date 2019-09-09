@@ -1,15 +1,15 @@
 import { EngageFirestore, EngageAnalytics } from '../functions';
 
 export class EngageAnalyticsTrigger {
-    collection
-    engine;
+    engine: EngageAnalytics;
 
     constructor(public path, public model?) {
         this.engine = new EngageAnalytics(`$${path}`);
-        // this.init(path);
+        this.init();
     }
 
-    private async init(path) {
+    private async init() {
+        this.engine.getModels();
     }
 
     sync(trigger: 'add ' | 'remove' | 'modify', ) {
@@ -19,19 +19,20 @@ export class EngageAnalyticsTrigger {
 
     }
 
-    onWrite() {
-
+    async onWrite(triggerData) {
+        const engine = new EngageAnalytics(`${this.path}`, triggerData.id);
+        engine.addDoc(this.model, triggerData.data);
     }
 
-    onCreate() {
+    onCreate(triggerData) {
         
     }
 
-    onUpdate() {
+    onUpdate(triggerData) {
 
     }
 
-    onDelete() {
+    onDelete(triggerData) {
 
     }
 
