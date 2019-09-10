@@ -43,7 +43,8 @@ export class EngageAnalytics {
     }
 
     getAnalytics(dest: string, field = 'total') {
-        EngageAnalytics.STORE.getInstance(`${dest}/$analytics`)
+        const col = EngageAnalytics.STORE.getInstance(`${dest}/$analytics`);
+        return col.get( field );
     }
 
     // async action(action: AnalyticAction, field: string, num = 1, save = true) {
