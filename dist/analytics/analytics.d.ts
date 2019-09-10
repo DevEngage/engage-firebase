@@ -10,7 +10,7 @@ export declare class EngageAnalytics {
     updateDestinations(models: any, data: any): Promise<[unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown, unknown]>;
     addDoc(model: any, doc: any): Promise<any>;
     subtractDoc(model: any, doc: any): Promise<any>;
-    getAnalytics(dest: string, field?: string): void;
+    getAnalytics(dest: string, field?: string): any;
     applyAction(model: IEngageAnalyticModel, dataset?: string, num?: number, save?: boolean): Promise<any>;
     sumList(field: string, action?: AnalyticAction): Promise<any>;
     getTiggers(trigger: string): Promise<IEngageAnalyticModel[]>;

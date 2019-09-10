@@ -92,7 +92,8 @@ var EngageAnalytics = /** @class */ (function () {
     };
     EngageAnalytics.prototype.getAnalytics = function (dest, field) {
         if (field === void 0) { field = 'total'; }
-        EngageAnalytics.STORE.getInstance(dest + "/$analytics");
+        var col = EngageAnalytics.STORE.getInstance(dest + "/$analytics");
+        return col.get(field);
     };
     // async action(action: AnalyticAction, field: string, num = 1, save = true) {
     //     let model;
