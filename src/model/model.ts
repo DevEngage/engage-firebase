@@ -1,8 +1,8 @@
-
+export type EngageModelType = 'string' | 'number' | 'boolean' | 'object' | 'array' | 'image' | 'file' | 'files' | 'range' | 'collection' | '';
 export interface IEngageModel {
     name?: string;
     label?: string;
-    type?: string;
+    type?: EngageModelType;
     choices?: any[];
     relation?: string; // collection path
     collection?: string; 
@@ -91,6 +91,55 @@ export default class EngageModel {
             data[key] = modelItem.default;
         }
         return valid;
+    }
+
+    getValue(value: any): EngageModelType {
+        switch (typeof value) {
+            case 'string':
+                if ((value.match(/\.(jpeg|jpg|gif|png)$/) != null)) {
+                    return 'image'
+                } else if (value.split('/').pop().indexOf('.') > -1) {
+                    return 'file';
+                }
+                return 'string';
+            case 'number':
+                return 'string';
+            case 'boolean':
+                return 'string';
+            case 'object':
+                if (value.length) {
+                    return 'array';
+                }
+                return 'string';
+            default:
+                return '';
+        }
+    }
+
+    analyze(data: any): IEngageModel[] {
+        const dataArray: any[] = Object.keys(data);
+        return dataArray.map((key: string, index) => {
+            return {
+                name: data[key],
+                label: data[key],
+                type: this.getValue(data[key]),
+                choices: [],
+                relation: '', // collection path
+                collection: '',
+                backup: false,
+                required: false,
+                default: '',
+                multiple: false,
+                min: -1,
+                max: -1,
+                size: '',
+                siblingValue: '',
+                updateSibling: '',
+                field: '',
+                quality: '',
+                permission: []
+            };
+        });
     }
 
 }
