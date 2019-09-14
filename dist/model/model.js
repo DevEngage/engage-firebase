@@ -50,6 +50,55 @@ var EngageModel = /** @class */ (function () {
         }
         return valid;
     };
+    EngageModel.prototype.getValue = function (value) {
+        switch (typeof value) {
+            case 'string':
+                if ((value.match(/\.(jpeg|jpg|gif|png)$/) != null)) {
+                    return 'image';
+                }
+                else if (value.split('/').pop().indexOf('.') > -1) {
+                    return 'file';
+                }
+                return 'string';
+            case 'number':
+                return 'string';
+            case 'boolean':
+                return 'string';
+            case 'object':
+                if (value.length) {
+                    return 'array';
+                }
+                return 'string';
+            default:
+                return '';
+        }
+    };
+    EngageModel.prototype.analyze = function (data) {
+        var _this = this;
+        var dataArray = Object.keys(data);
+        return dataArray.map(function (key, index) {
+            return {
+                name: data[key],
+                label: data[key],
+                type: _this.getValue(data[key]),
+                choices: [],
+                relation: '',
+                collection: '',
+                backup: false,
+                required: false,
+                default: '',
+                multiple: false,
+                min: -1,
+                max: -1,
+                size: '',
+                siblingValue: '',
+                updateSibling: '',
+                field: '',
+                quality: '',
+                permission: []
+            };
+        });
+    };
     return EngageModel;
 }());
 exports.default = EngageModel;

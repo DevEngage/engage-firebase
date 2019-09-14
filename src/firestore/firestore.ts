@@ -144,7 +144,7 @@ export default class EngageFirestore extends EngageFirestoreBase {
     const storageRef = EngageFirestore.ENGAGE_FIRE(EngageFirestore.FIRE_OPTIONS).storage.ref().child(doc.$path);
     const element: any = id ? document.getElementById(id) : this.createFileInput();
     const uploaded = [];
-    if (!doc) return;
+    if (!doc) return uploaded;
     const docFileCollection = doc.$getSubCollection('files');
     await docFileCollection.ready();
     files = await this._handleFileUpload(element);
@@ -182,6 +182,7 @@ export default class EngageFirestore extends EngageFirestoreBase {
       }
       return uploaded;
     }
+    return uploaded;
   }
 
   async uploadImage(doc: any, id?: string, file?: any) {

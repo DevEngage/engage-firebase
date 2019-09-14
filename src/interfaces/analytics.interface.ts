@@ -15,6 +15,7 @@ export interface IEngageAnalyticModel {
     trigger?: string; // source // collection/{id}/
     source?: string; // source // collection/{userId | otherId | all}
     validation?: any[]; 
+    group?: any[]; 
     
     // Save to
     destination?: string; // Where to copy data for set
@@ -25,7 +26,4 @@ export interface IEngageAnalyticModel {
     allowDuplicates?: boolean;
     snapeshot?: string | boolean | string[];
     range?: DateRanges[]; // Creates a new doc for each item
-    
-    // in question
-    group?: 'all' | 'user' | string; // collection based id // group -> id replaces user // collectionFieldId name
 }

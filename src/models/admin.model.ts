@@ -81,7 +81,7 @@ export const adminModel: IEngageModel[] = [
     {
         name: 'default',
         label: 'Default',
-        type: 'any',
+        type: '',
         position: 10,
     },
     {

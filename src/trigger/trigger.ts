@@ -9,6 +9,7 @@ export default class EngageTrigger {
     ref: DocumentBuilder;
     algoliaExport!: AlgoliaExport;
     analyticTrigger!: EngageAnalyticsTrigger;
+    relations = [];
     exports: any;
     public pathDetails;
     
@@ -28,6 +29,11 @@ export default class EngageTrigger {
 
     enableAnalytics(model?) {
         this.analyticTrigger = new EngageAnalyticsTrigger(this.path, model);
+        return this;
+    }
+
+    addRelations(relations) {
+        this.relations = relations;
         return this;
     }
 

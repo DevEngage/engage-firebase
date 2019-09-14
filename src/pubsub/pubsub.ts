@@ -69,7 +69,7 @@ export class EngagePubsub {
   }
 
   clear(what: any) {
-    if (!what) return;
+    if (!what) return null;
     if (what === 'all') {
       return this.data = {};
     }

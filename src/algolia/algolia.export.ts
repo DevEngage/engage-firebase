@@ -8,11 +8,14 @@ import { firestore } from 'firebase-admin';
 import * as algoliasearch from 'algoliasearch';
 import * as _ from 'lodash';
 
-const ALGOLIA_ID = config().algolia.app_id;
-const ALGOLIA_ADMIN_KEY = config().algolia.api_key;
-if (!ALGOLIA_ID) console.error('missing', ALGOLIA_ID);
-if (!ALGOLIA_ADMIN_KEY) console.error('missing', ALGOLIA_ADMIN_KEY);
-const client = algoliasearch(ALGOLIA_ID, ALGOLIA_ADMIN_KEY);
+const { algolia } = config();
+const { app_id, api_key } = algolia || {};
+let client;
+if (!app_id) console.error('missing', app_id);
+if (!api_key) console.error('missing', api_key);
+if (app_id && api_key) {
+    client = algoliasearch(app_id, api_key);
+}
 
 export class AlgoliaExport {
     contactsRef: firestore.CollectionReference;

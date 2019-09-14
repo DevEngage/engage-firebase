@@ -233,7 +233,7 @@ var EngageFirestore = /** @class */ (function (_super) {
                         element = id ? document.getElementById(id) : this.createFileInput();
                         uploaded = [];
                         if (!doc)
-                            return [2 /*return*/];
+                            return [2 /*return*/, uploaded];
                         docFileCollection = doc.$getSubCollection('files');
                         return [4 /*yield*/, docFileCollection.ready()];
                     case 1:
@@ -284,7 +284,7 @@ var EngageFirestore = /** @class */ (function (_super) {
                         i++;
                         return [3 /*break*/, 3];
                     case 11: return [2 /*return*/, uploaded];
-                    case 12: return [2 /*return*/];
+                    case 12: return [2 /*return*/, uploaded];
                 }
             });
         });

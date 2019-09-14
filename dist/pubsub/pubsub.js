@@ -69,7 +69,7 @@ var EngagePubsub = /** @class */ (function () {
     };
     EngagePubsub.prototype.clear = function (what) {
         if (!what)
-            return;
+            return null;
         if (what === 'all') {
             return this.data = {};
         }

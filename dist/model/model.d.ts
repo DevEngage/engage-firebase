@@ -1,7 +1,8 @@
+export declare type EngageModelType = 'string' | 'number' | 'boolean' | 'object' | 'array' | 'image' | 'file' | 'files' | 'range' | 'collection' | '';
 export interface IEngageModel {
     name?: string;
     label?: string;
-    type?: string;
+    type?: EngageModelType;
     choices?: any[];
     relation?: string;
     collection?: string;
@@ -44,5 +45,7 @@ export default class EngageModel {
     setData(data: any): void;
     validateAll(data?: any): boolean;
     validate(key: string | undefined, data: any): boolean;
+    getValue(value: any): EngageModelType;
+    analyze(data: any): IEngageModel[];
 }
 export declare const validateFunction: (change: any, model: IEngageModel[]) => any;

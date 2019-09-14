@@ -81,7 +81,7 @@ exports.adminModel = [
     {
         name: 'default',
         label: 'Default',
-        type: 'any',
+        type: '',
         position: 10,
     },
     {
