@@ -78,11 +78,6 @@ export class EngageAnalytics {
         return doc;
     }
 
-    // async applyGroup(model: IEngageAnalyticModel, data, trigger) {
-    //     EngageAnalytics.createTriggerRef(data, trigger);
-    //     // const model = EngageAnalytics.STORE.getInstance(`${model.destination}`)
-    // }
-
     getModelRef() {
         const details = EngageAnalytics.triggerParser(this.path);
         if (details.subCollection) {
@@ -342,34 +337,5 @@ export class EngageAnalytics {
         }
         return !ref ? path : EngageAnalytics.STORE.getInstance(path);
     }
-
-    // static buildTrigger(trigger: string, subCollection: string, ref = false) {
-    //     let {
-    //         collection,
-    //         idField,
-    //         subIdField,
-    //     } = EngageAnalytics.triggerParser(trigger);
-    //     let path = '';
-
-    //     if (collection && collection[collection.length - 1].toLowerCase() === 's') {
-    //         idField = collection.slice(0, -1) + 'Id';
-    //     }
-
-    //     if (subCollection && subIdField && subCollection[subCollection.length - 1].toLowerCase() === 's') {
-    //         subIdField = subCollection.slice(0, -1) + 'Id';
-    //     }
-
-
-    //     if (collection && idField) {
-    //         path += `${collection}/{${idField}}`;
-    //     }
-
-    //     if (subCollection && subIdField) {
-    //         if (path) path += '/';
-    //         path += `${subCollection}/{${subIdField}}`;
-    //     }
-        
-    //     return !ref ? path : EngageAnalytics.STORE.getInstance(path);
-    // }
-
+    
 }
