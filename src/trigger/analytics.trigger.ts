@@ -21,10 +21,7 @@ export class EngageAnalyticsTrigger {
     }
 
     updateDestinations(data: IEngageTriggerData) {
-        // const details = this.engine.getPathDetails(this.trigger);
-        // const path = `${details.collection}/${data.id}`;
-        // const engine = new EngageAnalytics(path);
-        // this.engine.updateDestinations(this.triggers, data);
+        this.engine.triggerUpdate(this.models, data);
     }
 
     restore() {
@@ -32,19 +29,27 @@ export class EngageAnalyticsTrigger {
     }
 
     async onWrite(data: IEngageTriggerData) {
-        this.updateDestinations(data.data);
+        if (data && data.previousData) {
+            data.action = 'update';
+        } else {
+            data.action = 'create';
+        }
+        this.updateDestinations(data);
     }
 
     async onCreate(data: IEngageTriggerData) {
-        this.updateDestinations(data.data);
+        data.action = 'create';
+        this.updateDestinations(data);
     }
 
     async onUpdate(data: IEngageTriggerData) {
-        this.updateDestinations(data.data);
+        data.action = 'update';
+        this.updateDestinations(data);
     }
 
     async onDelete(data: IEngageTriggerData) {
-        this.updateDestinations(data.data);
+        data.action = 'remove';
+        this.updateDestinations(data);
     }
 
 }

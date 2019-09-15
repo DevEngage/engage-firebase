@@ -23,12 +23,16 @@ export class EngageAnalytics {
 
     private async init(path) {
         const details = EngageAnalytics.triggerParser(path);
-        this.model = EngageAnalytics.STORE.getInstance(`$collections/${details.collection}/$analyticModels`);
+        let collectionsPath = details.collection;
+        if (details.subCollection) {
+            collectionsPath += '-' + details.subCollection;
+        }
+        this.model = EngageAnalytics.STORE.getInstance(`$collections/${collectionsPath}/$analyticModels`);
     }
 
-    async triggerUpdate(models, triggerData: IEngageTriggerData, action: AnalyticAction) {
+    async triggerUpdate(models, triggerData: IEngageTriggerData) {
         const promises = models.map((model: IEngageAnalyticModel) => {
-            if ((action === 'minus' || action === 'remove') && !model.final) {
+            if (triggerData.action === 'remove' && !model.final) {
                 return this.subtractDoc(model, triggerData);
             }
             return this.addDoc(model, triggerData);
@@ -197,6 +201,9 @@ export class EngageAnalytics {
     }
 
     async addAnalyticDoc(model: IEngageAnalyticModel, triggerData: IEngageTriggerData) {
+        if (!model.allowDuplicates && (triggerData.action === 'update' || triggerData.action === 'write')) {
+            return null;
+        }
         const datasetDoc = EngageAnalytics.buildDatasetDoc(model, triggerData);
         const dest = EngageAnalytics.createTriggerRef(triggerData);
         const dates = EngageAnalytics.getDates(triggerData.data);

@@ -32,7 +32,6 @@ export interface IEngageAnalyticModel {
     // trigger:
     trigger?: string; // source // collection/{collectionId}/
     group?: IEngageAnalyticGroup[] | string; 
-    
     // Save to
     destination?: string; // Where to copy data for set group/{groupId}
     action?: AnalyticAction;

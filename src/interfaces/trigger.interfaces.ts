@@ -10,4 +10,5 @@ export interface IEngageTriggerData {
     trigger?: any;
     analyticTrigger?: any;
     userId?: any;
+    action?: 'write' | 'create' | 'update' | 'remove';
 }
