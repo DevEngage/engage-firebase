@@ -305,7 +305,36 @@ export class EngageAnalytics {
 
         if (subCollection && data[subIdField]) {
             if (path) path += '/';
-            path += `${collection}/${data[subIdField]}`;
+            path += `${subCollection}/${data[subIdField]}`;
+        }
+        
+        return ref ? path : EngageAnalytics.STORE.getInstance(path);
+    }
+
+    static buildTrigger(trigger: string, subCollection: string, ref = false) {
+        let {
+            collection,
+            idField,
+            subIdField,
+        } = EngageAnalytics.triggerParser(trigger);
+        let path = '';
+
+        if (collection && collection[collection.length - 1].toLowerCase() === 's') {
+            idField = collection.slice(0, -1) + 'Id';
+        }
+
+        if (subCollection && subIdField && subCollection[subCollection.length - 1].toLowerCase() === 's') {
+            subIdField = subCollection.slice(0, -1) + 'Id';
+        }
+
+
+        if (collection && idField) {
+            path += `${collection}/{${idField}}`;
+        }
+
+        if (subCollection && subIdField) {
+            if (path) path += '/';
+            path += `${subCollection}/{${subIdField}}`;
         }
         
         return ref ? path : EngageAnalytics.STORE.getInstance(path);

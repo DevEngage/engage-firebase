@@ -1,7 +1,7 @@
 
 import EngageTrigger from '../../src/trigger/trigger';
 
-new EngageTrigger('events/{eventId}/{subCollection}/{subId}')
+new EngageTrigger('events/{id}/{subCollection}/{subId}')
     .bindExports(exports)
     .enableAnalytics([
         {
@@ -13,7 +13,8 @@ new EngageTrigger('events/{eventId}/{subCollection}/{subId}')
                     filter: { isGuest: true, $greater__field: 100, $lesser__field: 100}, 
                     action: 'add'
                 }, {
-                    members: { isGuest: false, } 
+                    field: 'members',
+                    filter: { isGuest: false, } 
                 }
             ],
             destination: 'groups/{groupId}',

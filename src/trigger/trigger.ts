@@ -3,7 +3,7 @@ import * as functions from 'firebase-functions';
 import { AlgoliaExport } from "../algolia/algolia.export";
 import { DocumentBuilder } from 'firebase-functions/lib/providers/firestore';
 import { EngageAnalyticsTrigger } from './analytics.trigger';
-import { EngageFirestore } from '../functions';
+import { EngageFirestore, IEngageTriggerData, EngageAnalytics } from '../functions';
 
 export default class EngageTrigger {
     ref: DocumentBuilder;
@@ -18,7 +18,7 @@ export default class EngageTrigger {
         // public collection: string, 
         // public collections: string[] = []
     ) {
-        this.pathDetails = this.getPathDetails(path);
+        this.pathDetails = EngageAnalytics.getPathDetails(path);
         this.ref = functions.firestore.document(this.path);
     }
 
@@ -30,11 +30,6 @@ export default class EngageTrigger {
     enableAnalytics(model?, restore?: number) {
         this.analyticTrigger = new EngageAnalyticsTrigger(this.path, model);
         // this.analyticTrigger.restore(restore);
-        return this;
-    }
-
-    restoreAnalytics(date: number) {
-        this.analyticTrigger = new EngageAnalyticsTrigger(this.path, model);
         return this;
     }
 
@@ -52,17 +47,21 @@ export default class EngageTrigger {
         const onWrite = this.ref.onWrite(async (change, context) => {
             if (!change.before.exists && ignoreFirst) return null;
             const id = context.params.id;
+            const subCollection = context.params.subCollection;
             const subId = context.params.subId;
             const data = change.after.data();
             const previousData = change.before.data();
-            const triggerData = {
+            const triggerData: IEngageTriggerData = {
                 data,
                 previousData,
                 id,
+                subCollection,
                 subId,
                 algoliaExport: this.algoliaExport,
                 analyticTrigger: this.analyticTrigger,
             };
+            triggerData.trigger = EngageAnalytics.buildTrigger(this.path, subCollection);
+            triggerData.source = EngageAnalytics.createTriggerRef(triggerData);
 
             if (id && 
                 data && 
@@ -103,12 +102,18 @@ export default class EngageTrigger {
         const onDelete = this.ref.onDelete(async (snap, context) => {
             const data = snap.data();
             const id = context.params.id;
-            const triggerData = {
+            const subCollection = context.params.subCollection;
+            const subId = context.params.subId;
+            const triggerData: IEngageTriggerData = {
                 data,
                 id,
+                subCollection,
+                subId,
                 algoliaExport: this.algoliaExport,
                 analyticTrigger: this.analyticTrigger,
             };
+            triggerData.trigger = EngageAnalytics.buildTrigger(this.path, subCollection);
+            triggerData.source = EngageAnalytics.createTriggerRef(triggerData);
             if (cb) {
                 await cb(triggerData);
             }
@@ -131,15 +136,19 @@ export default class EngageTrigger {
     onCreate(cb?: any) {
         const onCreate = this.ref.onCreate(async (snap, context) => {
             const id = context.params.id;
+            const subCollection = context.params.subCollection;
             const subId = context.params.subId;
             const data = snap.data();
-            const triggerData = {
+            const triggerData: IEngageTriggerData = {
                 data,
                 id,
+                subCollection,
                 subId,
                 algoliaExport: this.algoliaExport,
                 analyticTrigger: this.analyticTrigger,
             };
+            triggerData.trigger = EngageAnalytics.buildTrigger(this.path, subCollection);
+            triggerData.source = EngageAnalytics.createTriggerRef(triggerData);
 
             if (this.analyticTrigger) {
                 await this.analyticTrigger.onCreate(triggerData);
@@ -163,16 +172,20 @@ export default class EngageTrigger {
         const onUpdate = this.ref.onUpdate(async (change, context) => {
             const id = context.params.id;
             const subId = context.params.subId;
+            const subCollection = context.params.subCollection;
             const data = change.after.data();
             const previousData = change.before.data();
-            const triggerData = {
+            const triggerData: IEngageTriggerData = {
                 data,
-                previousData,
                 id,
+                subCollection,
+                previousData,
                 subId,
                 algoliaExport: this.algoliaExport,
                 analyticTrigger: this.analyticTrigger,
             };
+            triggerData.trigger = EngageAnalytics.buildTrigger(this.path, subCollection);
+            triggerData.source = EngageAnalytics.createTriggerRef(triggerData);
 
             if (this.analyticTrigger) {
                 await this.analyticTrigger.onUpdate(triggerData);
@@ -189,18 +202,6 @@ export default class EngageTrigger {
             return this;
         }
         return this;
-    }
-
-    getPathDetails(path: string) {
-        const [collection, id, subCollection, subId] = path.split('/');
-        return {
-            collection,
-            id,
-            subCollection,
-            subId,
-            name: `${collection}${(subCollection || '').toUpperCase()}`,
-            trigger: path,
-        };
     }
 
     // cleanUp() {
