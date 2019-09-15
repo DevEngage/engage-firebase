@@ -14,15 +14,15 @@ export class EngageAnalyticsTriggerOld {
 
     private async init() {
         if (!this.triggers) {
-            this.triggers = await this.engine.getTiggers(this.path);
+            this.triggers = await this.engine.getModels();
         }
     }
 
     updateDestinations(data: IEngageTriggerData) {
-        const details = this.getPathDetails(this.path)
-        const path = `${details.collection}/${data.id}`;
-        const engine = new EngageAnalytics(path);
-        engine.updateDestinations(this.triggers, data);
+        // const details = this.getPathDetails(this.path)
+        // const path = `${details.collection}/${data.id}`;
+        // const engine = new EngageAnalytics(path);
+        // engine.updateDestinations(this.triggers, data);
     }
 
     async onWrite(data: IEngageTriggerData) {

@@ -50,18 +50,25 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var functions = require("firebase-functions");
 var algolia_export_1 = require("../algolia/algolia.export");
 var analytics_trigger_1 = require("./analytics.trigger");
+var functions_1 = require("../functions");
 var EngageTrigger = /** @class */ (function () {
     function EngageTrigger(path) {
         this.path = path;
-        this.pathDetails = this.getPathDetails(path);
+        this.relations = [];
+        this.pathDetails = functions_1.EngageAnalytics.getPathDetails(path);
         this.ref = functions.firestore.document(this.path);
     }
     EngageTrigger.prototype.enableSearch = function () {
         this.algoliaExport = new algolia_export_1.AlgoliaExport(this.pathDetails.name, '/' + this.pathDetails.name);
         return this;
     };
-    EngageTrigger.prototype.enableAnalytics = function (model) {
-        this.analyticTrigger = new analytics_trigger_1.EngageAnalyticsTrigger(this.path, model);
+    EngageTrigger.prototype.enableAnalytics = function (models, restore) {
+        this.analyticTrigger = new analytics_trigger_1.EngageAnalyticsTrigger(this.path, models);
+        // this.analyticTrigger.restore(restore);
+        return this;
+    };
+    EngageTrigger.prototype.addRelations = function (relations) {
+        this.relations = relations;
         return this;
     };
     EngageTrigger.prototype.bindExports = function (exports) {
@@ -72,13 +79,14 @@ var EngageTrigger = /** @class */ (function () {
         var _this = this;
         if (ignoreFirst === void 0) { ignoreFirst = false; }
         var onWrite = this.ref.onWrite(function (change, context) { return __awaiter(_this, void 0, void 0, function () {
-            var id, subId, data, previousData, triggerData, algoliaData;
+            var id, subCollection, subId, data, previousData, triggerData, algoliaData;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         if (!change.before.exists && ignoreFirst)
                             return [2 /*return*/, null];
                         id = context.params.id;
+                        subCollection = context.params.subCollection;
                         subId = context.params.subId;
                         data = change.after.data();
                         previousData = change.before.data();
@@ -86,10 +94,13 @@ var EngageTrigger = /** @class */ (function () {
                             data: data,
                             previousData: previousData,
                             id: id,
+                            subCollection: subCollection,
                             subId: subId,
                             algoliaExport: this.algoliaExport,
                             analyticTrigger: this.analyticTrigger,
                         };
+                        triggerData.trigger = functions_1.EngageAnalytics.buildTrigger(this.path, subCollection);
+                        triggerData.source = functions_1.EngageAnalytics.createTriggerRef(triggerData);
                         if (!(id &&
                             data &&
                             (data.isApproved === undefined || data.isApproved) &&
@@ -130,18 +141,24 @@ var EngageTrigger = /** @class */ (function () {
     EngageTrigger.prototype.onDelete = function (cb) {
         var _this = this;
         var onDelete = this.ref.onDelete(function (snap, context) { return __awaiter(_this, void 0, void 0, function () {
-            var data, id, triggerData;
+            var data, id, subCollection, subId, triggerData;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         data = snap.data();
                         id = context.params.id;
+                        subCollection = context.params.subCollection;
+                        subId = context.params.subId;
                         triggerData = {
                             data: data,
                             id: id,
+                            subCollection: subCollection,
+                            subId: subId,
                             algoliaExport: this.algoliaExport,
                             analyticTrigger: this.analyticTrigger,
                         };
+                        triggerData.trigger = functions_1.EngageAnalytics.buildTrigger(this.path, subCollection);
+                        triggerData.source = functions_1.EngageAnalytics.createTriggerRef(triggerData);
                         if (!cb) return [3 /*break*/, 2];
                         return [4 /*yield*/, cb(triggerData)];
                     case 1:
@@ -171,20 +188,24 @@ var EngageTrigger = /** @class */ (function () {
     EngageTrigger.prototype.onCreate = function (cb) {
         var _this = this;
         var onCreate = this.ref.onCreate(function (snap, context) { return __awaiter(_this, void 0, void 0, function () {
-            var id, subId, data, triggerData;
+            var id, subCollection, subId, data, triggerData;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         id = context.params.id;
+                        subCollection = context.params.subCollection;
                         subId = context.params.subId;
                         data = snap.data();
                         triggerData = {
                             data: data,
                             id: id,
+                            subCollection: subCollection,
                             subId: subId,
                             algoliaExport: this.algoliaExport,
                             analyticTrigger: this.analyticTrigger,
                         };
+                        triggerData.trigger = functions_1.EngageAnalytics.buildTrigger(this.path, subCollection);
+                        triggerData.source = functions_1.EngageAnalytics.createTriggerRef(triggerData);
                         if (!this.analyticTrigger) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.analyticTrigger.onCreate(triggerData)];
                     case 1:
@@ -207,22 +228,26 @@ var EngageTrigger = /** @class */ (function () {
     EngageTrigger.prototype.onUpdate = function (cb) {
         var _this = this;
         var onUpdate = this.ref.onUpdate(function (change, context) { return __awaiter(_this, void 0, void 0, function () {
-            var id, subId, data, previousData, triggerData;
+            var id, subId, subCollection, data, previousData, triggerData;
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
                         id = context.params.id;
                         subId = context.params.subId;
+                        subCollection = context.params.subCollection;
                         data = change.after.data();
                         previousData = change.before.data();
                         triggerData = {
                             data: data,
-                            previousData: previousData,
                             id: id,
+                            subCollection: subCollection,
+                            previousData: previousData,
                             subId: subId,
                             algoliaExport: this.algoliaExport,
                             analyticTrigger: this.analyticTrigger,
                         };
+                        triggerData.trigger = functions_1.EngageAnalytics.buildTrigger(this.path, subCollection);
+                        triggerData.source = functions_1.EngageAnalytics.createTriggerRef(triggerData);
                         if (!this.analyticTrigger) return [3 /*break*/, 2];
                         return [4 /*yield*/, this.analyticTrigger.onUpdate(triggerData)];
                     case 1:
@@ -241,17 +266,6 @@ var EngageTrigger = /** @class */ (function () {
             return this;
         }
         return this;
-    };
-    EngageTrigger.prototype.getPathDetails = function (path) {
-        var _a = path.split('/'), collection = _a[0], id = _a[1], subCollection = _a[2], subId = _a[3];
-        return {
-            collection: collection,
-            id: id,
-            subCollection: subCollection,
-            subId: subId,
-            name: "" + collection + (subCollection || '').toUpperCase(),
-            trigger: path,
-        };
     };
     return EngageTrigger;
 }());

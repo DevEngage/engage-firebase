@@ -117,6 +117,10 @@ var EngageFirestoreBase = /** @class */ (function () {
             '$swapPosition',
             '$changeId',
             '$getModel',
+            '$addRelationToDoc',
+            '$getDocRelations',
+            '$addReference',
+            '$getReferences',
         ];
         this.sortedBy = '';
         this.init();

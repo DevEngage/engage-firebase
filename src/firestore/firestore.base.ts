@@ -59,7 +59,6 @@ export default class EngageFirestoreBase {
     '$isOwner',
     '$getFile',
     '$getFiles',
-    '$path',
     '$backup',
     '$engageFireStore',
     '$owner',

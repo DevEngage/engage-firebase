@@ -13,22 +13,9 @@ export class EngageAnalytics {
     static DATASET_PATH = '$dataset';
     static CREATEDAT_NAME = '$createAt';
     
-    private model;
-
     constructor(
         public path: string
-    ) {
-        this.init(path);
-    }
-
-    private async init(path) {
-        const details = EngageAnalytics.triggerParser(path);
-        let collectionsPath = details.collection;
-        if (details.subCollection) {
-            collectionsPath += '-' + details.subCollection;
-        }
-        this.model = EngageAnalytics.STORE.getInstance(`$collections/${collectionsPath}/$analyticModels`);
-    }
+    ) {}
 
     async triggerUpdate(models, triggerData: IEngageTriggerData) {
         const promises = models.map((model: IEngageAnalyticModel) => {
@@ -58,7 +45,8 @@ export class EngageAnalytics {
     }
 
     async applyAction(doc: any, data: any, group: IEngageAnalyticGroup) {
-        let num = data[group.field] || 1;
+        const dataField = data[group.field];
+        let num = typeof dataField === 'number' ? dataField : 1;
         if (!doc[group.field]) {
             doc[group.field] = 0;
         }
@@ -87,30 +75,37 @@ export class EngageAnalytics {
         if (group && group.type === 'int') {
             doc[group.field] += parseInt(data[group.field]);
         }
-        if (!(group.action === 'minus' || group.action === 'remove')) {
-            doc['$counter'] += 1;
-        }
-        doc['$counter'] += 1;
         return doc;
     }
 
-    async applyGroup(model: IEngageAnalyticModel, data, trigger) {
-        EngageAnalytics.createTriggerRef(data, trigger);
-        // const model = EngageAnalytics.STORE.getInstance(`${model.destination}`)
+    // async applyGroup(model: IEngageAnalyticModel, data, trigger) {
+    //     EngageAnalytics.createTriggerRef(data, trigger);
+    //     // const model = EngageAnalytics.STORE.getInstance(`${model.destination}`)
+    // }
+
+    getModelRef() {
+        const details = EngageAnalytics.triggerParser(this.path);
+        if (details.subCollection) {
+            return EngageAnalytics.STORE
+                .getInstance(`$collections/${details.collection}/$analyticModels/${details.subCollection}/$analyticModels`) 
+        }
+        return EngageAnalytics.STORE
+            .getInstance(`$collections/${details.collection}/$analyticModels`)
     }
 
     async getModels(): Promise<IEngageAnalyticModel[]> {
-        return await this.model.getList();
+        return this.getModelRef().getList();
     }
 
     async getModelByField(field): Promise<IEngageAnalyticModel[]> {
-        return await this.model.getList(
-            this.model.ref.where('field', '==', field)
+        const ref = this.getModelRef()
+        return await ref.getList(
+            ref.ref.where('field', '==', field)
         );
     }
 
     addModel(doc): Promise<IEngageAnalyticModel> {
-        return this.model.save(doc);
+        return this.getModelRef().save(doc);
     }
 
     static getDates(data) {
@@ -125,7 +120,7 @@ export class EngageAnalytics {
 
     groupValid(data: any, group: IEngageAnalyticGroup) {
         const { filter } = group;
-        filter
+        if (!filter) return true;
         return Object.keys(filter || {}).reduce((prev, curr) => {
             if (!prev) {
                 return prev;
@@ -154,6 +149,10 @@ export class EngageAnalytics {
         } else if (typeof group === 'string') {
             doc[group] = data[group] || 1;
         }
+        if (!(triggerData.action === 'remove')) {
+            doc['$counter'] -= 1;
+        }
+        doc['$counter'] += 1;
         return doc;
     }
 
@@ -186,15 +185,15 @@ export class EngageAnalytics {
         return fieldDoc;
     }
 
-    static buildDatasetDoc(model: IEngageAnalyticModel, data: IEngageTriggerData) {
-        const fieldDoc: IEngageAnalyticDataset = EngageAnalytics.getDataFromSnapshot(model, data);
-        const dest = EngageAnalytics.createTriggerRef(data);
+    static async buildDatasetDoc(model: IEngageAnalyticModel, triggerData: IEngageTriggerData) {
+        const fieldDoc: IEngageAnalyticDataset = EngageAnalytics.getDataFromSnapshot(model, triggerData);
+        const dest = await EngageAnalytics.createDestinationRef(triggerData, model);
         let dataset = {
             ...fieldDoc,
             $action: model.action,
-            $sourceRef: data.source || '',
+            $sourceRef: triggerData.source || '',
             $destinationRef: dest || '',
-            $userId: data.userId,
+            $userId: triggerData.userId,
             $removed: false,
         };
         return dataset;
@@ -204,9 +203,12 @@ export class EngageAnalytics {
         if (!model.allowDuplicates && (triggerData.action === 'update' || triggerData.action === 'write')) {
             return null;
         }
-        const datasetDoc = EngageAnalytics.buildDatasetDoc(model, triggerData);
-        const dest = EngageAnalytics.createTriggerRef(triggerData);
+        const datasetDoc = await EngageAnalytics.buildDatasetDoc(model, triggerData);
+        console.log('datasetDoc:', datasetDoc);
+        const dest = await EngageAnalytics.createDestinationRef(triggerData, model);
+        console.log('dest:', dest);
         const dates = EngageAnalytics.getDates(triggerData.data);
+        console.log('dates:', dates);
         const dayRef = this.getAnalytics(dest);
         const totalDoc = await dayRef.get('total');
         const dayDoc = (await dayRef.getList(
@@ -281,7 +283,7 @@ export class EngageAnalytics {
         return idField;
     }
 
-    static triggerParser(trigger: string) {
+    static triggerParser(trigger: string = '') {
         const [collection, id, subCollection, subId] = trigger.split('/');
         let idField = EngageAnalytics.getGroupIdName(id);
         let subIdField = EngageAnalytics.getGroupIdName(subId);
@@ -295,7 +297,9 @@ export class EngageAnalytics {
         }
     }
 
-    static createTriggerRef(triggerData: IEngageTriggerData, ref = false) {
+    static createSourceRef(triggerData: IEngageTriggerData, ref = false) {
+        let path = '';
+        let parent = '';
         let { data, trigger } = triggerData;
         const {
             collection,
@@ -304,47 +308,68 @@ export class EngageAnalytics {
             subIdField,
         } = EngageAnalytics.triggerParser(trigger);
 
-        let path = '';
 
-        if (collection && (data[idField] || data.$id)) {
-            path += `${collection}/${data[idField] || data.$id}`;
+        if (data && data.$path) {
+            path = data.$path;
+        } else if (subCollection && triggerData[subIdField]) {
+            parent = `${collection}/${triggerData[idField]}`;
+            path = `${collection}/${data.$id}/${subCollection}/${triggerData[subIdField]}`;
+        } else if (collection && triggerData[idField]) {
+            path = `${collection}/${triggerData[idField]}`;
         }
-
-        if (subCollection && data[subIdField]) {
-            if (path) path += '/';
-            path += `${subCollection}/${data[subIdField]}`;
-        }
-        
-        return ref ? path : EngageAnalytics.STORE.getInstance(path);
+        return !ref ? [path, parent] : [EngageAnalytics.STORE.getInstance(path), EngageAnalytics.STORE.getInstance(parent)];
     }
 
-    static buildTrigger(trigger: string, subCollection: string, ref = false) {
-        let {
+    static async createDestinationRef(triggerData: IEngageTriggerData, model: IEngageAnalyticModel, ref = false) {
+        let { data } = triggerData;
+        let path = '';
+        let parent;
+        const {
             collection,
             idField,
+            subCollection,
             subIdField,
-        } = EngageAnalytics.triggerParser(trigger);
-        let path = '';
-
-        if (collection && collection[collection.length - 1].toLowerCase() === 's') {
-            idField = collection.slice(0, -1) + 'Id';
-        }
-
-        if (subCollection && subIdField && subCollection[subCollection.length - 1].toLowerCase() === 's') {
-            subIdField = subCollection.slice(0, -1) + 'Id';
-        }
-
-
-        if (collection && idField) {
-            path += `${collection}/{${idField}}`;
-        }
-
-        if (subCollection && subIdField) {
-            if (path) path += '/';
-            path += `${subCollection}/{${subIdField}}`;
-        }
+        } = EngageAnalytics.triggerParser(model.destination);
         
-        return ref ? path : EngageAnalytics.STORE.getInstance(path);
+        if (triggerData.sourceParent) {
+            parent = EngageAnalytics.STORE.getInstance(triggerData.sourceParent);
+        }
+
+        if (subCollection && parent[idField]) {
+            path = `${collection}/${parent[idField]}/${subCollection}/${data.$id}`;
+        }  else if (collection && data[idField]) {
+            path = `${collection}/${data[idField]}`;
+        }
+        return !ref ? path : EngageAnalytics.STORE.getInstance(path);
     }
+
+    // static buildTrigger(trigger: string, subCollection: string, ref = false) {
+    //     let {
+    //         collection,
+    //         idField,
+    //         subIdField,
+    //     } = EngageAnalytics.triggerParser(trigger);
+    //     let path = '';
+
+    //     if (collection && collection[collection.length - 1].toLowerCase() === 's') {
+    //         idField = collection.slice(0, -1) + 'Id';
+    //     }
+
+    //     if (subCollection && subIdField && subCollection[subCollection.length - 1].toLowerCase() === 's') {
+    //         subIdField = subCollection.slice(0, -1) + 'Id';
+    //     }
+
+
+    //     if (collection && idField) {
+    //         path += `${collection}/{${idField}}`;
+    //     }
+
+    //     if (subCollection && subIdField) {
+    //         if (path) path += '/';
+    //         path += `${subCollection}/{${subIdField}}`;
+    //     }
+        
+    //     return !ref ? path : EngageAnalytics.STORE.getInstance(path);
+    // }
 
 }

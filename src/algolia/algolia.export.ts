@@ -9,7 +9,7 @@ import * as algoliasearch from 'algoliasearch';
 import * as _ from 'lodash';
 
 const { algolia } = config();
-const { app_id, api_key } = algolia || {};
+const { app_id, api_key } = algolia || { app_id: undefined, api_key: undefined};
 let client;
 if (!app_id) console.error('missing', app_id);
 if (!api_key) console.error('missing', api_key);

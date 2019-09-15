@@ -1,24 +1,34 @@
-export declare type AnalyticAction = 'add' | 'minus' | 'multiply' | 'divide' | 'set' | 'sum';
-export declare type DateRanges = 'now' | 'yesterday' | 'today' | 'week' | 'month' | 'year' | string;
+export declare type AnalyticAction = 'add' | 'minus' | 'multiply' | 'divide' | 'set' | 'sum' | 'remove';
+export declare type DateRanges = 'total' | 'yesterday' | 'today' | 'week' | 'month' | 'year' | string;
 export interface IEngageAnalytic {
+    $soruceRef?: any;
+    $modelRef?: any;
+    $year?: number;
+    $month?: number;
+    $week?: number;
+    $day?: number;
+    $counter?: number;
+}
+export interface IEngageAnalyticDataset {
     $action?: AnalyticAction;
-    $amount?: number;
-    $source?: string;
-    $destination?: string;
-    $field?: string;
+    $sourceRef?: any;
+    $destinationRef?: any;
     $userId?: string;
+    $group?: IEngageAnalyticGroup[];
+    $removed?: boolean;
+}
+export interface IEngageAnalyticGroup {
+    field: string;
+    filter?: any;
+    action?: AnalyticAction;
+    type?: 'int' | 'double';
 }
 export interface IEngageAnalyticModel {
     trigger?: string;
-    source?: string;
-    validation?: any[];
+    group?: IEngageAnalyticGroup[] | string;
     destination?: string;
-    field?: string;
-    amountField?: string;
-    type?: 'int' | 'double';
     action?: AnalyticAction;
     allowDuplicates?: boolean;
+    final?: boolean;
     snapeshot?: string | boolean | string[];
-    range?: DateRanges[];
-    group?: 'all' | 'user' | string;
 }

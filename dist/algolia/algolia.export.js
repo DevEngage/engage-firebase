@@ -43,13 +43,16 @@ var firebase_functions_1 = require("firebase-functions");
 var firebase_admin_1 = require("firebase-admin");
 var algoliasearch = require("algoliasearch");
 var _ = require("lodash");
-var ALGOLIA_ID = firebase_functions_1.config().algolia.app_id;
-var ALGOLIA_ADMIN_KEY = firebase_functions_1.config().algolia.api_key;
-if (!ALGOLIA_ID)
-    console.error('missing', ALGOLIA_ID);
-if (!ALGOLIA_ADMIN_KEY)
-    console.error('missing', ALGOLIA_ADMIN_KEY);
-var client = algoliasearch(ALGOLIA_ID, ALGOLIA_ADMIN_KEY);
+var algolia = firebase_functions_1.config().algolia;
+var _a = algolia || { app_id: undefined, api_key: undefined }, app_id = _a.app_id, api_key = _a.api_key;
+var client;
+if (!app_id)
+    console.error('missing', app_id);
+if (!api_key)
+    console.error('missing', api_key);
+if (app_id && api_key) {
+    client = algoliasearch(app_id, api_key);
+}
 var AlgoliaExport = /** @class */ (function () {
     function AlgoliaExport(indexName, ref) {
         this.contactsRef = firebase_admin_1.firestore().collection(ref);

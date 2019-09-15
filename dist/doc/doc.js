@@ -45,6 +45,7 @@ var EngageFireDoc = /** @class */ (function () {
         this.$collections = {};
         this.$collectionsList = [];
         this.$omitList = [];
+        this.relations = [];
         this.$engageFireStore = EngageFireDoc.STORE.getInstance(collection);
         this.$collectionsList = collections;
         if (!_.isEmpty($doc) && ($doc.$id || $doc.id || this.$id)) {
@@ -380,6 +381,44 @@ var EngageFireDoc = /** @class */ (function () {
             });
         });
     };
+    /*
+      RELATIONS
+    */
+    EngageFireDoc.prototype.$addRelation = function (relation, relationId, save) {
+        if (save === void 0) { save = true; }
+        if (relation && relation[relation.length - 1].toLowerCase() === 's') {
+            relation = relation.slice(0, -1);
+        }
+        var newDoc = {};
+        newDoc[relation + "Id"] = relationId;
+        _.assign(this, newDoc);
+        this.$$updateDoc();
+        if (save)
+            this.$save();
+    };
+    EngageFireDoc.prototype.$getRelations = function () {
+        return Object
+            .keys(this.$doc)
+            .map(function (key) { return (key || '').length > 2 && (key || '').includes('Id') ? key.replace('Id', '') : ''; })
+            .filter(function (item) { return item !== ''; });
+    };
+    // https://stackoverflow.com/questions/46568850/what-is-firestore-reference-data-type-good-for
+    EngageFireDoc.prototype.$addReference = function (ref, name, save) {
+        if (save === void 0) { save = true; }
+        var newDoc = {};
+        newDoc[name + "Ref"] = ref;
+        _.assign(this, newDoc);
+        this.$$updateDoc();
+        if (save)
+            this.$save();
+    };
+    EngageFireDoc.prototype.$getReferences = function () {
+        return Object
+            .keys(this.$doc)
+            .map(function (key) { return (key || '').length > 2 && (key || '').includes('Ref') ? key.replace('Ref', '') : ''; })
+            .filter(function (item) { return item !== ''; });
+    };
+    /*  */
     EngageFireDoc.prototype.$$getSortedParentList = function () {
         return this.$engageFireStore.sortListByPosition().list;
     };

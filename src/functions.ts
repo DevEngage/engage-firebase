@@ -26,6 +26,7 @@ export {
     EngageTrigger,
     EngageAnalytics,
     AlgoliaExport,
+    EngageAnalyticsTrigger,
     // Interfaces
     IEngageFirebase,
     IEngageFirebaseObject,

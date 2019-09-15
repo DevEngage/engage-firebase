@@ -10,6 +10,7 @@ export default class EngageFireDoc {
   $loading: boolean = true;
   public $id?: string;
   public $collection: string = '';
+  public $collectionRef: any;
   public $collections: any = {};
   public $collectionsList: string[] = [];
   public $omitList: string[] = [];

@@ -1,22 +1,18 @@
-import { EngageAnalytics, IEngageTriggerData } from '../functions';
 import { IEngageAnalyticModel } from '../interfaces/analytics.interface';
+import { EngageAnalytics } from '../analytics/analytics';
+import { IEngageTriggerData } from '../interfaces/trigger.interfaces';
 export declare class EngageAnalyticsTrigger {
-    path: any;
-    triggers?: IEngageAnalyticModel[];
+    trigger: any;
+    models?: IEngageAnalyticModel[];
+    static STORE: any;
+    static DOC: any;
     engine: EngageAnalytics;
-    constructor(path: any, triggers?: IEngageAnalyticModel[]);
+    constructor(trigger: any, models?: IEngageAnalyticModel[]);
     private init;
     updateDestinations(data: IEngageTriggerData): void;
+    restore(date: number): void;
     onWrite(data: IEngageTriggerData): Promise<void>;
     onCreate(data: IEngageTriggerData): Promise<void>;
     onUpdate(data: IEngageTriggerData): Promise<void>;
     onDelete(data: IEngageTriggerData): Promise<void>;
-    getPathDetails(path: string): {
-        collection: string;
-        id: string;
-        subCollection: string;
-        subId: string;
-        name: string;
-        trigger: string;
-    };
 }

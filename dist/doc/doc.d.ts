@@ -11,6 +11,7 @@ export default class EngageFireDoc {
     $collectionsList: string[];
     $omitList: string[];
     private $engageFireStore;
+    relations: any[];
     position: any;
     constructor($doc: any, collection: string, collections?: string[]);
     $$init(): Promise<void>;
@@ -45,6 +46,10 @@ export default class EngageFireDoc {
     $swapPosition(x: any, y: any, list?: any): Promise<void>;
     $moveUp(): Promise<void>;
     $moveDown(): Promise<void>;
+    $addRelation(relation: string, relationId: string, save?: boolean): void;
+    $getRelations(): string[];
+    $addReference(ref: any, name: string, save?: boolean): void;
+    $getReferences(): string[];
     $$getSortedParentList(): any;
     $$updateDoc(doc?: this): any;
     $$difference(object: any, base: any): {

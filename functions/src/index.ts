@@ -1,12 +1,11 @@
 
 import EngageTrigger from '../../src/trigger/trigger';
 
-new EngageTrigger('events/{id}/attendees/{subId}')
+new EngageTrigger('events/{eventId}/attendees/{attendeeId}')
     .bindExports(exports)
     .enableAnalytics([
         {
             trigger: 'events/{eventId}/attendees/{attendeeId}', //  event = { $id: 'asdfasdf', name: 'test', groupId: '234sdf' }; attendee = { $id: 'asdfasdf', name: 'test', userId: '234sdf' }
-            validation: [{ isGuest: true }],
             group: [
                 { 
                     field: 'guests',
