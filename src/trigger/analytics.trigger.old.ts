@@ -1,7 +1,7 @@
 import { EngageFirestore, EngageAnalytics, IEngageTriggerData } from '../functions';
 import { IEngageAnalyticModel } from '../interfaces/analytics.interface';
 
-export class EngageAnalyticsTrigger {
+export class EngageAnalyticsTriggerOld {
     engine: EngageAnalytics;
 
     constructor(

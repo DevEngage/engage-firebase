@@ -1,7 +1,7 @@
 
 import EngageTrigger from '../../src/trigger/trigger';
 
-new EngageTrigger('events/{id}/{subCollection}/{subId}')
+new EngageTrigger('events/{id}/attendees/{subId}')
     .bindExports(exports)
     .enableAnalytics([
         {

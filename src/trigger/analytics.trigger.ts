@@ -1,5 +1,6 @@
-import { EngageFirestore, EngageAnalytics, IEngageTriggerData } from '../functions';
 import { IEngageAnalyticModel } from '../interfaces/analytics.interface';
+import { EngageAnalytics } from '../analytics/analytics';
+import { IEngageTriggerData } from '../interfaces/trigger.interfaces';
 
 export class EngageAnalyticsTrigger {
     static STORE;
@@ -24,7 +25,8 @@ export class EngageAnalyticsTrigger {
         this.engine.triggerUpdate(this.models, data);
     }
 
-    restore() {
+    restore(date: number) {
+        // get all docs up until date
         const engine = new EngageAnalytics(this.trigger);
     }
 
