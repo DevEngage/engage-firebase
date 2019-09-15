@@ -79,6 +79,10 @@ export default class EngageFirestoreBase {
     '$swapPosition',
     '$changeId',
     '$getModel',
+    '$addRelationToDoc',
+    '$getDocRelations',
+    '$addReference',
+    '$getReferences',
   ];
   sortedBy: string = '';
   public db!: any;

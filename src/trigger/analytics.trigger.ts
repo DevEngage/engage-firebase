@@ -2,27 +2,33 @@ import { EngageFirestore, EngageAnalytics, IEngageTriggerData } from '../functio
 import { IEngageAnalyticModel } from '../interfaces/analytics.interface';
 
 export class EngageAnalyticsTrigger {
+    static STORE;
+    static DOC;
     engine: EngageAnalytics;
 
     constructor(
-        public path, 
-        public triggers?: IEngageAnalyticModel[],
+        public trigger, 
+        public models?: IEngageAnalyticModel[],
     ) {
-        this.engine = new EngageAnalytics(`$${path}`);
+        this.engine = new EngageAnalytics(`${trigger}`);
         this.init();
     }
 
     private async init() {
-        if (!this.triggers) {
-            this.triggers = await this.engine.getTiggers(this.path);
+        if (!this.models) {
+            this.models = await this.engine.getModels();
         }
     }
 
     updateDestinations(data: IEngageTriggerData) {
-        const details = this.getPathDetails(this.path)
-        const path = `${details.collection}/${data.id}`;
-        const engine = new EngageAnalytics(path);
-        engine.updateDestinations(this.triggers, data);
+        // const details = this.engine.getPathDetails(this.trigger);
+        // const path = `${details.collection}/${data.id}`;
+        // const engine = new EngageAnalytics(path);
+        // this.engine.updateDestinations(this.triggers, data);
+    }
+
+    restore() {
+        const engine = new EngageAnalytics(this.trigger);
     }
 
     async onWrite(data: IEngageTriggerData) {
@@ -39,18 +45,6 @@ export class EngageAnalyticsTrigger {
 
     async onDelete(data: IEngageTriggerData) {
         this.updateDestinations(data.data);
-    }
-
-    getPathDetails(path: string) {
-        const [collection, id, subCollection, subId] = path.split('/');
-        return {
-            collection,
-            id,
-            subCollection,
-            subId,
-            name: `${collection}${(subCollection || '').toUpperCase()}`,
-            trigger: path,
-        };
     }
 
 }

@@ -6,6 +6,7 @@ import { EngageAlgolia } from "./algolia/algolia";
 import { EngageImage } from "./image/image";
 import { adminModel } from "./models/admin.model";
 import { EngageAnalytics } from "./analytics/analytics";
+import { IEngageTriggerData } from "./interfaces/trigger.interfaces";
 
 EngageAnalytics.DOC = EngageFireDoc;
 EngageAnalytics.STORE = EngageFirestore;
@@ -34,4 +35,5 @@ export {
     IEngageFirebaseCollection,
     IEngageFirebaseDoc,
     IEngageModel,
+    IEngageTriggerData,
 }

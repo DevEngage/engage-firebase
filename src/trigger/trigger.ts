@@ -27,7 +27,13 @@ export default class EngageTrigger {
         return this;
     }
 
-    enableAnalytics(model?) {
+    enableAnalytics(model?, restore?: number) {
+        this.analyticTrigger = new EngageAnalyticsTrigger(this.path, model);
+        // this.analyticTrigger.restore(restore);
+        return this;
+    }
+
+    restoreAnalytics(date: number) {
         this.analyticTrigger = new EngageAnalyticsTrigger(this.path, model);
         return this;
     }

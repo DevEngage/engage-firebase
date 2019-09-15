@@ -3,21 +3,18 @@ import { EngageAnalytics } from "./analytics/analytics";
 import { AlgoliaExport } from "./algolia/algolia.export";
 import { IEngageFirebase, IEngageFirebaseObject, IEngageImage, IEngageFirebaseCollection, IEngageFirebaseDoc, IEngageModel, EngageFireDoc } from ".";
 import EngageFirestore, { engageFirestore } from "./firestore/firestore.functions";
+import { EngageAnalyticsTrigger } from "./trigger/analytics.trigger";
+import { IEngageTriggerData } from "./interfaces/trigger.interfaces";
 
 EngageAnalytics.DOC = EngageFireDoc;
 EngageAnalytics.STORE = EngageFirestore;
+EngageAnalyticsTrigger.STORE = EngageFirestore;
+EngageAnalyticsTrigger.DOC = EngageFireDoc;
 
 const firestore = engageFirestore;
 const Doc = EngageFireDoc;
 
-interface IEngageTriggerData {
-    data?: any;
-    previousData?: any;
-    id?: string;
-    subId?: string;
-    algoliaExport?: any;
-    analyticTrigger?: any;
-}
+
 
 export default EngageTrigger;
 export {

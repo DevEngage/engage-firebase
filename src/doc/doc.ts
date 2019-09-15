@@ -14,6 +14,7 @@ export default class EngageFireDoc {
   public $collectionsList: string[] = [];
   public $omitList: string[] = [];
   private $engageFireStore: any;
+  public relations = []; 
   position: any;
 
   constructor(
@@ -194,6 +195,45 @@ export default class EngageFireDoc {
     }
     await this.$swapPosition(index, index + 1, list);
   }
+
+  /* 
+    RELATIONS
+  */
+  $addRelation(relation: string, relationId: string, save = true) {
+    if (relation && relation[relation.length - 1].toLowerCase() === 's') {
+      relation = relation.slice(0, -1);
+    }
+    const newDoc = {};
+    newDoc[`${relation}Id`] = relationId;
+    _.assign(this, newDoc);
+    this.$$updateDoc();
+    if (save) this.$save();
+  }
+
+  $getRelations(): string[] {
+    return Object
+      .keys(this.$doc)
+      .map(key => (key || '').length > 2 && (key || '').includes('Id') ? key.replace('Id', '') : '')
+      .filter(item => item !== '');
+  }
+
+  // https://stackoverflow.com/questions/46568850/what-is-firestore-reference-data-type-good-for
+  $addReference(ref: any, name: string, save = true) {
+    const newDoc = {};
+    newDoc[`${name}Ref`] = ref;
+    _.assign(this, newDoc);
+    this.$$updateDoc();
+    if (save) this.$save();
+  }
+
+  $getReferences(): string[] {
+    return Object
+      .keys(this.$doc)
+      .map(key => (key || '').length > 2 && (key || '').includes('Ref') ? key.replace('Ref', '') : '')
+      .filter(item => item !== '');
+  }
+
+  /*  */
 
   $$getSortedParentList() {
     return this.$engageFireStore.sortListByPosition().list;
