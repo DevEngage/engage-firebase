@@ -25,7 +25,7 @@ export class EngageAnalytics {
             }
             return this.addDoc(model, triggerData);
         });
-        return await Promise.all(promises);
+        return await Promise.all(promises).then(_ => this.report('triggerUpdate finished', _));
     }
 
     enableDebug() {
@@ -35,7 +35,7 @@ export class EngageAnalytics {
 
     report(title, value: any) {
         if (this.debug) {
-            console.log(`report ${title}:`, value)
+            console.log(`report ${title}:`, value);
         }
     }
 
@@ -176,36 +176,41 @@ export class EngageAnalytics {
         return fields;
     }
 
-    static getDataFromSnapshot(model: IEngageAnalyticModel, data: IEngageTriggerData) {
+    static getDataFromSnapshot(model: IEngageAnalyticModel, triggerData: IEngageTriggerData, analyticData) {
         const fields = EngageAnalytics.getGroupFields(model.group);
         let fieldDoc = {};
         fields.forEach(element => {
-            fieldDoc[element] = data[element];
+            fieldDoc[element] = analyticData[element];
         });
         if (model.snapeshot === true) {
             fieldDoc = {
                 ...fieldDoc,
-                ...data.data,
+                ...triggerData.data,
             };
         } else if (typeof model.snapeshot === 'string') {
-            fieldDoc[model.snapeshot] = data.data[model.snapeshot];
+            fieldDoc[model.snapeshot] = triggerData.data[model.snapeshot];
         } else if (typeof model.snapeshot === 'object' && model.snapeshot.length) {
-            model.snapeshot.forEach(element => fieldDoc[element] = data.data[element]);
+            model.snapeshot.forEach(element => fieldDoc[element] = triggerData.data[element]);
         }
         return fieldDoc;
     }
 
-    static async buildDatasetDoc(model: IEngageAnalyticModel, triggerData: IEngageTriggerData) {
-        const fieldDoc: IEngageAnalyticDataset = EngageAnalytics.getDataFromSnapshot(model, triggerData);
+    static async buildDatasetDoc(model: IEngageAnalyticModel, triggerData: IEngageTriggerData, analyticData) {
+        const fieldDoc: IEngageAnalyticDataset = EngageAnalytics.getDataFromSnapshot(model, triggerData, analyticData);
         const dest = await EngageAnalytics.createDestinationRef(triggerData, model);
         let dataset = {
             ...fieldDoc,
-            $action: model.action,
+            $action: triggerData.action,
             $sourceRef: triggerData.source || '',
             $destinationRef: dest || '',
             $userId: triggerData.userId,
+            $trigger: triggerData.trigger,
             $removed: false,
         };
+        if (model.allowDuplicates) {
+            delete dataset['$id'];
+            delete dataset['id'];
+        }
         return dataset;
     }
 
@@ -214,23 +219,17 @@ export class EngageAnalytics {
             return null;
         }
         try {
-            const datasetDoc = await EngageAnalytics.buildDatasetDoc(model, triggerData);
             const dest = await EngageAnalytics.createDestinationRef(triggerData, model);
             const dates = EngageAnalytics.getDates(triggerData.data);
             const dayRef = this.getAnalytics(dest);
-            const totalDoc = (await dayRef.get('total')) || {$id: 'total'};
+            const totalDoc = (await dayRef.get('total')) || { $id: 'total'};
             const dayDoc = (await dayRef.getList(
                 dayRef.ref
                     .where('$year', '==', dates.$year)
                     .where('$month', '==', dates.$month)
                     .where('$week', '==', dates.$week)
                     .where('$day', '==', dates.$day)
-            ) || [])[0] || {$id: `${dates.$year}_${dates.$month}_${dates.$week}_${dates.$day}`};
-            
-            if (model.allowDuplicates) {
-                delete datasetDoc['$id'];
-                delete datasetDoc['id'];
-            }
+            ) || [])[0] || { $id: `${dates.$year}_${dates.$month}_${dates.$week}_${dates.$day}`, ...dates};            
 
             this.getGroup(dayDoc, triggerData, model);
             this.report('getGroup (dayDoc)', dayDoc);
@@ -239,6 +238,10 @@ export class EngageAnalytics {
             this.getGroup(totalDoc, triggerData, model);
             this.report('getGroup (totalDoc)', dayDoc);
             await dayRef.save(totalDoc);
+
+            const justDocGroup = {};
+            this.getGroup(justDocGroup, triggerData, model);
+            const datasetDoc = await EngageAnalytics.buildDatasetDoc(model, triggerData, justDocGroup);
 
             this.report('datasetDoc', datasetDoc);
             return await this.getDataset(dest).save(datasetDoc);

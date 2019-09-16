@@ -23,7 +23,7 @@ export class EngageAnalyticsTrigger {
     }
 
     updateDestinations(data: IEngageTriggerData) {
-        this.engine.triggerUpdate(this.models, data);
+        return this.engine.triggerUpdate(this.models, data);
     }
 
     restore(date: number) {
@@ -37,22 +37,22 @@ export class EngageAnalyticsTrigger {
         } else {
             data.action = 'create';
         }
-        this.updateDestinations(data);
+        return await this.updateDestinations(data);
     }
 
     async onCreate(data: IEngageTriggerData) {
         data.action = 'create';
-        this.updateDestinations(data);
+        return await this.updateDestinations(data);
     }
 
     async onUpdate(data: IEngageTriggerData) {
         data.action = 'update';
-        this.updateDestinations(data);
+        return await this.updateDestinations(data);
     }
 
     async onDelete(data: IEngageTriggerData) {
         data.action = 'remove';
-        this.updateDestinations(data);
+        return await this.updateDestinations(data);
     }
 
 }
