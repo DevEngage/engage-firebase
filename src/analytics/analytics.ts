@@ -116,7 +116,7 @@ export class EngageAnalytics {
     }
 
     static getDates(data) {
-        const createdAt = new Date(data[EngageAnalytics.CREATEDAT_NAME] || Date.now());
+        const createdAt = new Date((data || {})[EngageAnalytics.CREATEDAT_NAME] || Date.now());
         return {
             $year: createdAt.getFullYear(),
             $month: createdAt.getMonth() + 1,
