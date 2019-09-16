@@ -1,9 +1,5 @@
-// import * as firebase from 'firebase/app';
-// import 'firebase/auth';
-// import 'firebase/storage';
-// import 'firebase/firestore';
-const admin = require('firebase-admin');
-const functions = require('firebase-functions');
+import * as admin from 'firebase-admin';
+import * as functions from 'firebase-functions';
 
 export class EngagefireFunctions {
   static FIRE_OPTIONS: any;
@@ -14,6 +10,7 @@ export class EngagefireFunctions {
   storage!: any;
   auth!: any;
   initialized: boolean = false;
+  isAsync = false
   serviceAccount;
 
   private constructor () {
@@ -21,13 +18,17 @@ export class EngagefireFunctions {
   }
 
   async init() {
-    admin.initializeApp(functions.config().firebase);
+    if (functions.config() && functions.config().firebase) {
+      admin.initializeApp(functions.config().firebase);
+    } else {
+      admin.initializeApp()
+    }
     // this.firebase
     this.firestore = admin.firestore();
     this.initialized = true;
-    console.log('INITIALIZING ENGAGE FIREBASE');
     this.auth = admin.auth();
     this.user = await this.auth.currentUser;
+    console.log('INITIALIZING ENGAGE FIREBASE');
   }
 
   initStorage(bucketName, accountJson) {

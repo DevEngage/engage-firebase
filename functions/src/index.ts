@@ -1,6 +1,9 @@
 
 import EngageTrigger from '../../src/trigger/trigger';
 
+
+
+
 new EngageTrigger('events/{eventId}/attendees/{attendeeId}')
     .bindExports(exports)
     .enableAnalytics([

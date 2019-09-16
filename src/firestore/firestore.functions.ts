@@ -1,5 +1,5 @@
 import EngageFirestoreBase from './firestore.base';
-import { EngagefireFunctions } from '../engagefire/engagefire.functions';
+import { engageFireInit } from '../engagefire/engagefire.functions';
 import EngageFireDoc from '../doc/doc';
 
 /*
@@ -7,22 +7,22 @@ import EngageFireDoc from '../doc/doc';
  * [ ] Fully test everything!
  * */
 export default class EngageFirestore extends EngageFirestoreBase {
-    private static instanceFunctions: any = {};
+    // private static instanceFunctions: any = {};
 
     constructor(public path: string) {
         super(path);
     }
 
-    static getInstance(path, options) {
-        console.log('Firestore Path: ', path);
-        if (!EngageFirestore.instanceFunctions[path]) {
-            EngageFirestore.instanceFunctions[path] = new EngageFirestoreBase(path);
-        }
-        if (options) {
-            return EngageFirestore.instanceFunctions[path].options(options);
-        }
-        return EngageFirestore.instanceFunctions[path];
-    }
+    // static getInstance(path, options?) {
+    //     console.log('Firestore Path: ', path);
+    //     if (!EngageFirestore.instanceFunctions[path]) {
+    //         EngageFirestore.instanceFunctions[path] = new EngageFirestoreBase(path);
+    //     }
+    //     if (options) {
+    //         return EngageFirestore.instanceFunctions[path].options(options);
+    //     }
+    //     return EngageFirestore.instanceFunctions[path];
+    // }
 
     /* 
     * STATIC SETUP
@@ -51,6 +51,6 @@ export default class EngageFirestore extends EngageFirestoreBase {
 }
 
 EngageFirestore.__DOC__ = EngageFireDoc;
-EngageFirestore.__ENGAGE_FIRE__ = EngagefireFunctions;
+EngageFirestore.__ENGAGE_FIRE__ = engageFireInit;
 // export EngageFirestore
 export let engageFirestore = (path: string, options?: any) => EngageFirestore.getInstance(path, options);

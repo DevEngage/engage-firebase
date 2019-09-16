@@ -103,7 +103,9 @@ export default class EngageFirestoreBase {
     // if (!EngageFirestoreBase.FIRE_OPTIONS) {
     //   console.error('MISSING FIRE_OPTIONS class');
     // }
-    await EngageFirestoreBase.ENGAGE_FIRE(EngageFirestoreBase.FIRE_OPTIONS).ready();
+    if (EngageFirestoreBase.ENGAGE_FIRE(EngageFirestoreBase.FIRE_OPTIONS).isAsync) {
+      await EngageFirestoreBase.ENGAGE_FIRE(EngageFirestoreBase.FIRE_OPTIONS).ready();
+    }
     if (!this.db) {
       this.db = EngageFirestoreBase.ENGAGE_FIRE(EngageFirestoreBase.FIRE_OPTIONS).firestore;
     }
@@ -259,16 +261,21 @@ export default class EngageFirestoreBase {
 
   async get<T>(docId = this.id, ref?: any): Promise<T | any> {
     this.$loading = true;
+    console.log('docId', docId);
     await this.ready();
+    console.log('docId 2', docId);
     if (!ref) ref = this.ref;
     try {
       const doc = await ref.doc(docId).get();
+      console.log('doc', doc);
       this.$loading = false;
       if (doc.exists) {
         const fireDoc = this.addFire(doc.data(), docId);
         const index = this.list.findIndex(item => item.$id === fireDoc.$id);
         if (index > -1) this.list[index] = fireDoc;
         else this.list.push(fireDoc);
+        console.log('doc 2', doc);
+        console.log(fireDoc);
         return fireDoc;
       }
       return null;

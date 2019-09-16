@@ -67,7 +67,8 @@ export default class EngageTrigger {
         const pathSplit = (source || '').split('/');
         triggerData.id = pathSplit[1];
         triggerData.subId = pathSplit[3];
-        console.log('triggerData', triggerData)
+        console.log('triggerData', triggerData);
+        console.log('triggerData', EngageFirestore.getInstance(triggerData.collection));
         return triggerData;
     }
 

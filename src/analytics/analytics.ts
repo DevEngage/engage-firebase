@@ -326,7 +326,8 @@ export class EngageAnalytics {
         } = EngageAnalytics.triggerParser(model.destination);
         
         if (triggerData.sourceParent) {
-            parent = await EngageAnalytics.STORE.getInstance(triggerData.collection).get(triggerData.id);
+            const baseCollection = EngageAnalytics.STORE.getInstance(triggerData.collection);
+            parent = await baseCollection.get(triggerData.id);
         }
 
         console.log('createDestinationRef: ', collection,
@@ -336,9 +337,9 @@ export class EngageAnalytics {
         console.log('parent', parent)
         console.log('data', data)
 
-        if (subCollection && parent[idField]) {
+        if (subCollection && parent && parent[idField]) {
             path = `${collection}/${parent[idField]}/${subCollection}/${data.$id}`;
-        } else if (collection && parent[idField]) {
+        } else if (collection && parent && parent[idField]) {
             path = `${collection}/${parent[idField]}`;
         }
         return !ref ? path : EngageAnalytics.STORE.getInstance(path);

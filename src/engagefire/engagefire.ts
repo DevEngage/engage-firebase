@@ -12,6 +12,7 @@ export class Engagefire {
   storage!: firebase.storage.Storage;
   auth!: firebase.auth.Auth;
   initialized: boolean = false;
+  isAsync = true
 
   private constructor (
     protected config?: any,

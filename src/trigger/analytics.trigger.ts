@@ -16,6 +16,7 @@ export class EngageAnalyticsTrigger {
     }
 
     private async init() {
+        console.log(this.models, !this.models);
         if (!this.models) {
             this.models = await this.engine.getModels();
         }
