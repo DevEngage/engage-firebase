@@ -12,6 +12,7 @@ export class EngageAnalytics {
     static ANALYTICS_PATH = '$analytics';
     static DATASET_PATH = '$dataset';
     static CREATEDAT_NAME = '$createAt';
+    debug = true;
     
     constructor(
         public path: string
@@ -25,6 +26,17 @@ export class EngageAnalytics {
             return this.addDoc(model, triggerData);
         });
         return await Promise.all(promises);
+    }
+
+    enableDebug() {
+        this.debug = true;
+        return this;
+    }
+
+    report(title, value: any) {
+        if (this.debug) {
+            console.log(`report ${title}:`, value)
+        }
     }
 
     addDoc(model, doc) {
@@ -44,7 +56,7 @@ export class EngageAnalytics {
         return EngageAnalytics.STORE.getInstance(`${dest}/${EngageAnalytics.DATASET_PATH}`);
     }
 
-    async applyAction(doc: any, data: any, group: IEngageAnalyticGroup) {
+    applyAction(doc: any, data: any, group: IEngageAnalyticGroup) {
         const dataField = data[group.field];
         let num = typeof dataField === 'number' ? dataField : 1;
         if (!doc[group.field]) {
@@ -135,8 +147,10 @@ export class EngageAnalytics {
     getGroup(doc = {}, triggerData: IEngageTriggerData, model: IEngageAnalyticModel) {
         const { group } = model;
         const { data } = triggerData;
+        doc['$counter'] = doc['$counter'] || 0;
         if (group && group.length && typeof group === 'object') {
             group.map((item) => {
+                this.report(`groupValid (${item.field})`, {data, item, valid: this.groupValid(data, item)});
                 if (this.groupValid(data, item)) {
                     this.applyAction(doc, data, item);
                 }
@@ -198,35 +212,39 @@ export class EngageAnalytics {
         if (!model.allowDuplicates && (triggerData.action === 'update' || triggerData.action === 'write')) {
             return null;
         }
-        const datasetDoc = await EngageAnalytics.buildDatasetDoc(model, triggerData);
-        console.log('datasetDoc:', datasetDoc);
-        const dest = await EngageAnalytics.createDestinationRef(triggerData, model);
-        console.log('dest:', dest);
-        const dates = EngageAnalytics.getDates(triggerData.data);
-        console.log('dates:', dates);
-        const dayRef = this.getAnalytics(dest);
-        const totalDoc = await dayRef.get('total');
-        const dayDoc = (await dayRef.getList(
-            dayRef
-                .where('$year', '==', dates.$year)
-                .where('$month', '==', dates.$month)
-                .where('$week', '==', dates.$week)
-                .where('$day', '==', dates.$day)
-        ) || [])[0];
-        
-        if (model.allowDuplicates) {
-            delete datasetDoc['$id'];
-            delete datasetDoc['id'];
-        }
-        if (dayDoc) {
+        try {
+            const datasetDoc = await EngageAnalytics.buildDatasetDoc(model, triggerData);
+            const dest = await EngageAnalytics.createDestinationRef(triggerData, model);
+            const dates = EngageAnalytics.getDates(triggerData.data);
+            const dayRef = this.getAnalytics(dest);
+            const totalDoc = (await dayRef.get('total')) || {};
+            const dayDoc = (await dayRef.getList(
+                dayRef.ref
+                    .where('$year', '==', dates.$year)
+                    .where('$month', '==', dates.$month)
+                    .where('$week', '==', dates.$week)
+                    .where('$day', '==', dates.$day)
+            ) || [])[0] || {};
+            
+            if (model.allowDuplicates) {
+                delete datasetDoc['$id'];
+                delete datasetDoc['id'];
+            }
+
             this.getGroup(dayDoc, triggerData, model);
-            dayDoc.$save();
-        }
-        if (totalDoc) {
+            this.report('getGroup (dayDoc)', dayDoc);
+            await dayRef.save(dayDoc);
+
             this.getGroup(totalDoc, triggerData, model);
-            totalDoc.$save();
+            this.report('getGroup (totalDoc)', dayDoc);
+            await dayRef.save(totalDoc);
+
+            this.report('datasetDoc', datasetDoc);
+            return await this.getDataset(dest).save(datasetDoc);
+        } catch (error) {
+            console.error(`EngageAnalytics.addAnalyticDoc(${triggerData.source})`, error, model, triggerData);
+            return null;
         }
-        return await EngageAnalytics.STORE.getInstance(`${dest}/${EngageAnalytics.DATASET_PATH}`).save(datasetDoc);
     }
 
     async removeAnalyticDoc(model: IEngageAnalyticModel, data: IEngageTriggerData) {
@@ -329,13 +347,6 @@ export class EngageAnalytics {
             const baseCollection = EngageAnalytics.STORE.getInstance(triggerData.collection);
             parent = await baseCollection.get(triggerData.id);
         }
-
-        console.log('createDestinationRef: ', collection,
-            idField,
-            subCollection,
-            subIdField,);
-        console.log('parent', parent)
-        console.log('data', data)
 
         if (subCollection && parent && parent[idField]) {
             path = `${collection}/${parent[idField]}/${subCollection}/${data.$id}`;

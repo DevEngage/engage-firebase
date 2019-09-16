@@ -261,26 +261,21 @@ export default class EngageFirestoreBase {
 
   async get<T>(docId = this.id, ref?: any): Promise<T | any> {
     this.$loading = true;
-    console.log('docId', docId);
     await this.ready();
-    console.log('docId 2', docId);
     if (!ref) ref = this.ref;
     try {
       const doc = await ref.doc(docId).get();
-      console.log('doc', doc);
       this.$loading = false;
       if (doc.exists) {
         const fireDoc = this.addFire(doc.data(), docId);
         const index = this.list.findIndex(item => item.$id === fireDoc.$id);
         if (index > -1) this.list[index] = fireDoc;
         else this.list.push(fireDoc);
-        console.log('doc 2', doc);
-        console.log(fireDoc);
         return fireDoc;
       }
       return null;
     } catch (error) {
-      console.error(error);
+      console.error(`EngageFirestoreBase.get(${docId}):`, error);
       return null;
     }
   }
@@ -338,19 +333,25 @@ export default class EngageFirestoreBase {
   }
 
   async save(newDoc: any, ref?: any) {
+    Object.keys(newDoc || {}).forEach(value => newDoc[value] = newDoc[value] === undefined ? null : newDoc[value]);
     await this.ready();
     newDoc = this.omitFire(newDoc);
     newDoc.$updatedAt = Date.now();
     let doc;
-    if (newDoc && (newDoc.$key || newDoc.$id)) {
-      doc = await this.update(newDoc, <any>ref);
-    } else if (ref && ref.id) {
-      newDoc.$createdAt = Date.now();
-      doc = await this.set(newDoc, <any>ref);
-    } else {
-      newDoc.$createdAt = Date.now();
-      doc = await this.add(newDoc, <any>ref);
-      this.list = [...this.list, doc];
+    try {
+      if (newDoc && (newDoc.$key || newDoc.$id)) {
+        doc = await this.update(newDoc, <any>ref);
+      } else if (ref && ref.id) {
+        newDoc.$createdAt = Date.now();
+        doc = await this.set(newDoc, <any>ref);
+      } else {
+        newDoc.$createdAt = Date.now();
+        doc = await this.add(newDoc, <any>ref);
+        this.list = [...this.list, doc];
+      }
+    } catch (error) {
+      console.error(`EngageFirestoreBase.save(${(newDoc || {}).$id}):`, error, newDoc);
+
     }
     doc.$loading = false;
     return doc;

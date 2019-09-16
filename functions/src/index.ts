@@ -12,7 +12,7 @@ new EngageTrigger('events/{eventId}/attendees/{attendeeId}')
             group: [
                 { 
                     field: 'guests',
-                    filter: { isGuest: true, $greater__field: 100, $lesser__field: 100}, 
+                    filter: { isGuest: true }, //, $greater__field: 100, $lesser__field: 100
                     action: 'add'
                 }, {
                     field: 'members',
