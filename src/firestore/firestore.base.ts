@@ -82,6 +82,7 @@ export default class EngageFirestoreBase {
     '$getDocRelations',
     '$addReference',
     '$getReferences',
+    '$getPath',
   ];
   sortedBy: string = '';
   public db!: any;
@@ -128,7 +129,6 @@ export default class EngageFirestoreBase {
       }
     }
     this.firebaseReady = true;
-    await this.getModelFromDb();
     this.$loading = false;
   }
 
@@ -203,7 +203,13 @@ export default class EngageFirestoreBase {
     return this.ref.get();
   }
 
-  options(options = { loadList: true }) {
+  options(options = { loadList: true, collectionGroup: false, loadModal: true }) {
+    if (options.collectionGroup) {
+      this.ref = this.db.collectionGroup(<string>this.path);
+    }
+    if (options.loadModal) {
+      this.getModelFromDb();
+    }
     if (options.loadList) {
       this.getList()
     }
@@ -343,9 +349,11 @@ export default class EngageFirestoreBase {
         doc = await this.update(newDoc, <any>ref);
       } else if (ref && ref.id) {
         newDoc.$createdAt = Date.now();
+        newDoc.$timezoneOffset = new Date().getTimezoneOffset();
         doc = await this.set(newDoc, <any>ref);
       } else {
         newDoc.$createdAt = Date.now();
+        newDoc.$timezoneOffset = new Date().getTimezoneOffset();
         doc = await this.add(newDoc, <any>ref);
         this.list = [...this.list, doc];
       }
@@ -784,6 +792,13 @@ export default class EngageFirestoreBase {
     })
     await Promise.all(promises);
     console.log('Finished Building positions...');
+  }
+
+  /* 
+    DATETIME
+  */
+  static getTimezoneOffset() {
+    return new Date().getTimezoneOffset();
   }
 
   /* 

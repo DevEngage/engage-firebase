@@ -16,7 +16,6 @@ export class EngageAnalyticsTrigger {
     }
 
     private async init() {
-        console.log(this.models, !this.models);
         if (!this.models) {
             this.models = await this.engine.getModels();
         }
@@ -26,9 +25,9 @@ export class EngageAnalyticsTrigger {
         return this.engine.triggerUpdate(this.models, data);
     }
 
-    restore(date: number) {
+    restore(date: number | string, triggerData) {
         // get all docs up until date
-        const engine = new EngageAnalytics(this.trigger);
+        const engine = EngageAnalytics.restore(this.models, triggerData, date);
     }
 
     async onWrite(data: IEngageTriggerData) {

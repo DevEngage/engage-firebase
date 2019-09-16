@@ -19,6 +19,9 @@ export class EngageAnalytics {
     ) {}
 
     async triggerUpdate(models, triggerData: IEngageTriggerData) {
+        if ((models || []).length) {
+            models = await this.getModels();
+        }
         const promises = models.map((model: IEngageAnalyticModel) => {
             if (triggerData.action === 'remove' && !model.final) {
                 return this.subtractDoc(model, triggerData);
@@ -95,14 +98,14 @@ export class EngageAnalytics {
         const details = EngageAnalytics.triggerParser(this.path);
         if (details.subCollection) {
             return EngageAnalytics.STORE
-                .getInstance(`$collections/${details.collection}/$analyticModels/${details.subCollection}/$analyticModels`) 
+                .getInstance(`$collections/${details.collection}/$analyticModels/${details.subCollection}/$analyticModels`);
         }
         return EngageAnalytics.STORE
             .getInstance(`$collections/${details.collection}/$analyticModels`)
     }
 
     async getModels(): Promise<IEngageAnalyticModel[]> {
-        return this.getModelRef().getList();
+        return await this.getModelRef().getList();
     }
 
     async getModelByField(field): Promise<IEngageAnalyticModel[]> {
@@ -359,6 +362,21 @@ export class EngageAnalytics {
             path = `${collection}/${parent[idField]}`;
         }
         return !ref ? path : EngageAnalytics.STORE.getInstance(path);
+    }
+
+    static async restore(models, triggerData: IEngageTriggerData, startDate: number | string) {
+        const groupDate = new Date(startDate);
+        // get all docs with collectionGroup
+        const ref = EngageAnalytics.STORE.getInstance(triggerData.subCollection || triggerData.collection).options({ collectionGroup: true })
+        const docs = (await ref.getList(ref.ref.where('createdAt', '>', groupDate.getTime()))) || [];
+        while (docs.length) {
+            const doc = docs.pop();
+            const [collection, id, subCollection, subId] = doc.$getPath();
+            let docSpecific = { ...triggerData, data: doc };
+            docSpecific.id = id;
+            docSpecific.id = subId;
+            await new EngageAnalytics(triggerData.trigger).triggerUpdate(models, docSpecific);
+        }
     }
     
 }

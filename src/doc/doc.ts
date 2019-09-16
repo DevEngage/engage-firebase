@@ -235,6 +235,11 @@ export default class EngageFireDoc {
   }
 
   /*  */
+  $getPath(): string[] {
+    return (this.$path || '').split('/');
+  }
+
+  /*  */
 
   $$getSortedParentList() {
     return this.$engageFireStore.sortListByPosition().list;
