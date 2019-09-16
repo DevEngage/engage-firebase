@@ -120,7 +120,7 @@ export class EngageAnalytics {
         return {
             $year: createdAt.getFullYear(),
             $month: createdAt.getMonth() + 1,
-            $week: Math.floor(createdAt.getDate() / 7),
+            $week: Math.floor(createdAt.getDate() / 7) + 1,
             $day: createdAt.getDate(),
         }
     }

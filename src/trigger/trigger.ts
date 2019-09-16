@@ -1,9 +1,8 @@
-// import { firestore } from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import { AlgoliaExport } from "../algolia/algolia.export";
 import { DocumentBuilder } from 'firebase-functions/lib/providers/firestore';
 import { EngageAnalyticsTrigger } from './analytics.trigger';
-import { EngageFirestore, IEngageTriggerData, EngageAnalytics } from '../functions';
+import { IEngageTriggerData, EngageAnalytics } from '../functions';
 
 export default class EngageTrigger {
     ref: DocumentBuilder;
@@ -11,7 +10,6 @@ export default class EngageTrigger {
     analyticTrigger!: EngageAnalyticsTrigger;
     relations = [];
     exports: any;
-    collections = [];
     public pathDetails;
     
     constructor(
@@ -21,7 +19,6 @@ export default class EngageTrigger {
     ) {
         this.pathDetails = EngageAnalytics.getPathDetails(path);
         this.ref = functions.firestore.document(this.path);
-        this.collections = (path || '').split('/').filter((item, index) => index % 2 === 0);
     }
 
     enableSearch() {
@@ -45,19 +42,21 @@ export default class EngageTrigger {
         return this;
     }
 
-    buildTriggerData(change, context) {
+    static getTriggerCollections(path) {
+        return (path || '').split('/').filter((item, index) => index % 2 === 0);
+    }
+
+    static buildTriggerData(change, context, path: string) {
         const data = change.after.data();
         const previousData = change.before.data();
-        const [collection, subCollection] = this.collections;
+        const [collection, subCollection] = EngageTrigger.getTriggerCollections(path);
         const triggerData: IEngageTriggerData = {
             ...context.params,
             data,
             previousData,
             collection,
             subCollection,
-            algoliaExport: this.algoliaExport,
-            analyticTrigger: this.analyticTrigger,
-            trigger: this.path,
+            trigger: path,
             source: '',
             sourceParent: '',
         };
@@ -76,7 +75,9 @@ export default class EngageTrigger {
             if (!change.before.exists && ignoreFirst) return null;
             const id = context.params.id;
             const data = change.after.data();
-            const triggerData: IEngageTriggerData = this.buildTriggerData(change, context);
+            const triggerData: IEngageTriggerData = EngageTrigger.buildTriggerData(change, context, this.path);
+            triggerData.algoliaExport = this.algoliaExport;
+            triggerData.analyticTrigger = this.analyticTrigger;
 
             if (id && 
                 data && 
@@ -116,7 +117,10 @@ export default class EngageTrigger {
     onDelete(cb?: any) {
         const onDelete = this.ref.onDelete(async (snap, context) => {
             const id = context.params.id;
-            const triggerData: IEngageTriggerData = this.buildTriggerData(snap, context);
+            const triggerData: IEngageTriggerData = EngageTrigger.buildTriggerData(snap, context, this.path);
+            triggerData.algoliaExport = this.algoliaExport;
+            triggerData.analyticTrigger = this.analyticTrigger;
+
             if (cb) {
                 await cb(triggerData);
             }
@@ -138,7 +142,9 @@ export default class EngageTrigger {
 
     onCreate(cb?: any) {
         const onCreate = this.ref.onCreate(async (snap, context) => {
-            const triggerData: IEngageTriggerData = this.buildTriggerData(snap, context);
+            const triggerData: IEngageTriggerData = EngageTrigger.buildTriggerData(snap, context, this.path);
+            triggerData.algoliaExport = this.algoliaExport;
+            triggerData.analyticTrigger = this.analyticTrigger;
 
             if (this.analyticTrigger) {
                 await this.analyticTrigger.onCreate(triggerData);
@@ -160,7 +166,9 @@ export default class EngageTrigger {
 
     onUpdate(cb?: any) {
         const onUpdate = this.ref.onUpdate(async (change, context) => {
-            const triggerData: IEngageTriggerData = this.buildTriggerData(change, context);
+            const triggerData: IEngageTriggerData = EngageTrigger.buildTriggerData(change, context, this.path);
+            triggerData.algoliaExport = this.algoliaExport;
+            triggerData.analyticTrigger = this.analyticTrigger;
 
             if (this.analyticTrigger) {
                 await this.analyticTrigger.onUpdate(triggerData);
