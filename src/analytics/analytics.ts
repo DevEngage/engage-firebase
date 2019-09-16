@@ -158,10 +158,11 @@ export class EngageAnalytics {
         } else if (typeof group === 'string') {
             doc[group] = data[group] || 1;
         }
-        if (!(triggerData.action === 'remove')) {
+        if ((triggerData.action === 'remove')) {
             doc['$counter'] -= 1;
+        } else {
+            doc['$counter'] += 1;
         }
-        doc['$counter'] += 1;
         return doc;
     }
 
@@ -217,14 +218,14 @@ export class EngageAnalytics {
             const dest = await EngageAnalytics.createDestinationRef(triggerData, model);
             const dates = EngageAnalytics.getDates(triggerData.data);
             const dayRef = this.getAnalytics(dest);
-            const totalDoc = (await dayRef.get('total')) || {};
+            const totalDoc = (await dayRef.get('total')) || {$id: 'total'};
             const dayDoc = (await dayRef.getList(
                 dayRef.ref
                     .where('$year', '==', dates.$year)
                     .where('$month', '==', dates.$month)
                     .where('$week', '==', dates.$week)
                     .where('$day', '==', dates.$day)
-            ) || [])[0] || {};
+            ) || [])[0] || {$id: `${dates.$year}_${dates.$month}_${dates.$week}_${dates.$day}`};
             
             if (model.allowDuplicates) {
                 delete datasetDoc['$id'];
