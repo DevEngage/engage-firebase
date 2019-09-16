@@ -12,7 +12,6 @@ new EngageTrigger('events/{eventId}/attendees/{attendeeId}')
             group: [
                 { 
                     field: 'guests',
-                    fieldValue: 'spent',
                     filter: { isGuest: true}, //, $greater__field: 100, $lesser__field: 100
                     action: 'add'
                 }, {
