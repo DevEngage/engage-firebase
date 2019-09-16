@@ -7,9 +7,21 @@ import EngageFireDoc from '../doc/doc';
  * [ ] Fully test everything!
  * */
 export default class EngageFirestore extends EngageFirestoreBase {
+    private static instanceFunctions: any = {};
 
     constructor(public path: string) {
         super(path);
+    }
+
+    static getInstance(path, options) {
+        console.log('Firestore Path: ', path);
+        if (!EngageFirestore.instanceFunctions[path]) {
+            EngageFirestore.instanceFunctions[path] = new EngageFirestoreBase(path);
+        }
+        if (options) {
+            return EngageFirestore.instanceFunctions[path].options(options);
+        }
+        return EngageFirestore.instanceFunctions[path];
     }
 
     /* 

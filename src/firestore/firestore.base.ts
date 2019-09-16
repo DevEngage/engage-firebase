@@ -728,6 +728,7 @@ export default class EngageFirestoreBase {
     path: string,
     options?: any
   ) {
+    console.log('Firestore Path: ', path);
     if (!EngageFirestoreBase.instances[path])  {
       EngageFirestoreBase.instances[path] = new EngageFirestoreBase(path);
     }

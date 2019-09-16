@@ -61,9 +61,13 @@ export default class EngageTrigger {
             source: '',
             sourceParent: '',
         };
-        const [soruce, sourceParent] = EngageAnalytics.createSourceRef(triggerData);
-        triggerData.source = soruce;
+        const [source, sourceParent] = EngageAnalytics.createSourceRef(triggerData);
+        triggerData.source = source;
         triggerData.sourceParent = sourceParent;
+        const pathSplit = (source || '').split('/');
+        triggerData.id = pathSplit[1];
+        triggerData.subId = pathSplit[3];
+        console.log('triggerData', triggerData)
         return triggerData;
     }
 

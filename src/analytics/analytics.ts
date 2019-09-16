@@ -4,7 +4,7 @@ import { IEngageTriggerData } from "../interfaces/trigger.interfaces";
 
 /* 
     TODO:
-    [ ] 
+    [ ] allow destination building to parent collection from child
 */
 export class EngageAnalytics {
     static STORE;
@@ -35,9 +35,9 @@ export class EngageAnalytics {
         return this.removeAnalyticDoc(model, doc);
     }
 
-    getAnalytics(dest: string, field = 'total') {
+    getAnalytics(dest: string) {
         const col = EngageAnalytics.STORE.getInstance(`${dest}/${EngageAnalytics.ANALYTICS_PATH}`);
-        return col.get( field );
+        return col;
     }
 
     getDataset(dest: string) {
@@ -303,12 +303,11 @@ export class EngageAnalytics {
             subIdField,
         } = EngageAnalytics.triggerParser(trigger);
 
-
         if (data && data.$path) {
             path = data.$path;
         } else if (subCollection && triggerData[subIdField]) {
             parent = `${collection}/${triggerData[idField]}`;
-            path = `${collection}/${data.$id}/${subCollection}/${triggerData[subIdField]}`;
+            path = `${collection}/${triggerData[idField]}/${subCollection}/${triggerData[subIdField]}`;
         } else if (collection && triggerData[idField]) {
             path = `${collection}/${triggerData[idField]}`;
         }
@@ -327,13 +326,20 @@ export class EngageAnalytics {
         } = EngageAnalytics.triggerParser(model.destination);
         
         if (triggerData.sourceParent) {
-            parent = EngageAnalytics.STORE.getInstance(triggerData.sourceParent);
+            parent = await EngageAnalytics.STORE.getInstance(triggerData.collection).get(triggerData.id);
         }
+
+        console.log('createDestinationRef: ', collection,
+            idField,
+            subCollection,
+            subIdField,);
+        console.log('parent', parent)
+        console.log('data', data)
 
         if (subCollection && parent[idField]) {
             path = `${collection}/${parent[idField]}/${subCollection}/${data.$id}`;
-        }  else if (collection && data[idField]) {
-            path = `${collection}/${data[idField]}`;
+        } else if (collection && parent[idField]) {
+            path = `${collection}/${parent[idField]}`;
         }
         return !ref ? path : EngageAnalytics.STORE.getInstance(path);
     }
