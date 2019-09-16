@@ -59,6 +59,7 @@ export class EngageAnalytics {
     applyAction(doc: any, data: any, group: IEngageAnalyticGroup) {
         const dataField = data[group.fieldValue] || data[group.field];
         let num = typeof dataField === 'number' ? dataField : 1;
+        this.report(`EngageAnalytics.applyAction(${group.field})`, dataField);
         if (!doc[group.field]) {
             doc[group.field] = 0;
         }
