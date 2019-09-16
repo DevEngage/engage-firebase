@@ -22,6 +22,7 @@ export interface IEngageAnalyticDataset {
 
 export interface IEngageAnalyticGroup {
     field: string; 
+    fieldValue: string; 
     filter?: any; // { isGuest: true, $greater__field: 100, $lesser__field: 100}, 
     action?: AnalyticAction;
     type?: 'int' | 'double'
