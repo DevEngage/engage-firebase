@@ -691,7 +691,7 @@ export default class EngageFirestoreBase {
     // Delete the file
     return await desertRef.delete().then(() => {
       doc.$image = null;
-      doc.$thumbnail = null;
+      doc.$thumb = null;
       doc.$imageOrginal = null;
       doc.$imageMeta = null;
     });

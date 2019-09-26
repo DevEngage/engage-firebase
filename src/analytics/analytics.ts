@@ -12,7 +12,7 @@ export class EngageAnalytics {
     static ANALYTICS_PATH = '$analytics';
     static DATASET_PATH = '$dataset';
     static CREATEDAT_NAME = '$createAt';
-    debug = true;
+    debug = false;
     
     constructor(
         public path: string
