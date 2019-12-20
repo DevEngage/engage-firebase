@@ -4,6 +4,8 @@ import { engagePubsub } from './pubsub';
 import { EngageAlgolia } from './algolia';
 import EngageFire from './engagefire';
 import EngageDoc from './doc';
+import EngageAuth from './auth';
+import EngageQuery from './query';
 
 declare let process: any;
 
@@ -141,7 +143,7 @@ export class EngageFirestoreBase {
             this.getModelFromDb();
         }
         if (options.loadList) {
-            this.getList()
+            this.getList({});
         }
         return this;
     }
@@ -158,12 +160,27 @@ export class EngageFirestoreBase {
         return doc;
     }
 
+    getStringVar(what, replaceWith?) {
+        if (typeof what === 'string' && (what.indexOf('{userId}') > -1 || what.indexOf('{\$userId}') > -1)) {
+            return replaceWith || this.userId || EngageAuth.userId;
+        }
+        return what;
+    }
+
     // get data with ids added
-    async getList(ref?: any) {
+    async getList({ listRef = this.ref, filter = undefined, limit = undefined }) {
         this.$loading = true;
         await EngageFire.ready();
-        if (!ref) ref = this.ref;
-        const list = await ref.get();
+        if (filter != null) {
+            var userId = await EngageAuth.currentUserId();
+            filter.forEach((key, value) => filter[key] = this.getStringVar(value, userId));
+        }
+        let query = listRef || this.ref;
+        if (filter != null) {
+            query = new EngageQuery().buildQuery(filter, query);
+        }
+        if (limit != null) query.limit(limit);
+        const list = await query.get();
         this.list = this.addFireList(list);
         this.$loading = false;
         return this.list;
@@ -214,6 +231,29 @@ export class EngageFirestoreBase {
             console.error(`EngageFirestoreBase.get(${docId}):`, error);
             return null;
         }
+    }
+
+
+    async getFirst({ listRef = this.ref, filter }) {
+        var item = await this.getList({listRef, filter: filter, limit: 1});
+        return item.length === 0 ? null : item[0];
+    }
+
+    async getOrCreate<T>({ defaultData, filter }): Promise<T>  {
+        let userId: string = await EngageAuth.currentUserId();
+        defaultData = new EngageQuery().getFilterDefaults(defaultData, filter, userId);
+        let doc;
+        let found = await this.getFirst({filter});
+        if (!found) {
+            let newMap = {...defaultData };
+            doc = await this.add(newMap);
+        } else {
+            doc = found;
+            if (doc.$setDefaults(defaultData, userId)) {
+                await doc.$save();
+            }
+        }
+        return doc;
     }
 
     async add(newDoc: any, ref?: any) {
@@ -561,8 +601,8 @@ export class EngageFirestoreBase {
         return this.model;
     }
 
-    getModelField(field: string): IEngageModel[] {
-        return EngageFirestoreBase.getInstance(`$collections/${this.path}/$models`).get(field);
+    async getModelField(field: string): Promise<IEngageModel[]> {
+        return await EngageFirestoreBase.getInstance(`$collections/${this.path}/$models`).get(field);
     }
 
     getModel(): IEngageModel[] {
@@ -573,7 +613,7 @@ export class EngageFirestoreBase {
         if ((<any>this.path).includes('$collections')) {
             return this.model = [];
         }
-        this.model = await EngageFirestoreBase.getInstance(`$collections/${this.path}/$models`).getList();
+        this.model = await EngageFirestoreBase.getInstance(`$collections/${this.path}/$models`).getList({});
         this.sortModel();
         return this.model;
     }
@@ -649,7 +689,7 @@ export class EngageFirestoreBase {
     static getInstance(
         path: string,
         options?: any
-    ) {
+    ): EngageFirestore {
         console.log('Firestore Path: ', path);
         if (!EngageFirestoreBase.instances[path]) {
             EngageFirestoreBase.instances[path] = new EngageFirestoreBase(path);
@@ -689,7 +729,7 @@ export class EngageFirestoreBase {
 
     async buildListPositions() {
         await this.ready();
-        await this.getList();
+        await this.getList({});
         console.log('Started Building positions...');
         this.sortListByPosition();
         const promises = this.list.map(async (item, index) => {
