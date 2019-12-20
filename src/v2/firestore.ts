@@ -64,6 +64,19 @@ export class EngageFirestoreBase {
         this.$loading = false;
     }
 
+    linkFireCollection(value) {
+        if (value && value['$id']) {
+            return {
+                '$id': value['$id'],
+                '$collection': value['$collection'],
+                '$thumb': value['$thumb'],
+                '$image': value['$image'],
+                'name': value['$name'] || '',
+            };
+        }
+        return value;
+    }
+
     addSubCollections(collections: string[]) {
         this.subCollections = [...this.subCollections, ...collections];
         return this;
@@ -161,7 +174,7 @@ export class EngageFirestoreBase {
     }
 
     getStringVar(what, replaceWith?) {
-        if (typeof what === 'string' && (what.indexOf('{userId}') > -1 || what.indexOf('{\$userId}') > -1)) {
+        if (typeof what === 'string' && (what.indexOf('{userId}') > -1 || what.indexOf('{$userId}') > -1)) {
             return replaceWith || this.userId || EngageAuth.userId;
         }
         return what;
