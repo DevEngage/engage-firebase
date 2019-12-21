@@ -1,0 +1,144 @@
+eng-media-card {
+
+  @mixin headerProfile($size, $name) {
+    .eng-media-header-profile-#{$name} {
+      margin-bottom: $size /2.7;
+      .eng-profile-img-#{$name} {
+        bottom: -$size / 2;
+        left: calc(#{50%} - #{$size / 2});
+        width: $size;
+        height: $size;
+        font-size: $size/1.5;
+        color: #353535;
+      }
+    }
+  }
+
+  .profile-image {
+    img {
+       border-radius: 10px;
+    }
+  }
+
+  .eng-profile-border {
+    margin-top: 100px;
+    display: block;
+    eng-upload {
+      display: block;
+      margin-top: -150px;
+      img, eng-icon {
+        background: white;
+      }
+    }
+  }
+
+  .card-header,
+  .card-footer {
+    border: none;
+    background: transparent;
+  }
+
+  .eng-media-card-raise {
+    margin-top: 40px;
+    display: block;
+  }
+
+  .eng-media-header {
+    margin: -12px 0 0 -21px;
+    border-radius: 4px 4px 0 0;
+    width: calc(100% + 41px) !important;
+    img {
+      border-radius: 4px 4px 0 0;
+    }
+  }
+
+  .eng-media-header-cascading {
+    margin: -12px 0 0 -21px;
+    border-radius: 4px;
+    width: calc(100% + 41px) !important;
+    cursor: pointer;
+    img {
+      border-radius: 4px;
+    }
+  }
+
+  .eng-media-header-cascading-wide {
+    margin: -40px 0 0 -40px;
+    border-radius: 4px;
+    width: calc(100% + 81px) !important;
+    img {
+      border-radius: 4px;
+    }
+    &.eng-header-tabs {
+      padding: 0 14px;
+    }
+  }
+
+  .eng-media-header-cascading-narrow {
+    margin: -40px 0 0 -5px;
+    border-radius: 4px;
+    width: calc(100% + 10px) !important;
+    img {
+      border-radius: 4px;
+    }
+    &.eng-header-tabs {
+      padding: 0 14px;
+    }
+  }
+
+  .eng-media-header-cascading-regular {
+    margin: -40px 0 0 -21px;
+    border-radius: 4px;
+    width: calc(100% + 41px) !important;
+    img {
+      border-radius: 4px;
+    }
+    &.eng-header-tabs {
+      padding: 0 14px;
+    }
+  }
+
+  .eng-media-header-fab {
+    position: absolute;
+    bottom: -28px;
+    right: 20px;
+  }
+
+  .eng-media-header-bg {
+    padding: 25px;
+    text-align: center;
+    .card-subtitle {
+      font-weight: normal;
+    }
+  }
+
+  .eng-header-dark {
+    color: #fff0ff;
+  }
+  .eng-media-header-profile {
+    position: relative;
+    .eng-media-header-img {
+      border: 5px solid #fff;
+      margin-left: auto;
+      margin-right: auto;
+      border-radius: 50%;
+      display: block;
+      position: absolute;
+      background-position: center;
+      background-repeat: no-repeat;
+      background-size: cover;
+    }
+
+    img {
+      border-radius: 50%;
+      width: 150px;
+      height: 150px;
+    }
+  }
+
+  @include headerProfile(50px, xs);
+  @include headerProfile(100px, sm);
+  @include headerProfile(150px, md);
+  @include headerProfile(200px, lg);
+  @include headerProfile(300px, xl);
+}

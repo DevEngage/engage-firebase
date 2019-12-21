@@ -1,0 +1,21 @@
+
+eng-side-menu {
+  .eng-menu-container {
+    width: 220px;
+    height: 100%;
+    position: fixed;
+    z-index: 1;
+  }
+
+  .eng-hide-menu {
+    left: -220px;
+  }
+
+  .eng-show-menu {
+    left: 0;
+  }
+
+  .eng-menu-static {
+
+  }
+}

@@ -1,0 +1,66 @@
+
+:root {
+  --toggle-size: 10px;
+}
+
+eng-checkbox {
+  cursor: pointer;
+
+  .checkbox-wrapper {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .animated {
+    -webkit-transition: all 2.5s;
+    transition: all 2.5s;
+  }
+
+  .toggle-container {
+    display: inline-flex;
+    align-items: center;
+  }
+
+  .toggle {
+    position: relative;
+    display: inline-block;
+    width: calc(var(--toggle-size) * 2 + 4px);
+    height: calc(var(--toggle-size) + 4px);
+  }
+
+  .slider-body {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 34px;
+  }
+
+  .slider {
+    position: absolute;
+    content: "";
+    height: var(--toggle-size);
+    width: var(--toggle-size);
+    left: 2px;
+    bottom: 2px;
+    background-color: white;
+    -webkit-transition: .4s;
+    transition: .4s;
+    border-radius: 50%;
+  }
+
+   .slider-body-active {
+    background-color: #2196F3;
+  }
+
+   .slider-active {
+    -webkit-transform: translateX(var(--toggle-size));
+    -ms-transform: translateX(var(--toggle-size));
+    transform: translateX(var(--toggle-size));
+  }
+}

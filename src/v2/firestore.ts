@@ -768,6 +768,15 @@ export class EngageFirestoreFunction extends EngageFirestoreBase {
     ) {
         super(path);
     }
+
+    static set __DOC__(doc) {
+        EngageDoc.STORE = EngageFirestore;
+    }
+
+    static set __STATE__(state) {
+        EngageFirestore.STATE = state;
+        EngageFirestoreBase.STATE = state;
+    }
 }
 
 export default class EngageFirestore extends EngageFirestoreBase {
@@ -776,6 +785,16 @@ export default class EngageFirestore extends EngageFirestoreBase {
         public path: string
     ) {
         super(path);
+    }
+    
+    static set __DOC__(doc) {
+        EngageDoc.STORE = EngageFirestore;
+    }
+
+    static set __STATE__(state) {
+        EngageFirestore.STATE = state;
+        EngageFirestoreBase.STATE = state;
+        EngageDoc.STORE = EngageFirestore;
     }
 
 }

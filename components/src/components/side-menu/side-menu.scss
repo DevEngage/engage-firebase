@@ -1,0 +1,240 @@
+
+$purple-gradient: linear-gradient(#5C1296 0%, transparent 100%);
+
+eng-side-menu {
+  z-index: 1050;
+  .eng-background-image {
+    display: block;
+    position: absolute;
+    z-index: -1;
+    bottom: 0;
+    height: 100%;
+    width: 100%;
+    background-size: cover;
+  }
+
+  .eng-brand-container {
+    text-align: center;
+    display: block;
+    padding: 10px 10px;
+  }
+
+  .eng-brand-image {
+    width: 40px;
+    display: inline-block;
+  }
+
+  .eng-brand-title {
+    display: inline-block;
+    vertical-align: middle;
+  }
+
+  .eng-menu {
+    cursor: pointer;
+  }
+
+  .eng-menu-item {
+    cursor: pointer;
+    i {
+      font-size: 18px;
+      //margin-top: -1px;
+      margin-right: 6px;
+    }
+  }
+
+  .fa-chevron-left {
+    font-size: 12px;
+  }
+
+  .eng-menu-item-title {
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  .eng-menu-item-open {
+    background-color: rgba(0, 0, 0, 0.2);
+    transition: background-color 500ms;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.4);
+    }
+  }
+
+  .eng-menu-item-closed {
+    background-color: transparent;
+    transition: background-color 500ms;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.2);
+    }
+  }
+
+  .eng-menu-search {
+    color: white;
+    input {
+      border: none;
+      border-bottom: 1px solid white;
+      color: white;
+      border-radius: 0;
+      &:focus {
+        color: white;
+      }
+    }
+    ::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+      color: #c5d8e1;
+    }
+    ::-moz-placeholder { /* Firefox 19+ */
+      color: #c5d8e1;
+    }
+    :-ms-input-placeholder { /* IE 10+ */
+      color: #c5d8e1;
+    }
+    :-moz-placeholder { /* Firefox 18- */
+      color: #c5d8e1;
+    }
+  }
+
+  ::-webkit-scrollbar {
+    width: 1em;
+  }
+
+  ::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: darkgrey;
+    outline: 1px solid slategrey;
+  }
+
+  .eng-menu-sub-item {
+    padding-left: 2rem !important;
+    &:hover {
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+  }
+
+  .eng-label-item {
+    cursor: pointer;
+    background-color: rgba(0, 0, 0, 0.2);
+    margin-top: 4px;
+  }
+
+  .eng-label-bg {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    margin-right: 6px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .eng-menu-footer {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    left: 15px;
+  }
+
+  .eng-menu-close-box {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    right: 1px;
+    top: 2px;
+    cursor: pointer;
+    //background-color: inherit;
+  }
+
+  .eng-menu-close-box-right {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    left: 7px;
+    top: 2px;
+    cursor: pointer;
+    //background-color: inherit;
+  }
+
+  .eng-menu-divider {
+    padding-top: 25px;
+    padding-left: 12px;
+    .eng-menu-divider-label {
+      font-size: 24px;
+      border-bottom: 1px solid var(--secondary);
+    }
+  }
+
+  .eng-menu-badge {
+    position: absolute;
+    right: 15px;
+  }
+
+  .eng-menu-badge-w-arrow {
+    right: 35px;
+  }
+
+  stencil-route-link {
+    a {
+      color: inherit; /* blue colors for links too */
+      text-decoration: inherit; /* no underline */
+      &:hover {
+        color: inherit; /* blue colors for links too */
+        text-decoration: inherit; /* no underline */
+      }
+    }
+  }
+
+}
+
+
+.eng-menu-backdrop {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 1040;
+  background-color: #000;
+  transition: opacity 500ms;
+}
+
+.eng-menu-backdrop.show {
+  opacity: .5;
+  transition: opacity 500ms;
+}
+
+//
+//::-webkit-scrollbar {
+//  width: 15px;
+//}
+//
+//::-webkit-scrollbar-track {
+//  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.3);
+//  background-color: #000000;
+//}
+//
+//::-webkit-scrollbar-thumb {
+//  border-radius: 10px;
+//  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+//  background-color: #555555;
+//}
+//
+//::-webkit-scrollbar-button {
+//  -webkit-box-shadow: inset 0 0 6px rgba(0,0,0,0.5);
+//  background-color: #000000;
+//}
+//
+//::-webkit-scrollbar-button:vertical:increment {
+//  background-position: -64px -16px;
+//}
+//
+//::-webkit-scrollbar-button:vertical:decrement {
+//  background-position: 0 -16px;
+//}
+//
+//::-webkit-scrollbar-button:horizontal:increment {
+//  background-position: -32px -16px;
+//}
+//
+//::-webkit-scrollbar-button:horizontal:decrement {
+//  background-position: -96px -16px;
+//}
