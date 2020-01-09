@@ -3,6 +3,7 @@ import EngageDoc from "./v2/doc";
 import { EngageAnalytics } from "./v2/analytics";
 import { EngageAlgolia } from "./v2/algolia";
 import EngageImage from "./v2/image";
+import EngageFire from "./v2/engagefire";
 
 
 EngageAnalytics.DOC = EngageDoc;
@@ -21,6 +22,7 @@ export {
     EngageFirestore,
     Doc,
     EngageDoc,
+    EngageFire,
     // EngageModel,
     // adminModel,
     EngageAlgolia,
