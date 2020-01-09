@@ -2,8 +2,6 @@ import React from 'react';
 import { Redirect, Route } from 'react-router-dom';
 import { IonApp, IonRouterOutlet } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import Home from './pages/Home';
-import LoginPage from "./pages/login/login";
 
 /* Core CSS required for Ionic components to work properly */
 import '@ionic/react/css/core.css';
@@ -23,17 +21,32 @@ import '@ionic/react/css/display.css';
 
 /* Theme variables */
 import './theme/variables.css';
+import EngageFireState from './react/state';
+import EngageFireContext from './react/context';
+import Dashboard from './pages/dashboard/Dashboard';
+import Login from './pages/login/login';
 
-const App: React.FC = () => (
-  <IonApp>
-    <IonReactRouter>
-      <IonRouterOutlet>
-        <Route path="/home" component={Home} exact={true} />
-        <Route path="/login" component={LoginPage} exact={true} />
-        <Route exact path="/" render={() => <Redirect to="/home" />} />
-      </IonRouterOutlet>
-    </IonReactRouter>
-  </IonApp>
-);
+
+
+const App: React.FC = () => {
+
+  const state = EngageFireState({
+    testList: 'testList'
+  });
+
+  return (
+      <EngageFireContext.Provider value={state}>
+      <IonApp>
+          <IonReactRouter>
+              <IonRouterOutlet>
+                  <Route path="/dashboard" component={Dashboard} exact={true}/>
+                  <Route path="/login" component={Login} exact={true}/>
+                  <Route exact path="/" render={() => <Redirect to="/dashboard"/>}/>
+              </IonRouterOutlet>
+          </IonReactRouter>
+      </IonApp>
+      </EngageFireContext.Provider>
+  );
+};
 
 export default App;

@@ -1,4 +1,7 @@
-import React, { useState, useEffect } from "react"
+import React, {useState, useEffect, useContext} from "react"
+import EngageFireContext from "../../react/context";
+
+import { EngageAuth } from '@dev-engage/firebase';
 
 import './login.scss'
 import Logo from '../../assets/images/logo_600.png'
@@ -6,9 +9,16 @@ import Logo from '../../assets/images/logo_600.png'
 import {IonIcon, IonImg, IonButton, IonList, IonItem, IonLabel, IonInput, IonText, IonRow, IonCol} from "@ionic/react"
 import {person} from "ionicons/icons"
 
-import {EngageAuth} from '@dev-engage/firebase';
+const Login = ({history}) => {
 
-const LoginPage = () => {
+    // Custom Auth Guard
+    const {hasLoaded, isLoggedIn} = useContext(EngageFireContext);
+    useEffect( () => {
+        if (hasLoaded && isLoggedIn) {
+            console.log('isLoggedIn', isLoggedIn);
+            history.push('/dashboard', { direction: 'none' });
+        }
+    }, [isLoggedIn, hasLoaded]);
 
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -21,9 +31,10 @@ const LoginPage = () => {
     const [passwordError, setPasswordError] = useState(false);
     const [confirmPasswordError, setConfirmPasswordError] = useState(false);
 
-
+    const engageAuth = EngageAuth.getInstance();
 
     useEffect(() => {
+        console.log('history', history);
         setFormState('login');
         setTitle('Login');
         setActionButton('Get Started');
@@ -68,11 +79,26 @@ const LoginPage = () => {
             setConfirmPasswordError(true);
         }
 
-        if (email && password) {
+        if (formState === "login" && email && password) {
+            await engageAuth.login(email, password);
+            const user = await engageAuth.getUserId();
+            console.log('user', user);
+            // history.push('/dashboard', { direction: 'none' });
+
             // await setIsLoggedIn(true);
             // await setUsernameAction(username);
-            new EngageAuth().login(email, password);
             // history.push('/tabs/schedule', { direction: 'none' });
+        }
+
+        if (formState === "forgot" && email) {
+            await engageAuth.forgotPassword(email);
+        }
+
+        if (formState === "create" && email && password && confirmPassword && password === confirmPassword) {
+            await engageAuth.signup(email, password);
+            const user = await engageAuth.getUserId();
+            console.log('user', user);
+            // history.push('/dashboard', { direction: 'none' });
         }
     };
 
@@ -159,4 +185,4 @@ const LoginPage = () => {
     )
 }
 
-export default LoginPage
+export default Login
