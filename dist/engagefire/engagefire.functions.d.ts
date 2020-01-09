@@ -7,6 +7,7 @@ export declare class EngagefireFunctions {
     storage: any;
     auth: any;
     initialized: boolean;
+    isAsync: boolean;
     serviceAccount: any;
     private constructor();
     init(): Promise<void>;

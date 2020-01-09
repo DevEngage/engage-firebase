@@ -44,6 +44,7 @@ var Engagefire = /** @class */ (function () {
         this.config = config;
         this.enablePersistence = enablePersistence;
         this.initialized = false;
+        this.isAsync = true;
         if (this.enablePersistence === undefined) {
             this.enablePersistence = true;
         }

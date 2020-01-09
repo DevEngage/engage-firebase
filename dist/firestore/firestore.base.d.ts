@@ -41,6 +41,8 @@ export default class EngageFirestoreBase {
     getAll(): any;
     options(options?: {
         loadList: boolean;
+        collectionGroup: boolean;
+        loadModal: boolean;
     }): this;
     getChildDocs(doc: any): Promise<any>;
     getList(ref?: any): Promise<any[]>;
@@ -96,6 +98,7 @@ export default class EngageFirestoreBase {
     sortListByPosition(fresh?: boolean, reverse?: boolean, list?: any): this;
     getListByPosition(direction?: "desc" | "asc" | undefined): Promise<any[]>;
     buildListPositions(): Promise<void>;
+    static getTimezoneOffset(): number;
     static __DOC__: any;
     static __ENGAGE_FIRE__: any;
     static __FIRE_OPTIONS__: any;

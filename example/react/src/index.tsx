@@ -2,8 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
+import {EngageFire} from '@dev-engage/firebase';
 
-import {EngageFire} from '../../../src';
 
 EngageFire.getInstance({
     apiKey: "AIzaSyB0BO2DsW8udknAh0sfpvqNBHvU1vt-CY8",

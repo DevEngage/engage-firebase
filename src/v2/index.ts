@@ -3,6 +3,8 @@ import EngageDoc from "./doc";
 import { EngageAnalytics } from "./analytics";
 import { EngageAlgolia } from "./algolia";
 import EngageImage from "./image";
+import EngageAuth from "./auth";
+import EngageFile from "./file";
 
 
 EngageAnalytics.DOC = EngageDoc;
@@ -26,6 +28,9 @@ export {
     EngageAlgolia,
     EngageImage,
     EngageAnalytics,
+    EngageAuth,
+    EngageFile,
+    
     // // Interfaces // //
     // IEngageFirebase,
     // IEngageFirebaseObject,

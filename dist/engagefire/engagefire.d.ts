@@ -13,6 +13,7 @@ export declare class Engagefire {
     storage: firebase.storage.Storage;
     auth: firebase.auth.Auth;
     initialized: boolean;
+    isAsync: boolean;
     private constructor();
     init(): Promise<void>;
     getFirebaseProjectId(): any;

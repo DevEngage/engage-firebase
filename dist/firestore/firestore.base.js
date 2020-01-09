@@ -97,7 +97,6 @@ var EngageFirestoreBase = /** @class */ (function () {
             '$isOwner',
             '$getFile',
             '$getFiles',
-            '$path',
             '$backup',
             '$engageFireStore',
             '$owner',
@@ -121,6 +120,7 @@ var EngageFirestoreBase = /** @class */ (function () {
             '$getDocRelations',
             '$addReference',
             '$getReferences',
+            '$getPath',
         ];
         this.sortedBy = '';
         this.init();
@@ -137,15 +137,12 @@ var EngageFirestoreBase = /** @class */ (function () {
                         if (!EngageFirestoreBase.DOC) {
                             console.error('MISSING EngageDoc Class');
                         }
-                        // if (!EngageFirestoreBase.FIRE_OPTIONS) {
-                        //   console.error('MISSING FIRE_OPTIONS class');
-                        // }
+                        if (!EngageFirestoreBase.ENGAGE_FIRE(EngageFirestoreBase.FIRE_OPTIONS).isAsync) return [3 /*break*/, 2];
                         return [4 /*yield*/, EngageFirestoreBase.ENGAGE_FIRE(EngageFirestoreBase.FIRE_OPTIONS).ready()];
                     case 1:
-                        // if (!EngageFirestoreBase.FIRE_OPTIONS) {
-                        //   console.error('MISSING FIRE_OPTIONS class');
-                        // }
                         _a.sent();
+                        _a.label = 2;
+                    case 2:
                         if (!this.db) {
                             this.db = EngageFirestoreBase.ENGAGE_FIRE(EngageFirestoreBase.FIRE_OPTIONS).firestore;
                         }
@@ -170,9 +167,6 @@ var EngageFirestoreBase = /** @class */ (function () {
                             }
                         }
                         this.firebaseReady = true;
-                        return [4 /*yield*/, this.getModelFromDb()];
-                    case 2:
-                        _a.sent();
                         this.$loading = false;
                         return [2 /*return*/];
                 }
@@ -240,7 +234,13 @@ var EngageFirestoreBase = /** @class */ (function () {
         return this.ref.get();
     };
     EngageFirestoreBase.prototype.options = function (options) {
-        if (options === void 0) { options = { loadList: true }; }
+        if (options === void 0) { options = { loadList: true, collectionGroup: false, loadModal: true }; }
+        if (options.collectionGroup) {
+            this.ref = this.db.collectionGroup(this.path);
+        }
+        if (options.loadModal) {
+            this.getModelFromDb();
+        }
         if (options.loadList) {
             this.getList();
         }
@@ -388,7 +388,7 @@ var EngageFirestoreBase = /** @class */ (function () {
                         return [2 /*return*/, null];
                     case 4:
                         error_2 = _a.sent();
-                        console.error(error_2);
+                        console.error("EngageFirestoreBase.get(" + docId + "):", error_2);
                         return [2 /*return*/, null];
                     case 5: return [2 /*return*/];
                 }
@@ -496,34 +496,46 @@ var EngageFirestoreBase = /** @class */ (function () {
     };
     EngageFirestoreBase.prototype.save = function (newDoc, ref) {
         return __awaiter(this, void 0, void 0, function () {
-            var doc;
+            var doc, error_3;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.ready()];
+                    case 0:
+                        Object.keys(newDoc || {}).forEach(function (value) { return newDoc[value] = newDoc[value] === undefined ? null : newDoc[value]; });
+                        return [4 /*yield*/, this.ready()];
                     case 1:
                         _a.sent();
                         newDoc = this.omitFire(newDoc);
                         newDoc.$updatedAt = Date.now();
-                        if (!(newDoc && (newDoc.$key || newDoc.$id))) return [3 /*break*/, 3];
-                        return [4 /*yield*/, this.update(newDoc, ref)];
+                        _a.label = 2;
                     case 2:
-                        doc = _a.sent();
-                        return [3 /*break*/, 7];
+                        _a.trys.push([2, 9, , 10]);
+                        if (!(newDoc && (newDoc.$key || newDoc.$id))) return [3 /*break*/, 4];
+                        return [4 /*yield*/, this.update(newDoc, ref)];
                     case 3:
-                        if (!(ref && ref.id)) return [3 /*break*/, 5];
-                        newDoc.$createdAt = Date.now();
-                        return [4 /*yield*/, this.set(newDoc, ref)];
-                    case 4:
                         doc = _a.sent();
-                        return [3 /*break*/, 7];
-                    case 5:
+                        return [3 /*break*/, 8];
+                    case 4:
+                        if (!(ref && ref.id)) return [3 /*break*/, 6];
                         newDoc.$createdAt = Date.now();
-                        return [4 /*yield*/, this.add(newDoc, ref)];
+                        newDoc.$timezoneOffset = new Date().getTimezoneOffset();
+                        return [4 /*yield*/, this.set(newDoc, ref)];
+                    case 5:
+                        doc = _a.sent();
+                        return [3 /*break*/, 8];
                     case 6:
+                        newDoc.$createdAt = Date.now();
+                        newDoc.$timezoneOffset = new Date().getTimezoneOffset();
+                        return [4 /*yield*/, this.add(newDoc, ref)];
+                    case 7:
                         doc = _a.sent();
                         this.list = this.list.concat([doc]);
-                        _a.label = 7;
-                    case 7:
+                        _a.label = 8;
+                    case 8: return [3 /*break*/, 10];
+                    case 9:
+                        error_3 = _a.sent();
+                        console.error("EngageFirestoreBase.save(" + (newDoc || {}).$id + "):", error_3, newDoc);
+                        return [3 /*break*/, 10];
+                    case 10:
                         doc.$loading = false;
                         return [2 /*return*/, doc];
                 }
@@ -715,7 +727,7 @@ var EngageFirestoreBase = /** @class */ (function () {
     };
     EngageFirestoreBase.prototype.deleteQueryBatch = function (db, query, batchSize, resolve, reject) {
         return __awaiter(this, void 0, void 0, function () {
-            var numDeleted, snapshot, batch_1, error_3;
+            var numDeleted, snapshot, batch_1, error_4;
             var _this = this;
             return __generator(this, function (_a) {
                 switch (_a.label) {
@@ -750,8 +762,8 @@ var EngageFirestoreBase = /** @class */ (function () {
                         });
                         return [3 /*break*/, 6];
                     case 5:
-                        error_3 = _a.sent();
-                        reject(error_3);
+                        error_4 = _a.sent();
+                        reject(error_4);
                         return [3 /*break*/, 6];
                     case 6: return [2 /*return*/];
                 }
@@ -1001,7 +1013,7 @@ var EngageFirestoreBase = /** @class */ (function () {
                         desertRef = EngageFirestoreBase.ENGAGE_FIRE(EngageFirestoreBase.FIRE_OPTIONS).storage.child(doc.$imageMeta.storagePath);
                         return [4 /*yield*/, desertRef.delete().then(function () {
                                 doc.$image = null;
-                                doc.$thumbnail = null;
+                                doc.$thumb = null;
                                 doc.$imageOrginal = null;
                                 doc.$imageMeta = null;
                             })];
@@ -1054,6 +1066,7 @@ var EngageFirestoreBase = /** @class */ (function () {
         EngageFirestoreBase.DOC = docWrapper;
     };
     EngageFirestoreBase.getInstance = function (path, options) {
+        console.log('Firestore Path: ', path);
         if (!EngageFirestoreBase.instances[path]) {
             EngageFirestoreBase.instances[path] = new EngageFirestoreBase(path);
         }
@@ -1127,6 +1140,12 @@ var EngageFirestoreBase = /** @class */ (function () {
                 }
             });
         });
+    };
+    /*
+      DATETIME
+    */
+    EngageFirestoreBase.getTimezoneOffset = function () {
+        return new Date().getTimezoneOffset();
     };
     Object.defineProperty(EngageFirestoreBase, "__DOC__", {
         /*

@@ -22,12 +22,23 @@ var doc_1 = require("../doc/doc");
  * */
 var EngageFirestore = /** @class */ (function (_super) {
     __extends(EngageFirestore, _super);
+    // private static instanceFunctions: any = {};
     function EngageFirestore(path) {
         var _this = _super.call(this, path) || this;
         _this.path = path;
         return _this;
     }
     Object.defineProperty(EngageFirestore, "__DOC__", {
+        // static getInstance(path, options?) {
+        //     console.log('Firestore Path: ', path);
+        //     if (!EngageFirestore.instanceFunctions[path]) {
+        //         EngageFirestore.instanceFunctions[path] = new EngageFirestoreBase(path);
+        //     }
+        //     if (options) {
+        //         return EngageFirestore.instanceFunctions[path].options(options);
+        //     }
+        //     return EngageFirestore.instanceFunctions[path];
+        // }
         /*
         * STATIC SETUP
         * */
@@ -67,7 +78,7 @@ var EngageFirestore = /** @class */ (function (_super) {
 }(firestore_base_1.default));
 exports.default = EngageFirestore;
 EngageFirestore.__DOC__ = doc_1.default;
-EngageFirestore.__ENGAGE_FIRE__ = engagefire_functions_1.EngagefireFunctions;
+EngageFirestore.__ENGAGE_FIRE__ = engagefire_functions_1.engageFireInit;
 // export EngageFirestore
 exports.engageFirestore = function (path, options) { return EngageFirestore.getInstance(path, options); };
 //# sourceMappingURL=firestore.functions.js.map

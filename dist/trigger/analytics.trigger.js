@@ -61,50 +61,62 @@ var EngageAnalyticsTrigger = /** @class */ (function () {
         });
     };
     EngageAnalyticsTrigger.prototype.updateDestinations = function (data) {
-        this.engine.triggerUpdate(this.models, data);
+        return this.engine.triggerUpdate(this.models, data);
     };
-    EngageAnalyticsTrigger.prototype.restore = function (date) {
+    EngageAnalyticsTrigger.prototype.restore = function (date, triggerData) {
         // get all docs up until date
-        var engine = new analytics_1.EngageAnalytics(this.trigger);
+        var engine = analytics_1.EngageAnalytics.restore(this.models, triggerData, date);
     };
     EngageAnalyticsTrigger.prototype.onWrite = function (data) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                if (data && data.previousData) {
-                    data.action = 'update';
+                switch (_a.label) {
+                    case 0:
+                        if (data && data.previousData) {
+                            data.action = 'update';
+                        }
+                        else {
+                            data.action = 'create';
+                        }
+                        return [4 /*yield*/, this.updateDestinations(data)];
+                    case 1: return [2 /*return*/, _a.sent()];
                 }
-                else {
-                    data.action = 'create';
-                }
-                this.updateDestinations(data);
-                return [2 /*return*/];
             });
         });
     };
     EngageAnalyticsTrigger.prototype.onCreate = function (data) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                data.action = 'create';
-                this.updateDestinations(data);
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0:
+                        data.action = 'create';
+                        return [4 /*yield*/, this.updateDestinations(data)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
             });
         });
     };
     EngageAnalyticsTrigger.prototype.onUpdate = function (data) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                data.action = 'update';
-                this.updateDestinations(data);
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0:
+                        data.action = 'update';
+                        return [4 /*yield*/, this.updateDestinations(data)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
             });
         });
     };
     EngageAnalyticsTrigger.prototype.onDelete = function (data) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                data.action = 'remove';
-                this.updateDestinations(data);
-                return [2 /*return*/];
+                switch (_a.label) {
+                    case 0:
+                        data.action = 'remove';
+                        return [4 /*yield*/, this.updateDestinations(data)];
+                    case 1: return [2 /*return*/, _a.sent()];
+                }
             });
         });
     };

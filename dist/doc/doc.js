@@ -419,6 +419,10 @@ var EngageFireDoc = /** @class */ (function () {
             .filter(function (item) { return item !== ''; });
     };
     /*  */
+    EngageFireDoc.prototype.$getPath = function () {
+        return (this.$path || '').split('/');
+    };
+    /*  */
     EngageFireDoc.prototype.$$getSortedParentList = function () {
         return this.$engageFireStore.sortListByPosition().list;
     };

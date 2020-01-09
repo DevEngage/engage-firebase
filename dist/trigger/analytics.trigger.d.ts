@@ -9,8 +9,8 @@ export declare class EngageAnalyticsTrigger {
     engine: EngageAnalytics;
     constructor(trigger: any, models?: IEngageAnalyticModel[]);
     private init;
-    updateDestinations(data: IEngageTriggerData): void;
-    restore(date: number): void;
+    updateDestinations(data: IEngageTriggerData): Promise<void>;
+    restore(date: number | string, triggerData: any): void;
     onWrite(data: IEngageTriggerData): Promise<void>;
     onCreate(data: IEngageTriggerData): Promise<void>;
     onUpdate(data: IEngageTriggerData): Promise<void>;

@@ -7,6 +7,7 @@ export default class EngageFireDoc {
     $loading: boolean;
     $id?: string;
     $collection: string;
+    $collectionRef: any;
     $collections: any;
     $collectionsList: string[];
     $omitList: string[];
@@ -50,6 +51,7 @@ export default class EngageFireDoc {
     $getRelations(): string[];
     $addReference(ref: any, name: string, save?: boolean): void;
     $getReferences(): string[];
+    $getPath(): string[];
     $$getSortedParentList(): any;
     $$updateDoc(doc?: this): any;
     $$difference(object: any, base: any): {

@@ -19,6 +19,7 @@ export interface IEngageAnalyticDataset {
 }
 export interface IEngageAnalyticGroup {
     field: string;
+    fieldValue: string;
     filter?: any;
     action?: AnalyticAction;
     type?: 'int' | 'double';

@@ -1,18 +1,19 @@
 import EngageTrigger from "./trigger/trigger";
 import { EngageAnalytics } from "./analytics/analytics";
 import { AlgoliaExport } from "./algolia/algolia.export";
-import { IEngageFirebase, IEngageFirebaseObject, IEngageImage, IEngageFirebaseCollection, IEngageFirebaseDoc, IEngageModel, EngageFireDoc } from ".";
+import {  EngageDoc } from "./v2";
+// IEngageFirebase, IEngageFirebaseObject, IEngageImage, IEngageFirebaseCollection, IEngageFirebaseDoc, IEngageModel,
 import EngageFirestore, { engageFirestore } from "./firestore/firestore.functions";
 import { EngageAnalyticsTrigger } from "./trigger/analytics.trigger";
 import { IEngageTriggerData } from "./interfaces/trigger.interfaces";
 
-EngageAnalytics.DOC = EngageFireDoc;
+EngageAnalytics.DOC = EngageDoc;
 EngageAnalytics.STORE = EngageFirestore;
 EngageAnalyticsTrigger.STORE = EngageFirestore;
-EngageAnalyticsTrigger.DOC = EngageFireDoc;
+EngageAnalyticsTrigger.DOC = EngageDoc;
 
 const firestore = engageFirestore;
-const Doc = EngageFireDoc;
+const Doc = EngageDoc;
 
 
 
@@ -22,17 +23,17 @@ export {
     firestore,
     Doc,
     EngageFirestore,
-    EngageFireDoc,
+    EngageDoc,
     EngageTrigger,
     EngageAnalytics,
     AlgoliaExport,
     EngageAnalyticsTrigger,
     // Interfaces
-    IEngageFirebase,
-    IEngageFirebaseObject,
-    IEngageImage,
-    IEngageFirebaseCollection,
-    IEngageFirebaseDoc,
-    IEngageModel,
+    // IEngageFirebase,
+    // IEngageFirebaseObject,
+    // IEngageImage,
+    // IEngageFirebaseCollection,
+    // IEngageFirebaseDoc,
+    // IEngageModel,
     IEngageTriggerData,
 }

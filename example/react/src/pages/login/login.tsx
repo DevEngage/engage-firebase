@@ -6,6 +6,8 @@ import Logo from '../../assets/images/logo_600.png'
 import {IonIcon, IonImg, IonButton, IonList, IonItem, IonLabel, IonInput, IonText, IonRow, IonCol} from "@ionic/react"
 import {person} from "ionicons/icons"
 
+import {EngageAuth} from '@dev-engage/firebase';
+
 const LoginPage = () => {
 
     const [email, setEmail] = useState('');
@@ -18,6 +20,8 @@ const LoginPage = () => {
     const [emailError, setEmailError] = useState(false);
     const [passwordError, setPasswordError] = useState(false);
     const [confirmPasswordError, setConfirmPasswordError] = useState(false);
+
+
 
     useEffect(() => {
         setFormState('login');
@@ -67,6 +71,7 @@ const LoginPage = () => {
         if (email && password) {
             // await setIsLoggedIn(true);
             // await setUsernameAction(username);
+            new EngageAuth().login(email, password);
             // history.push('/tabs/schedule', { direction: 'none' });
         }
     };

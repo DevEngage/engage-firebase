@@ -1,0 +1,11 @@
+import EngageFirestore, { engageFirestore } from "./firestore";
+import EngageDoc from "./doc";
+import { EngageAnalytics } from "./analytics";
+import { EngageAlgolia } from "./algolia";
+import EngageImage from "./image";
+import EngageAuth from "./auth";
+import EngageFile from "./file";
+declare const firestore: (path: any, options?: any) => EngageFirestore;
+declare const Doc: typeof EngageDoc;
+export default engageFirestore;
+export { firestore, EngageFirestore, Doc, EngageDoc, EngageAlgolia, EngageImage, EngageAnalytics, EngageAuth, EngageFile, };

@@ -35,15 +35,12 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
     }
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-// import * as firebase from 'firebase/app';
-// import 'firebase/auth';
-// import 'firebase/storage';
-// import 'firebase/firestore';
-var admin = require('firebase-admin');
-var functions = require('firebase-functions');
+var admin = require("firebase-admin");
+var functions = require("firebase-functions");
 var EngagefireFunctions = /** @class */ (function () {
     function EngagefireFunctions() {
         this.initialized = false;
+        this.isAsync = false;
         this.init();
     }
     EngagefireFunctions.prototype.init = function () {
@@ -52,16 +49,21 @@ var EngagefireFunctions = /** @class */ (function () {
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
-                        admin.initializeApp(functions.config().firebase);
+                        if (functions.config() && functions.config().firebase) {
+                            admin.initializeApp(functions.config().firebase);
+                        }
+                        else {
+                            admin.initializeApp();
+                        }
                         // this.firebase
                         this.firestore = admin.firestore();
                         this.initialized = true;
-                        console.log('INITIALIZING ENGAGE FIREBASE');
                         this.auth = admin.auth();
                         _a = this;
                         return [4 /*yield*/, this.auth.currentUser];
                     case 1:
                         _a.user = _b.sent();
+                        console.log('INITIALIZING ENGAGE FIREBASE');
                         return [2 /*return*/];
                 }
             });

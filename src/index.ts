@@ -4,6 +4,7 @@ import { EngageAnalytics } from "./v2/analytics";
 import { EngageAlgolia } from "./v2/algolia";
 import EngageImage from "./v2/image";
 import EngageFire from "./v2/engagefire";
+import { EngageAuth, EngageFile } from "./v2";
 
 
 EngageAnalytics.DOC = EngageDoc;
@@ -28,6 +29,8 @@ export {
     EngageAlgolia,
     EngageImage,
     EngageAnalytics,
+    EngageAuth,
+    EngageFile,
     // // Interfaces // //
     // IEngageFirebase,
     // IEngageFirebaseObject,

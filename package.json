@@ -1,6 +1,6 @@
 {
   "name": "@dev-engage/firebase",
-  "version": "0.7.4",
+  "version": "0.7.6",
   "private": false,
   "engines": {
     "node": "10"
@@ -16,10 +16,10 @@
   },
   "dependencies": {
     "algoliasearch": "^3.33.0",
-    "firebase": "^6.3.1",
+    "firebase": "^7.6.1",
     "lodash": "^4.17.15",
-    "firebase-admin": "^8.3.0",
-    "firebase-functions": "3.2.0"
+    "firebase-admin": "^8.9.0",
+    "firebase-functions": "3.3.0"
   },
   "devDependencies": {
     "@types/algoliasearch": "^3.30.16",
@@ -31,7 +31,6 @@
     "firebase-functions-test": "^0.1.6",
     "jest": "^24.9.0",
     "mocha": "^6.2.0",
-    "react-app-rewired": "^2.1.5",
     "ts-jest": "^23.10.5",
     "typescript": "^3.5.3"
   }
