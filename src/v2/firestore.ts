@@ -371,11 +371,8 @@ export class EngageFirestoreBase {
     }
 
     addFire(obj: any, id: any) {
-        if (_.isObject(EngageDoc)) {
-            obj.$id = id;
-            return new (<any>EngageDoc)(obj, this.path, this.subCollections);
-        }
-        return obj;
+        obj.$id = id;
+        return new EngageDoc(obj, this.path, this.subCollections);
     }
 
     omitFireList(list: any) {

@@ -19,8 +19,9 @@ const Dashboard = ({history}) => {
 
     const engageAuth = new EngageAuth();
 
+
     const instance = EngageFirestore.getInstance('users/userId/otherCollection');
-    instance.get('id');
+    console.log(instance);
 
     const logout = async () => {
         await engageAuth.logout();
