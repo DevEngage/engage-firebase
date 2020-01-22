@@ -1,4 +1,5 @@
 import { IEngageModel } from '../model/model';
+import EngageDoc from './doc';
 export declare class EngageFirestoreBase {
     path: string;
     static STATE: any;
@@ -59,15 +60,15 @@ export declare class EngageFirestoreBase {
         defaultData: any;
         filter: any;
     }): Promise<T>;
-    add(newDoc: any, ref?: any): Promise<any>;
-    set(newDoc: any, docRef: any): Promise<any>;
-    setWithId(id: string | undefined, newDoc: any): Promise<any>;
-    update(doc: any, ref?: any): Promise<any>;
+    add(newDoc: any, ref?: any): Promise<EngageDoc>;
+    set(newDoc: any, docRef: any): Promise<EngageDoc>;
+    setWithId(id: string | undefined, newDoc: any): Promise<EngageDoc>;
+    update(doc: any, ref?: any): Promise<EngageDoc>;
     save(newDoc: any, ref?: any): Promise<any>;
     saveWithId(id: string | undefined, newDoc: any): Promise<any>;
     remove(id: string | undefined, ref?: any): any;
     addFireList(collection: any): any;
-    addFire(obj: any, id: any): any;
+    addFire(obj: any, id: any): EngageDoc;
     omitFireList(list: any): any;
     omitFire(payload: any): any;
     getFirebaseProjectId(): any;

@@ -592,11 +592,8 @@ var EngageFirestoreBase = /** @class */ (function () {
         return list;
     };
     EngageFirestoreBase.prototype.addFire = function (obj, id) {
-        if (_.isObject(doc_1.default)) {
-            obj.$id = id;
-            return new doc_1.default(obj, this.path, this.subCollections);
-        }
-        return obj;
+        obj.$id = id;
+        return new doc_1.default(obj, this.path, this.subCollections);
     };
     EngageFirestoreBase.prototype.omitFireList = function (list) {
         var _this = this;
