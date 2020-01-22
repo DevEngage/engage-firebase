@@ -1,6 +1,6 @@
 import { IonContent, IonHeader, IonPage, IonTitle, IonToolbar, IonButton, IonFab, IonFabButton, IonIcon, IonList, IonItem } from '@ionic/react';
 import React, {useContext, useEffect} from 'react';
-import { EngageAuth } from '@dev-engage/firebase';
+import engageFirestore, { EngageAuth, EngageFirestore } from '@dev-engage/firebase';
 import EngageFireContext from "../../react/context";
 
 const Dashboard = ({history}) => {
@@ -18,6 +18,9 @@ const Dashboard = ({history}) => {
     }, [isLoggedIn, hasLoaded, testList]);
 
     const engageAuth = new EngageAuth();
+
+    const instance = EngageFirestore.getInstance('users/userId/otherCollection');
+    instance.get('id');
 
     const logout = async () => {
         await engageAuth.logout();
