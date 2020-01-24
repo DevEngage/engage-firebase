@@ -250,8 +250,7 @@ var EngageFirestoreBase = /** @class */ (function () {
     EngageFirestoreBase.prototype.getList = function (_a) {
         var _b = _a.listRef, listRef = _b === void 0 ? this.ref : _b, _c = _a.filter, filter = _c === void 0 ? undefined : _c, _d = _a.limit, limit = _d === void 0 ? undefined : _d;
         return __awaiter(this, void 0, void 0, function () {
-            var userId, query, list;
-            var _this = this;
+            var userId, key, query, list;
             return __generator(this, function (_e) {
                 switch (_e.label) {
                     case 0:
@@ -263,7 +262,10 @@ var EngageFirestoreBase = /** @class */ (function () {
                         return [4 /*yield*/, auth_1.default.currentUserId()];
                     case 2:
                         userId = _e.sent();
-                        filter.forEach(function (key, value) { return filter[key] = _this.getStringVar(value, userId); });
+                        for (key in filter) {
+                            filter[key] = this.getStringVar(filter[key], userId);
+                        }
+                        ;
                         _e.label = 3;
                     case 3:
                         query = listRef || this.ref;

@@ -186,7 +186,7 @@ export class EngageFirestoreBase {
         await EngageFire.ready();
         if (filter != null) {
             var userId = await EngageAuth.currentUserId();
-            filter.forEach((key, value) => filter[key] = this.getStringVar(value, userId));
+            for (const key in filter) {filter[key] = this.getStringVar(filter[key], userId)};
         }
         let query = listRef || this.ref;
         if (filter != null) {

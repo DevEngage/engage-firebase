@@ -14,8 +14,9 @@ export default class EngageQuery {
     field.isEqualTo: 1
     */
     buildQuery(filter, customRef) {
-        filter.forEach((key, value) => {
+        for (const key in filter) {
             let keys = key.split('.');
+            let value = filter[key];
             let field = keys[0];
             let type = keys[1];
             switch (type) {
@@ -47,7 +48,7 @@ export default class EngageQuery {
                     customRef = customRef.where(field, 'array-contains', value);
                     break;
             }
-        });
+        };
         return customRef;
     }
 
