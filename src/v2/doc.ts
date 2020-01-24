@@ -1,5 +1,6 @@
 import EngageFire from './engagefire';
 import * as _ from 'lodash';
+import EngageFile from './file';
 
 declare let confirm: any;
 
@@ -90,12 +91,12 @@ export default class EngageDoc {
 
     async $addFiles(elements?: never[] | undefined, inputId?: string | undefined) {
         this.$$updateDoc();
-        return await this.$engageFireStore.uploadFiles(this, elements, inputId);
+        return await new EngageFile().uploadFiles(this, elements, inputId);
     }
 
     async $setImage(options?: { width: string; height: string; thumbnail: { width: string; height: string; }; } | undefined, inputId?: any, file?: any) {
         this.$$updateDoc();
-        return await this.$engageFireStore.uploadImage(this, inputId, file);
+        return await new EngageFile().uploadImage(this, inputId, file);
     }
 
     async $removeImage() {
@@ -121,7 +122,7 @@ export default class EngageDoc {
 
     async $downloadFile(fileId: any) {
         const fileDoc: any = (await this.$getSubCollection('$files')).get(fileId);
-        return await this.$engageFireStore.downloadFile(fileDoc.url);
+        return await new EngageFile().downloadFile(fileDoc.url);
     }
 
     async $remove(showConfirm = false) {

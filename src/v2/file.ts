@@ -75,29 +75,29 @@ export default class EngageFile {
             const { state, metadata } = uploadTask.snapshot;
             const { name, size } = metadata;
 
-            if (doc) {
+            if (doc && doc.$doc) {
                 const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
-                if (doc.$image === undefined) {
+                if (doc.$doc.$image === undefined) {
                     delete doc.$image;
                 }
                 if (downloadURL) {
                     if (!fileName) {
-                        doc.$thumb = downloadURL;
+                        doc.$doc.$thumb = downloadURL;
                         await doc.$save();
                         return;
                     }
-                    doc.$image = downloadURL;
+                    doc.$doc.$image = downloadURL;
                 }
                 // doc.$thumbnail = snapshot.downloadURL;
-                doc.$imageMeta = {
+                doc.$doc.$imageMeta = {
                     name,
                     storagePath: doc.$path + '$image' + name,
                     original: downloadURL,
                     state,
                     size,
                 };
-                if (doc.$imageMeta && doc.$imageMeta.original === undefined) {
-                    delete doc.$imageMeta.original;
+                if (doc.$doc.$imageMeta && doc.$doc.$imageMeta.original === undefined) {
+                    delete doc.$doc.$imageMeta.original;
                 }
                 await doc.$save();
             }
