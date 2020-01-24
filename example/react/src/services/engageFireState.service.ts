@@ -1,22 +1,15 @@
 import { useEffect, useState } from "react"
-import { EngageAuth, EngageFirestore } from '@dev-engage/firebase';
+import {EngageAuth} from "@dev-engage/firebase";
 
-function EngageFireState(collections: any) {
+function EngageFireState() {
     const engageAuth = new EngageAuth();
-    let built: any = {};
-    for(const key in collections) {
-        if (collections.hasOwnProperty(key)) {
-            const element = collections[key];
-            built[key] = EngageFirestore.getInstance(element);
-        }
-    }
 
     const [user, setUser] = useState(null);
     const [hasLoaded, sethasLoaded] = useState(false)
     const [isLoggedIn, setIsLoggedIn] = useState(false)
 
-    const watchUser = (userData: any) => {
-        console.log('userData', userData);
+    const watchUser = (userData) => {
+        // console.log('userData', userData);
         setUser(userData);
         if (userData && userData.uid) {setIsLoggedIn(true)}
         else setIsLoggedIn(false);
@@ -25,10 +18,10 @@ function EngageFireState(collections: any) {
     engageAuth.watchUser(watchUser);
 
     useEffect(() => {
-        console.log('user', user);
+        // console.log('user', user);
     }, [user]);
 
-    return { user, isLoggedIn, hasLoaded, ...built }
+    return { user, isLoggedIn, hasLoaded }
 }
 
 export default EngageFireState

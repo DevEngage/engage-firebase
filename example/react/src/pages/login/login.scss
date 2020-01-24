@@ -1,64 +1,66 @@
-.login-page-wrapper {
-  display: flex;
-  position: fixed;
-  min-height: 100%;
-  width: 100%;
-  justify-content: center;
-  align-items: center;
-  left: 0;
-  top: 0;
-  background: url('../../assets/images/1932013_.jpg') rgba(32, 39, 53, 0.75);
-  background-size: cover;
-  background-blend-mode: multiply;
-}
+.login-page {
+  .login-page-wrapper {
+    display: flex;
+    position: fixed;
+    min-height: 100%;
+    width: 100%;
+    justify-content: center;
+    align-items: center;
+    left: 0;
+    top: 0;
+    background: url('../../assets/images/1932013_.jpg') rgba(32, 39, 53, 0.75);
+    background-size: cover;
+    background-blend-mode: multiply;
+  }
 
-.login-card-header {
-  background: linear-gradient(78.87deg, #8256FF 2.7%, #633DCF 97.3%);
-  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.14), 0px 7px 10px rgba(130, 86, 255, 0.5);
-  border-radius: 3px;
-  width: 90%;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: -100px;
-  margin-bottom: 25px;
+  .login-card-header {
+    background: linear-gradient(78.87deg, #8256FF 2.7%, #633DCF 97.3%);
+    box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.14), 0px 7px 10px rgba(130, 86, 255, 0.5);
+    border-radius: 3px;
+    width: 90%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: -100px;
+    margin-bottom: 25px;
 
-  ion-item {
-    --background: transparent;
-    color: white;
-    padding: 8px;
-
-    ion-label {
-      text-align: center;
-      font-size: 1.5rem !important;
-      line-height: 2rem;
-    }
-
-    ion-icon {
+    ion-item {
+      --background: transparent;
       color: white;
-      padding-right: 8px;
+      padding: 8px;
+
+      ion-label {
+        text-align: center;
+        font-size: 1.5rem !important;
+        line-height: 2rem;
+      }
+
+      ion-icon {
+        color: white;
+        padding-right: 8px;
+      }
     }
   }
-}
 
-.login-card {
-  background: #FFFFFF;
-  box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.14);
-  border-radius: 6px;
-  padding: 50px 25px 25px 25px;
-  margin-bottom: 40px;
-}
+  .login-card {
+    background: #FFFFFF;
+    box-shadow: 0px 1px 4px rgba(0, 0, 0, 0.14);
+    border-radius: 6px;
+    padding: 50px 25px 25px 25px;
+    margin-bottom: 40px;
+  }
 
-.login-image-logo {
-  max-width: 45%;
-  margin-left: auto;
-  margin-right: auto;
-  margin-bottom: 40px;
-  margin-top: 40px;
-}
+  .login-image-logo {
+    max-width: 45%;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 40px;
+    margin-top: 40px;
+  }
 
-.login-submit-button {
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 25px;
-  margin-bottom: 25px;
+  .login-submit-button {
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 25px;
+    margin-bottom: 25px;
+  }
 }

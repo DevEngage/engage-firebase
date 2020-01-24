@@ -1,0 +1,46 @@
+.dashboard {
+  .top-buttons {
+    color: var(--ion-color-tertiary);
+    max-width: 1200px;
+    margin-left: auto;
+    margin-right: auto;
+    margin-bottom: 25px;
+    margin-top: 15px;
+  }
+  .top-left-button {
+    margin-left: auto;
+  }
+  .bottom-bar {
+    color: white;
+    //position: fixed;
+    //bottom: 40px;
+    height: 150px;
+    width: 100%;
+    background: #343A47;
+
+    .bottom-bar-wrapper {
+      height: 100%;
+      width: 100%;
+      text-align: center;
+      //display: flex;
+      //align-items: center;
+      //justify-content: center;
+      //background: linear-gradient(0deg, rgba(130, 86, 255, 0.7) 0%, rgba(130, 86, 255, 0) 100%);
+      background: linear-gradient(0deg, rgba(130, 86, 255, 0) 0%, rgba(130, 86, 255, 0.7) 39.58%, rgba(130, 86, 255, 0) 100%);
+
+    }
+    .bottom-bar-text {
+      color: var(--ion-color-gray);
+      font-size: 1.5em;
+      padding-top: 50px;
+    }
+    .badge-logo-wrapper {
+      display: flex;
+      justify-content: center;
+    }
+    .badge-logo {
+      width: 150px;
+      margin-left: 25px;
+    }
+  }
+}

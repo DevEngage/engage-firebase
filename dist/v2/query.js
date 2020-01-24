@@ -14,8 +14,9 @@ var EngageQuery = /** @class */ (function () {
     field.isEqualTo: 1
     */
     EngageQuery.prototype.buildQuery = function (filter, customRef) {
-        filter.forEach(function (key, value) {
+        for (var key in filter) {
             var keys = key.split('.');
+            var value = filter[key];
             var field = keys[0];
             var type = keys[1];
             switch (type) {
@@ -47,7 +48,8 @@ var EngageQuery = /** @class */ (function () {
                     customRef = customRef.where(field, 'array-contains', value);
                     break;
             }
-        });
+        }
+        ;
         return customRef;
     };
     EngageQuery.prototype.getFilterDefaults = function (defaults, filter, defaultValue) {

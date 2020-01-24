@@ -2,10 +2,10 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './App';
 import * as serviceWorker from './serviceWorker';
-import {EngageFire} from '@dev-engage/firebase';
+import {EngageFire} from "@dev-engage/firebase";
+// import {EngageFire} from "@dev-engage/firebase";
 
-
-EngageFire.getInstance({
+const config = {
     apiKey: "AIzaSyB0BO2DsW8udknAh0sfpvqNBHvU1vt-CY8",
     authDomain: "engage-firebase.firebaseapp.com",
     databaseURL: "https://engage-firebase.firebaseio.com",
@@ -14,7 +14,9 @@ EngageFire.getInstance({
     messagingSenderId: "255779484097",
     appId: "1:255779484097:web:772938aa5d153400",
     measurementId: "G-01FNLY3HB7"
-});
+};
+
+EngageFire.getInstance(config);
 
 ReactDOM.render(<App />, document.getElementById('root'));
 
