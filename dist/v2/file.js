@@ -123,34 +123,34 @@ var EngageFile = /** @class */ (function () {
                     case 0:
                         _a = uploadTask.snapshot, state = _a.state, metadata = _a.metadata;
                         name = metadata.name, size = metadata.size;
-                        if (!doc) return [3 /*break*/, 6];
+                        if (!(doc && doc.$doc)) return [3 /*break*/, 6];
                         return [4 /*yield*/, uploadTask.snapshot.ref.getDownloadURL()];
                     case 1:
                         downloadURL = _b.sent();
-                        if (doc.$image === undefined) {
+                        if (doc.$doc.$image === undefined) {
                             delete doc.$image;
                         }
                         if (!downloadURL) return [3 /*break*/, 4];
                         if (!!fileName) return [3 /*break*/, 3];
-                        doc.$thumb = downloadURL;
+                        doc.$doc.$thumb = downloadURL;
                         return [4 /*yield*/, doc.$save()];
                     case 2:
                         _b.sent();
                         return [2 /*return*/];
                     case 3:
-                        doc.$image = downloadURL;
+                        doc.$doc.$image = downloadURL;
                         _b.label = 4;
                     case 4:
                         // doc.$thumbnail = snapshot.downloadURL;
-                        doc.$imageMeta = {
+                        doc.$doc.$imageMeta = {
                             name: name,
                             storagePath: doc.$path + '$image' + name,
                             original: downloadURL,
                             state: state,
                             size: size,
                         };
-                        if (doc.$imageMeta && doc.$imageMeta.original === undefined) {
-                            delete doc.$imageMeta.original;
+                        if (doc.$doc.$imageMeta && doc.$doc.$imageMeta.original === undefined) {
+                            delete doc.$doc.$imageMeta.original;
                         }
                         return [4 /*yield*/, doc.$save()];
                     case 5:

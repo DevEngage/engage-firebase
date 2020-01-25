@@ -22,7 +22,7 @@ export default class EngageDoc {
     $get(): Promise<any>;
     $attachOwner(): Promise<any>;
     $isOwner(userId?: any): Promise<boolean>;
-    $addFiles(elements?: never[] | undefined, inputId?: string | undefined): Promise<any>;
+    $addFiles(elements?: never[] | undefined, inputId?: string | undefined): Promise<any[]>;
     $setImage(options?: {
         width: string;
         height: string;
@@ -30,12 +30,12 @@ export default class EngageDoc {
             width: string;
             height: string;
         };
-    } | undefined, inputId?: any, file?: any): Promise<any>;
+    } | undefined, inputId?: any, file?: any): Promise<unknown>;
     $removeImage(): Promise<any>;
     $removeFile(fileId: any): Promise<any>;
     $getFiles(): Promise<any>;
     $getFile(fileId: any): Promise<any>;
-    $downloadFile(fileId: any): Promise<any>;
+    $downloadFile(fileId: any): Promise<unknown>;
     $remove(showConfirm?: boolean): Promise<any>;
     $getSubCollection(collection: string, db?: any): Promise<any>;
     $watch(cb: any): Promise<any>;

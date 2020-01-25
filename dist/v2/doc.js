@@ -48,6 +48,7 @@ var __generator = (this && this.__generator) || function (thisArg, body) {
 Object.defineProperty(exports, "__esModule", { value: true });
 var engagefire_1 = require("./engagefire");
 var _ = require("lodash");
+var file_1 = require("./file");
 var EngageDoc = /** @class */ (function () {
     function EngageDoc(data, collection, collections) {
         if (collections === void 0) { collections = []; }
@@ -169,7 +170,7 @@ var EngageDoc = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         this.$$updateDoc();
-                        return [4 /*yield*/, this.$engageFireStore.uploadFiles(this, elements, inputId)];
+                        return [4 /*yield*/, new file_1.default().uploadFiles(this, elements, inputId)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -181,7 +182,7 @@ var EngageDoc = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         this.$$updateDoc();
-                        return [4 /*yield*/, this.$engageFireStore.uploadImage(this, inputId, file)];
+                        return [4 /*yield*/, new file_1.default().uploadImage(this, inputId, file)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
             });
@@ -246,7 +247,7 @@ var EngageDoc = /** @class */ (function () {
                     case 0: return [4 /*yield*/, this.$getSubCollection('$files')];
                     case 1:
                         fileDoc = (_a.sent()).get(fileId);
-                        return [4 /*yield*/, this.$engageFireStore.downloadFile(fileDoc.url)];
+                        return [4 /*yield*/, new file_1.default().downloadFile(fileDoc.url)];
                     case 2: return [2 /*return*/, _a.sent()];
                 }
             });
