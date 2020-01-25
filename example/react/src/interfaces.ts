@@ -8,6 +8,33 @@ export interface IGroup {
     admins?: string[];
 }
 
+// groups/id/programs
+export interface IGroupProgram {
+    name?: string;
+    $id?: string;
+    $collection?: string;
+    $ref?: string; // firebase ref
+    $updatedAt?: string;
+    $createdAt?: string;
+
+    $owner?: string;
+    $image?: string;
+    $thumb?: string;
+}
+
+// programs/id
+export interface IProgram {
+    $id?: string;
+    name?: string;
+    company?: string;
+    groupId?: string; // if group made
+    userId?: string; // if user made
+    tags?: string[];
+    price?: number;
+    description?: string;
+    isPersonal?: boolean;
+}
+
 // groups/id/workouts
 export interface IEngageRef {
     name?: string;

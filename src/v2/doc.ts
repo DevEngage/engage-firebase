@@ -95,7 +95,9 @@ export default class EngageDoc {
     }
 
     async $setImage(options?: { width: string; height: string; thumbnail: { width: string; height: string; }; } | undefined, inputId?: any, file?: any) {
+        console.log('hit setImage');
         this.$$updateDoc();
+        console.log('passed update');
         return await new EngageFile().uploadImage(this, inputId, file);
     }
 
@@ -251,6 +253,7 @@ export default class EngageDoc {
     }
 
     $$updateDoc(doc = this) {
+        console.log('doc', doc);
         this.$doc = this.$engageFireStore.omitFire(_.cloneDeep(doc));
         return this.$doc;
     }

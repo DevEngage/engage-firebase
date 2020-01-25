@@ -606,6 +606,7 @@ var EngageFirestoreBase = /** @class */ (function () {
     };
     EngageFirestoreBase.prototype.omitFire = function (payload) {
         var _this = this;
+        console.log('payload', payload);
         if (payload && payload.$omitList) {
             payload = _.omit(payload, payload.$omitList);
         }

@@ -383,6 +383,7 @@ export class EngageFirestoreBase {
     }
 
     omitFire(payload: any) {
+        console.log('payload', payload);
         if (payload && payload.$omitList) {
             payload = _.omit(payload, payload.$omitList);
         }

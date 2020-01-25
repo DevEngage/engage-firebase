@@ -31,6 +31,7 @@ import '@ionic/react/css/display.css';
 /* Theme variables */
 import './theme/variables.scss';
 import './theme/global.scss';
+import ProgramAdd from "./pages/programAdd/ProgramAdd";
 
 
 const App = () => {
@@ -45,6 +46,8 @@ const App = () => {
                         <IonRouterOutlet>
                             <ProtectedRoute path='/dashboard' component={Dashboard} />
                             <ProtectedRoute path='/addgroup' component={GroupAdd} />
+                            <ProtectedRoute path='/addprogram' component={ProgramAdd} />
+                            <ProtectedRoute path='/addprogram/:programId' component={ProgramAdd} />
                             <ProtectedRoute path="/login" component={Login} exact={true} showWhenLoggedIn={false} redirect={'/dashboard'}/>
                             <Route exact={true} path="/" render={() => <Redirect to="/dashboard"/>}/>
                         </IonRouterOutlet>
