@@ -446,7 +446,7 @@ var EngageDoc = /** @class */ (function () {
     EngageDoc.prototype.$$updateDoc = function (doc) {
         if (doc === void 0) { doc = this; }
         console.log('doc', doc);
-        this.$doc = this.$engageFireStore.omitFire(_.cloneDeep(doc));
+        // this.$doc = this.$engageFireStore.omitFire(_.cloneDeep(doc));
         return this.$doc;
     };
     EngageDoc.prototype.$$difference = function (object, base) {

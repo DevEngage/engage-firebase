@@ -254,7 +254,7 @@ export default class EngageDoc {
 
     $$updateDoc(doc = this) {
         console.log('doc', doc);
-        this.$doc = this.$engageFireStore.omitFire(_.cloneDeep(doc));
+        // this.$doc = this.$engageFireStore.omitFire(_.cloneDeep(doc));
         return this.$doc;
     }
 
