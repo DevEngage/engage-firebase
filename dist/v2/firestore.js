@@ -606,7 +606,6 @@ var EngageFirestoreBase = /** @class */ (function () {
     };
     EngageFirestoreBase.prototype.omitFire = function (payload) {
         var _this = this;
-        console.log('payload', payload);
         if (payload && payload.$omitList) {
             payload = _.omit(payload, payload.$omitList);
         }
@@ -1079,7 +1078,7 @@ var EngageFirestoreBase = /** @class */ (function () {
         return index.search(query, filters, debug);
     };
     EngageFirestoreBase.getInstance = function (path, options) {
-        console.log('Firestore Path: ', path);
+        // console.log('Firestore Path: ', path);
         if (!EngageFirestoreBase.instances[path]) {
             EngageFirestoreBase.instances[path] = new EngageFirestoreBase(path);
         }

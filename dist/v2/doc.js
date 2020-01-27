@@ -181,9 +181,7 @@ var EngageDoc = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        console.log('hit setImage');
                         this.$$updateDoc();
-                        console.log('passed update');
                         return [4 /*yield*/, new file_1.default().uploadImage(this, inputId, file)];
                     case 1: return [2 /*return*/, _a.sent()];
                 }
@@ -445,7 +443,6 @@ var EngageDoc = /** @class */ (function () {
     };
     EngageDoc.prototype.$$updateDoc = function (doc) {
         if (doc === void 0) { doc = this; }
-        console.log('doc', doc);
         // this.$doc = this.$engageFireStore.omitFire(_.cloneDeep(doc));
         return this.$doc;
     };

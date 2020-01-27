@@ -383,7 +383,6 @@ export class EngageFirestoreBase {
     }
 
     omitFire(payload: any) {
-        console.log('payload', payload);
         if (payload && payload.$omitList) {
             payload = _.omit(payload, payload.$omitList);
         }
@@ -701,7 +700,7 @@ export class EngageFirestoreBase {
         path: string,
         options?: any
     ): EngageFirestore {
-        console.log('Firestore Path: ', path);
+        // console.log('Firestore Path: ', path);
         if (!EngageFirestoreBase.instances[path]) {
             EngageFirestoreBase.instances[path] = new EngageFirestoreBase(path);
         }
