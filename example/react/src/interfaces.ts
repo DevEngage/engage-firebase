@@ -33,6 +33,10 @@ export interface IProgram {
     price?: number;
     description?: string;
     isPersonal?: boolean;
+
+    $image?: string;
+    $thumb?: string;
+    $imageMeta?: {};
 }
 
 // groups/id/workouts

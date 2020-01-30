@@ -273,7 +273,7 @@ var EngageDoc = /** @class */ (function () {
     EngageDoc.prototype.$getSubCollection = function (collection, db) {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
-                return [2 /*return*/, EngageDoc.STORE.getInstance(this.$path + "/" + this.$id + "/" + collection, db)];
+                return [2 /*return*/, EngageDoc.STORE.getInstance(this.$path + "/" + collection, db)];
             });
         });
     };

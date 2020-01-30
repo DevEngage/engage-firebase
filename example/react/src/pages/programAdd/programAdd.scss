@@ -130,6 +130,11 @@
     display: flex;
   }
 
+  .thumb-image {
+    height: 150px;
+    width: 150px;
+  }
+
   .start-icon {
     font-size: 5em;
     color: var(--ion-color-mid);

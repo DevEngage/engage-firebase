@@ -119,13 +119,13 @@ export default class EngageFile {
         })
     }
 
-    async uploadFiles(doc: any, files: any = [], id = 'eng-files') {
+    async uploadFiles(doc: any, files: any = [], id?: string) {
         if (this.debug) console.log('File Upload:', files);
         const storageRef = EngageFire.storage.ref().child(doc.$path);
         const element: any = id ? document.getElementById(id) : this.createFileInput();
         const uploaded = [];
         if (!doc) return uploaded;
-        const docFileCollection = doc.$getSubCollection('files');
+        const docFileCollection = await doc.$getSubCollection('files');
         await docFileCollection.ready();
         files = await this._handleFileUpload(element);
         if (files && files.length) {
@@ -141,7 +141,7 @@ export default class EngageFile {
                     } catch (error) {
                         console.error('Engage file upload:', error);
                     }
-                    const snapshot: any = await storageRef
+                    const snapshot: any = storageRef
                         .child('files')
                         .child(preFile.$id)
                         .child(file.name)

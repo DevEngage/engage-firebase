@@ -136,7 +136,7 @@ export default class EngageDoc {
     }
 
     async $getSubCollection(collection: string, db?: any): Promise<any> {
-        return EngageDoc.STORE.getInstance(`${this.$path}/${this.$id}/${collection}`, db);
+        return EngageDoc.STORE.getInstance(`${this.$path}/${collection}`, db);
     }
 
     async $watch(cb: any) {

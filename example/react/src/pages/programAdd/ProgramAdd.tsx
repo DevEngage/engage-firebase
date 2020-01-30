@@ -121,10 +121,31 @@ const ProgramAdd = ({match}) => {
         else clearErrors();
     };
 
-    const setImage = () => {
+    const setImage = async () => {
         console.log('programDoc', programDoc);
-        programDoc.$setImage();
+        await programDoc.$setImage();
+        if (programDoc.$doc.$image) setDocData('$image', programDoc.$doc.$image);
+        if (programDoc.$doc.$thumb) setDocData('$thumb', programDoc.$doc.$thumb);
+        if (programDoc.$doc.$imageMeta) setDocData('$thumb', programDoc.$doc.$imageMeta);
+        setTimeout(() => console.log('formValues', formValues), 1000);
     };
+
+    const setFile = async () => {
+        console.log('programDoc', programDoc);
+        await programDoc.$addFiles();
+        // if (programDoc?.$doc?.$image) setDocData('$image', programDoc?.$doc?.$image);
+        // if (programDoc?.$doc?.$thumb) setDocData('$thumb', programDoc?.$doc?.$thumb);
+        // if (programDoc?.$doc?.$imageMeta) setDocData('$thumb', programDoc?.$doc?.$imageMeta);
+        setTimeout(() => console.log('programDoc', programDoc), 1000);
+        setTimeout(() => console.log('formValues', formValues), 1000);
+    };
+
+    const setDocData = (key, value) => {
+        setFormValues(currentValues => ({
+            ...currentValues,
+            [key]: value
+        }))
+    }
 
     return (
         <IonPage>
@@ -188,13 +209,16 @@ const ProgramAdd = ({match}) => {
                                 </IonList>
 
                                 <div className="image-row">
-                                    <div onClick={() => setImage()}>
+                                    { formValues.$thumb ? <div onClick={() => setImage()}>
+                                        <img src={formValues.$image} className="thumb-image" alt="program thumbnail" />
+                                        <span className="image-text"><IonIcon icon={camera}/><span>change image</span></span>
+                                    </div> : <div onClick={() => setImage()}>
                                         <div className="image-wrapper">
                                             <IonIcon className="start-icon" src={Dumbbell}></IonIcon>
                                         </div>
                                         <span className="image-text"><IonIcon icon={camera}/><span>select image</span></span>
-                                    </div>
-                                    <div>
+                                    </div> }
+                                    <div onClick={() => setFile()}>
                                         <div className="image-wrapper">
                                             <IonIcon className="start-icon" icon={attach}></IonIcon>
                                         </div>

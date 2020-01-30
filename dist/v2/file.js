@@ -181,7 +181,6 @@ var EngageFile = /** @class */ (function () {
     };
     EngageFile.prototype.uploadFiles = function (doc, files, id) {
         if (files === void 0) { files = []; }
-        if (id === void 0) { id = 'eng-files'; }
         return __awaiter(this, void 0, void 0, function () {
             var storageRef, element, uploaded, docFileCollection, i, file, preFile, error_1, snapshot;
             return __generator(this, function (_a) {
@@ -194,42 +193,43 @@ var EngageFile = /** @class */ (function () {
                         uploaded = [];
                         if (!doc)
                             return [2 /*return*/, uploaded];
-                        docFileCollection = doc.$getSubCollection('files');
-                        return [4 /*yield*/, docFileCollection.ready()];
+                        return [4 /*yield*/, doc.$getSubCollection('files')];
                     case 1:
+                        docFileCollection = _a.sent();
+                        return [4 /*yield*/, docFileCollection.ready()];
+                    case 2:
                         _a.sent();
                         return [4 /*yield*/, this._handleFileUpload(element)];
-                    case 2:
+                    case 3:
                         files = _a.sent();
                         if (!(files && files.length)) return [3 /*break*/, 12];
                         files = files || element.files;
                         i = 0;
-                        _a.label = 3;
-                    case 3:
+                        _a.label = 4;
+                    case 4:
                         if (!(i < files.length)) return [3 /*break*/, 11];
                         file = files[i];
                         if (!('name' in file)) return [3 /*break*/, 10];
                         preFile = void 0;
-                        _a.label = 4;
-                    case 4:
-                        _a.trys.push([4, 6, , 7]);
+                        _a.label = 5;
+                    case 5:
+                        _a.trys.push([5, 7, , 8]);
                         return [4 /*yield*/, docFileCollection.save({
                                 name: file.name
                             })];
-                    case 5:
-                        preFile = _a.sent();
-                        return [3 /*break*/, 7];
                     case 6:
+                        preFile = _a.sent();
+                        return [3 /*break*/, 8];
+                    case 7:
                         error_1 = _a.sent();
                         console.error('Engage file upload:', error_1);
-                        return [3 /*break*/, 7];
-                    case 7: return [4 /*yield*/, storageRef
+                        return [3 /*break*/, 8];
+                    case 8:
+                        snapshot = storageRef
                             .child('files')
                             .child(preFile.$id)
                             .child(file.name)
-                            .put(file)];
-                    case 8:
-                        snapshot = _a.sent();
+                            .put(file);
                         if (!(doc && snapshot)) return [3 /*break*/, 10];
                         return [4 /*yield*/, this.handleUpload(snapshot, doc, file.name)];
                     case 9:
@@ -242,7 +242,7 @@ var EngageFile = /** @class */ (function () {
                         _a.label = 10;
                     case 10:
                         i++;
-                        return [3 /*break*/, 3];
+                        return [3 /*break*/, 4];
                     case 11: return [2 /*return*/, uploaded];
                     case 12: return [2 /*return*/, uploaded];
                 }
