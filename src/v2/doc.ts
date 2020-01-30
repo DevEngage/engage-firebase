@@ -108,20 +108,20 @@ export default class EngageDoc {
 
     async $removeFile(fileId: any) {
         this.$$updateDoc();
-        await this.$engageFireStore.deleteFile(this.$doc, fileId);
+        await this.$engageFireStore.deleteFile(this, fileId);
         return this.$doc;
     }
 
     async $getFiles() {
-        return (await this.$getSubCollection('$files')).getList();
+        return (await this.$getSubCollection('files')).getList();
     }
 
     async $getFile(fileId: any) {
-        return (await this.$getSubCollection('$files')).get(fileId);
+        return (await this.$getSubCollection('files')).get(fileId);
     }
 
     async $downloadFile(fileId: any) {
-        const fileDoc: any = (await this.$getSubCollection('$files')).get(fileId);
+        const fileDoc: any = (await this.$getSubCollection('files')).get(fileId);
         return await new EngageFile().downloadFile(fileDoc.url);
     }
 

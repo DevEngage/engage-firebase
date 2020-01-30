@@ -51,8 +51,11 @@ const ProgramAdd = ({match}) => {
             tags: [],
         };
     }
+    const fsProgramFiles = engageFirestore(`programs/${program.$id}/files`)
+
 
     const [programDoc, setProgramDoc] = useState(null) ;
+    const [programFiles, setProgramFiles] = useState(null) ;
     const [formValues, setFormValues] = useState(program);
     const [errorMessage, setErrorMessage] = useState('');
 
@@ -67,6 +70,14 @@ const ProgramAdd = ({match}) => {
         if (program.$id) docData = await fsPrograms.getOnce(program.$id);
         else docData = await fsPrograms.save({});
         setProgramDoc(docData);
+        console.log('docData', docData);
+        await getProgramFiles();
+    };
+
+    const getProgramFiles = async () => {
+        const fileData = await fsProgramFiles.getList({});
+        console.log('fileData', fileData);
+        setProgramFiles(fileData);
     };
 
     const inputHandler = (e) => {
@@ -138,6 +149,12 @@ const ProgramAdd = ({match}) => {
         // if (programDoc?.$doc?.$imageMeta) setDocData('$thumb', programDoc?.$doc?.$imageMeta);
         setTimeout(() => console.log('programDoc', programDoc), 1000);
         setTimeout(() => console.log('formValues', formValues), 1000);
+    };
+
+    const removeFile = async (file) => {
+        console.log('file', file);
+        await programDoc.$removeFile(file.$doc.$id);
+        await getProgramFiles();
     };
 
     const setDocData = (key, value) => {
@@ -218,12 +235,22 @@ const ProgramAdd = ({match}) => {
                                         </div>
                                         <span className="image-text"><IonIcon icon={camera}/><span>select image</span></span>
                                     </div> }
-                                    <div onClick={() => setFile()}>
-                                        <div className="image-wrapper">
-                                            <IonIcon className="start-icon" icon={attach}></IonIcon>
+                                    { programFiles && programFiles.length > 0 ? <div>
+                                            <div className="file-wrapper">
+                                                {programFiles.map((file) => (
+                                                    <div className="stats-area" key={file.$doc.$id}>
+                                                        <p onClick={() => removeFile(file)}>{file.$doc.name}</p>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                            <span onClick={() => setFile()} className="image-text"><IonIcon icon={add}/><span>add docs</span></span>
                                         </div>
-                                        <span className="image-text"><IonIcon icon={add}/><span>add docs</span></span>
-                                    </div>
+                                        : <div onClick={() => setFile()}>
+                                            <div className="image-wrapper">
+                                                <IonIcon className="start-icon" icon={attach}></IonIcon>
+                                            </div>
+                                            <span className="image-text"><IonIcon icon={add}/><span>add docs</span></span>
+                                        </div> }
                                 </div>
 
                                 <IonRow>

@@ -638,15 +638,16 @@ export class EngageFirestoreBase {
     */
 
     async deleteFile(doc: any, fileId: any) {
-        const fileDoc = await doc.$getSubCollection('files').get(fileId);
-        const desertRef = (<any>EngageFire.storage).child(fileDoc.meta.storagePath);
+        const fileDocRef = await doc.$getSubCollection('files');
+        const fileDoc = await fileDocRef.get(fileId);
+        const desertRef = (<any>EngageFire.storage).ref(fileDoc.$doc.meta.storagePath);
 
         // Delete the file
         return await desertRef.delete().then(() => fileDoc.$remove());
     }
 
     async deleteImage(doc: any) {
-        const desertRef = (<any>EngageFire.storage).child(doc.$imageMeta.storagePath);
+        const desertRef = (<any>EngageFire.storage).ref(doc.$doc.$imageMeta.storagePath);
 
         // Delete the file
         return await desertRef.delete().then(() => {

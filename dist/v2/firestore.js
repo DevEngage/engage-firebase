@@ -1004,15 +1004,18 @@ var EngageFirestoreBase = /** @class */ (function () {
     */
     EngageFirestoreBase.prototype.deleteFile = function (doc, fileId) {
         return __awaiter(this, void 0, void 0, function () {
-            var fileDoc, desertRef;
+            var fileDocRef, fileDoc, desertRef;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, doc.$getSubCollection('files').get(fileId)];
+                    case 0: return [4 /*yield*/, doc.$getSubCollection('files')];
                     case 1:
+                        fileDocRef = _a.sent();
+                        return [4 /*yield*/, fileDocRef.get(fileId)];
+                    case 2:
                         fileDoc = _a.sent();
-                        desertRef = engagefire_1.default.storage.child(fileDoc.meta.storagePath);
+                        desertRef = engagefire_1.default.storage.ref(fileDoc.$doc.meta.storagePath);
                         return [4 /*yield*/, desertRef.delete().then(function () { return fileDoc.$remove(); })];
-                    case 2: 
+                    case 3: 
                     // Delete the file
                     return [2 /*return*/, _a.sent()];
                 }
@@ -1025,7 +1028,7 @@ var EngageFirestoreBase = /** @class */ (function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
                     case 0:
-                        desertRef = engagefire_1.default.storage.child(doc.$imageMeta.storagePath);
+                        desertRef = engagefire_1.default.storage.ref(doc.$doc.$imageMeta.storagePath);
                         return [4 /*yield*/, desertRef.delete().then(function () {
                                 doc.$image = null;
                                 doc.$thumb = null;

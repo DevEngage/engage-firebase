@@ -79,6 +79,9 @@ var EngageFile = /** @class */ (function () {
     };
     EngageFile.prototype.handleUpload = function (uploadTask, doc, fileName) {
         var _this = this;
+        var docType = 'image';
+        if (doc.$path.includes('/files/'))
+            docType = 'file';
         var uploadProgress = 0;
         var uploadState;
         var listeners = [];
@@ -117,13 +120,13 @@ var EngageFile = /** @class */ (function () {
             console.error(error);
             // Handle unsuccessful uploads
         }, function () { return __awaiter(_this, void 0, void 0, function () {
-            var _a, state, metadata, name, size, downloadURL;
+            var _a, state, metadata, name, size, downloadURL, downloadURL;
             return __generator(this, function (_b) {
                 switch (_b.label) {
                     case 0:
                         _a = uploadTask.snapshot, state = _a.state, metadata = _a.metadata;
                         name = metadata.name, size = metadata.size;
-                        if (!(doc && doc.$doc)) return [3 /*break*/, 6];
+                        if (!(doc && doc.$doc && docType === 'image')) return [3 /*break*/, 6];
                         return [4 /*yield*/, uploadTask.snapshot.ref.getDownloadURL()];
                     case 1:
                         downloadURL = _b.sent();
@@ -156,7 +159,29 @@ var EngageFile = /** @class */ (function () {
                     case 5:
                         _b.sent();
                         _b.label = 6;
-                    case 6: return [2 /*return*/];
+                    case 6:
+                        if (!(doc && doc.$doc && docType === 'file')) return [3 /*break*/, 9];
+                        return [4 /*yield*/, uploadTask.snapshot.ref.getDownloadURL()];
+                    case 7:
+                        downloadURL = _b.sent();
+                        if (downloadURL) {
+                            doc.$doc.$file = downloadURL;
+                        }
+                        doc.$doc.meta = {
+                            name: name,
+                            storagePath: doc.$path + '/' + name,
+                            original: downloadURL,
+                            state: state,
+                            size: size,
+                        };
+                        if (doc.$doc.meta && doc.$doc.meta.original === undefined) {
+                            delete doc.$doc.meta.original;
+                        }
+                        return [4 /*yield*/, doc.$save()];
+                    case 8:
+                        _b.sent();
+                        _b.label = 9;
+                    case 9: return [2 /*return*/];
                 }
             });
         }); });
@@ -230,10 +255,10 @@ var EngageFile = /** @class */ (function () {
                             .child(preFile.$id)
                             .child(file.name)
                             .put(file);
-                        if (!(doc && snapshot)) return [3 /*break*/, 10];
-                        return [4 /*yield*/, this.handleUpload(snapshot, doc, file.name)];
+                        if (!(preFile && snapshot)) return [3 /*break*/, 10];
+                        return [4 /*yield*/, this.handleUpload(snapshot, preFile, file.name)];
                     case 9:
-                        doc = _a.sent();
+                        preFile = _a.sent();
                         preFile = __assign({}, preFile, { url: snapshot.downloadURL, meta: {
                                 storagePath: doc.$path + '/files/' + preFile.$id + '/' + file.name,
                                 state: snapshot.state

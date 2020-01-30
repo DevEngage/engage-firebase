@@ -211,7 +211,7 @@ var EngageDoc = /** @class */ (function () {
                 switch (_a.label) {
                     case 0:
                         this.$$updateDoc();
-                        return [4 /*yield*/, this.$engageFireStore.deleteFile(this.$doc, fileId)];
+                        return [4 /*yield*/, this.$engageFireStore.deleteFile(this, fileId)];
                     case 1:
                         _a.sent();
                         return [2 /*return*/, this.$doc];
@@ -223,7 +223,7 @@ var EngageDoc = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.$getSubCollection('$files')];
+                    case 0: return [4 /*yield*/, this.$getSubCollection('files')];
                     case 1: return [2 /*return*/, (_a.sent()).getList()];
                 }
             });
@@ -233,7 +233,7 @@ var EngageDoc = /** @class */ (function () {
         return __awaiter(this, void 0, void 0, function () {
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.$getSubCollection('$files')];
+                    case 0: return [4 /*yield*/, this.$getSubCollection('files')];
                     case 1: return [2 /*return*/, (_a.sent()).get(fileId)];
                 }
             });
@@ -244,7 +244,7 @@ var EngageDoc = /** @class */ (function () {
             var fileDoc;
             return __generator(this, function (_a) {
                 switch (_a.label) {
-                    case 0: return [4 /*yield*/, this.$getSubCollection('$files')];
+                    case 0: return [4 /*yield*/, this.$getSubCollection('files')];
                     case 1:
                         fileDoc = (_a.sent()).get(fileId);
                         return [4 /*yield*/, new file_1.default().downloadFile(fileDoc.url)];

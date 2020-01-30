@@ -35,6 +35,8 @@ export default class EngageFile {
     }
 
     handleUpload(uploadTask: firebase.storage.UploadTask, doc: any, fileName?: any) {
+        let docType = 'image';
+        if (doc.$path.includes('/files/')) docType = 'file';
         let uploadProgress = 0;
         let uploadState: firebase.storage.TaskState;
         const listeners: any[] = [];
@@ -75,7 +77,7 @@ export default class EngageFile {
             const { state, metadata } = uploadTask.snapshot;
             const { name, size } = metadata;
 
-            if (doc && doc.$doc) {
+            if (doc && doc.$doc && docType === 'image') {
                 const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
                 if (doc.$doc.$image === undefined) {
                     delete doc.$image;
@@ -102,6 +104,23 @@ export default class EngageFile {
                 await doc.$save();
             }
 
+            if (doc && doc.$doc && docType === 'file') {
+                const downloadURL = await uploadTask.snapshot.ref.getDownloadURL();
+                if (downloadURL) {
+                    doc.$doc.$file = downloadURL;
+                }
+                doc.$doc.meta = {
+                    name,
+                    storagePath: doc.$path + '/' + name,
+                    original: downloadURL,
+                    state,
+                    size,
+                };
+                if (doc.$doc.meta && doc.$doc.meta.original === undefined) {
+                    delete doc.$doc.meta.original;
+                }
+                await doc.$save();
+            }
         });
         return doc;
     }
@@ -146,8 +165,8 @@ export default class EngageFile {
                         .child(preFile.$id)
                         .child(file.name)
                         .put(file);
-                    if (doc && snapshot) {
-                        doc = await this.handleUpload(snapshot, doc, file.name);
+                    if (preFile && snapshot) {
+                        preFile = await this.handleUpload(snapshot, preFile, file.name);
                         preFile = {
                             ...preFile,
                             url: snapshot.downloadURL,
